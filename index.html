@@ -56,7 +56,7 @@
 // SERVICE WORKER + PWA INSTALL SYSTEM
 //
 // sw.js lives alongside index.html in the repo root.
-// The GitHub Actions workflow stamps %%VERSION%% with the
+// The GitHub Actions workflow stamps ${APP_VERSION} with the
 // real version string on every push — cache busting is
 // fully automatic. You never need to edit a version number.
 // ═══════════════════════════════════════════════════════════
@@ -78,7 +78,7 @@ window._swState = {
     return;
   }
 
-  // Register the external sw.js file (works on GitHub Pages at /forestryroute/)
+  // Register the external sw.js file (works at yourcityroute.com
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
       window._swState.registered = true;
@@ -663,7 +663,6 @@ header{
 </div>
 
 <!-- Keep legacy outcome modal as hidden stub so any residual calls don't throw -->
-<div id="outcome-modal" style="display:none"></div>
 
 <!-- PWA/GPS install prompt (shows only on file:// protocol) -->
 <div id="pwa-prompt" style="display:none;background:linear-gradient(135deg,#1a4a8c,#2980b9);padding:7px 14px;display:none;align-items:center;gap:10px;cursor:pointer" onclick="document.getElementById('gps-help-modal').style.display='flex';document.getElementById('pwa-prompt').style.display='none'">
@@ -1357,7 +1356,7 @@ header{
       <div style="margin-top:8px;font-size:0.5rem;color:#aaa;font-family:'Space Mono',monospace">support@yourcityroute.com</div>
     </div>
 
-    <div style="text-align:center;padding:16px 0 4px;font-size:0.52rem;color:rgba(200,230,201,0.3);font-family:'Space Mono',monospace">YourCityRoute · v%%VERSION%%</div>
+    <div style="text-align:center;padding:16px 0 4px;font-size:0.52rem;color:rgba(200,230,201,0.3);font-family:'Space Mono',monospace">YourCityRoute · v${APP_VERSION}</div>
   </div>
 </div>
 
@@ -1499,10 +1498,11 @@ header{
 <script>
 'use strict';
 
+
 // ============================================================
 // APP CONSTANTS — all in one place
 // ============================================================
-const APP_VERSION        = '%%VERSION%%'; // stamped by GitHub Actions on every deploy
+const APP_VERSION        = '${APP_VERSION}'; // stamped by GitHub Actions on every deploy
 const SCHEMA_VERSION     = '3';          // bump when stop object shape changes
 const STL_CITY_BOUNDS    = [[38.532, -90.320], [38.774, -90.016]];
 const STL_CITY_CENTER    = [38.627, -90.1994];
@@ -1531,7 +1531,6 @@ function saveStops(){
     }
   }
 }
-function saveRouteOrder(){ saveStops(); }
 
 // Stage pill for caseload display
 const STAGES = {
@@ -1716,20 +1715,6 @@ function todayISO() {
   const d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }function todayKey() { return todayISO(); }
-function isoToDisplay(iso) {
-  if (!iso) return '—';
-  const [y,m,d] = iso.split('-');
-  return m+'/'+d+'/'+y;
-}
-function addDays(isoDate, n) {
-  const d = new Date(isoDate+'T12:00:00');
-  d.setDate(d.getDate()+n);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function daysBetween(isoA, isoB) {
-  const a = new Date(isoA+'T12:00:00'), b = new Date(isoB+'T12:00:00');
-  return Math.round((b-a)/(1000*60*60*24));
-}
 
 // ── Caseload stubs (feature removed — kept so old data refs don't throw) ──
 
@@ -1790,7 +1775,7 @@ function init() {
     }
   } catch(e) {
     console.error('[init] Fatal error:', e);
-    try { _beacon('crash', { msg: (e.message||'').slice(0,100), loc:'init', ver:'%%VERSION%%' }); } catch(_){}
+    try { _beacon('crash', { msg: (e.message||'').slice(0,100), loc:'init', ver:'${APP_VERSION}' }); } catch(_){}
     // Surface a visible error so the user knows something went wrong
     const banner = document.createElement('div');
     banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:white;padding:14px 16px;font-family:monospace;font-size:0.75rem;line-height:1.5';
@@ -1803,114 +1788,6 @@ function init() {
 // Attached once at app start via _initBody(). Works regardless of re-renders
 // because the stops-list element itself persists; only its innerHTML changes.
 
-// ── End-of-day summary export ─────────────────────────────────────────────────
-function showDaySummary() {
-  const done = stops.filter(s => s.done);
-  const pending = stops.filter(s => !s.done);
-  if (!done.length && !pending.length) { showToast('No stops to summarize'); return; }
-
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-  const timeStr = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
-
-  const inspName = typeof getInspectorId === 'function' ? getInspectorId() : '';
-  const credsTitle = localStorage.getItem('creds-title') || '';
-  const credsSub   = localStorage.getItem('creds-sub') || '';
-
-  const lines = [];
-  lines.push('=== FIELD ROUTE SUMMARY ===');
-  lines.push(dateStr + ' — generated ' + timeStr);
-  if (inspName) lines.push(inspName + (credsTitle ? ', ' + credsTitle : ''));
-  if (credsSub) lines.push(credsSub);
-  lines.push('');
-  lines.push('COMPLETED: ' + done.length + ' stop' + (done.length !== 1 ? 's' : ''));
-  done.forEach(function(s, i) {
-    const t = s.type === 'service_request' ? 'SR' : s.type === 'work_order' ? 'WO' : s.type === 'inspection' ? 'INSP' : 'OTH';
-    const doneTime = s.completedAt ? ' [' + new Date(s.completedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) + ']' : '';
-    lines.push('  ' + (i+1) + '. [' + t + '] ' + s.address + doneTime + (s.notes ? ' \u2014 ' + s.notes : ''));
-  });
-  if (pending.length) {
-    lines.push('');
-    lines.push('REMAINING: ' + pending.length + ' stop' + (pending.length !== 1 ? 's' : ''));
-    pending.forEach(function(s, i) {
-      const t = s.type === 'service_request' ? 'SR' : s.type === 'work_order' ? 'WO' : s.type === 'inspection' ? 'INSP' : 'OTH';
-      lines.push('  ' + (i+1) + '. [' + t + '] ' + s.address);
-    });
-  }
-  lines.push('');
-  lines.push('TOTAL: ' + stops.length + ' | Closed: ' + done.length + ' | Remaining: ' + pending.length);
-  lines.push('=== YourCityRoute ===');
-
-  const text = lines.join('\n');
-
-  // Build modal using DOM API — avoids ALL string-quoting issues with font names
-  const existing = document.getElementById('summary-modal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'summary-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9500;overflow-y:auto;-webkit-overflow-scrolling:touch';
-
-  const inner = document.createElement('div');
-  inner.style.cssText = 'background:white;border-radius:16px 16px 0 0;padding:0 0 40px;max-width:480px;margin:40px auto 0;min-height:calc(100vh - 40px)';
-
-  // Header
-  const hdr = document.createElement('div');
-  hdr.style.cssText = 'position:sticky;top:0;background:var(--forest);border-radius:16px 16px 0 0;padding:14px 16px;z-index:2;display:flex;align-items:center;justify-content:space-between';
-  const hdrTitle = document.createElement('div');
-  hdrTitle.style.cssText = 'font-family:Syne,sans-serif;font-weight:800;font-size:0.9rem;color:var(--lime)';
-  hdrTitle.textContent = '\uD83D\uDCCA Day Summary';
-  const closeBtn = document.createElement('button');
-  closeBtn.style.cssText = 'background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:7px;color:var(--lime);font-size:1rem;cursor:pointer;padding:3px 9px';
-  closeBtn.textContent = '\u2715';
-  closeBtn.onclick = function() { document.getElementById('summary-modal').remove(); };
-  hdr.appendChild(hdrTitle);
-  hdr.appendChild(closeBtn);
-
-  // Body
-  const body = document.createElement('div');
-  body.style.cssText = 'padding:16px';
-
-  const ta = document.createElement('textarea');
-  ta.id = 'summary-text';
-  ta.readOnly = true;
-  ta.style.cssText = 'width:100%;height:300px;font-family:monospace;font-size:0.68rem;color:#333;border:1.5px solid #ddd;border-radius:8px;padding:12px;resize:none;line-height:1.7;box-sizing:border-box';
-  ta.value = text;
-
-  const btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;margin-top:10px';
-
-  const copyBtn = document.createElement('button');
-  copyBtn.style.cssText = 'flex:1;padding:10px;background:var(--forest);color:var(--lime);border:none;border-radius:8px;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer';
-  copyBtn.textContent = '\uD83D\uDCCB COPY';
-  copyBtn.onclick = function() {
-    const v = document.getElementById('summary-text').value;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(v).then(function(){ showToast('Summary copied \u2713'); });
-    }
-  };
-
-  const shareBtn = document.createElement('button');
-  shareBtn.style.cssText = 'flex:1;padding:10px;background:rgba(37,99,235,0.1);color:#1a5276;border:1.5px solid rgba(37,99,235,0.25);border-radius:8px;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer';
-  shareBtn.textContent = '\uD83D\uDCE4 SHARE';
-  shareBtn.onclick = function() {
-    const v = document.getElementById('summary-text').value;
-    if (navigator.share) {
-      navigator.share({title:'Route Summary', text: v}).catch(function(){});
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(v).then(function(){ showToast('Copied \u2713'); });
-    }
-  };
-
-  btnRow.appendChild(copyBtn);
-  btnRow.appendChild(shareBtn);
-  body.appendChild(ta);
-  body.appendChild(btnRow);
-  inner.appendChild(hdr);
-  inner.appendChild(body);
-  modal.appendChild(inner);
-  document.body.appendChild(modal);
-}
 function _attachStopsListListener() {
   const list = document.getElementById('stops-list');
   if (!list) return;
@@ -1923,6 +1800,7 @@ function _attachStopsListListener() {
     if (action === 'prop')           openPropertySearch(addr);
     if (action === 'csb')            openCsbForAddress(addr);
     if (action === 'type')           openTypeChange(numId);
+    if (action === 'arrive')          markStopArrived(numId);
     if (action === 'close')          openCloseModal(numId);
     if (action === 'notes')         openNotesModal(numId);
     if (action === 'restore')        undoComplete(numId);
@@ -1990,6 +1868,12 @@ function _initBody() {
 
   // Attach persistent delegated listener for stops-list — survives all re-renders
   _attachStopsListListener();
+
+  // Persist stops and session on tab hide/close (handles mobile background swipe + browser close)
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') { saveStops(); logDaySession(); }
+  });
+  window.addEventListener('beforeunload', saveStops);
 }
 
 // ============================================================
@@ -2344,10 +2228,6 @@ async function addStop() {
   }
 }
 
-// ── Legacy stubs kept so scan/paste/spreadsheet paths still work ────────────
-function buildAddressFromInputs() {
-  return document.getElementById('addr-input').value.trim() || null;
-}
 
 function clearAddressInputs() {
   document.getElementById('addr-input').value = '';
@@ -2369,22 +2249,7 @@ async function verifySTLAddress(addr, signal) {
 }
 
 // Kept as stubs — the autocomplete replaced the disambig flow but scan/paste may still call these
-function showAddrDisambig(inputAddr, results, type, notes) {
-  // With autocomplete this should rarely fire; show a compact inline list instead
-  _addrSuggestions = results.slice(0, 5).map(d => ({
-    label: formatSuggestion(d),
-    address: cleanAddress(d),
-    full: d.display_name,
-    lat: parseFloat(d.lat), lng: parseFloat(d.lon),
-    verified: true, note: detectDirectionalNote(inputAddr, d),
-  }));
-  window._disambigPending = { type, notes };
-  renderAddrSuggestions();
-  document.getElementById('addr-input').focus();
-  showToast('Multiple matches — tap one below');
-}
 
-function selectDisambig(idx) { selectAddrSuggestion(idx); }
 function closeAddrDisambig() { document.getElementById('addr-disambig-modal').style.display = 'none'; hideAddrSuggestions(); }
 
 
@@ -2698,9 +2563,6 @@ function confirmDeleteAll() {
 
 // Stubs for legacy delete references (buttons now use openCloseModal)
 function deleteStop(id) { openCloseModal(id); }
-
-// Legacy outcome modal stubs
-function openCompleteModal(id) { openCloseModal(id); }function recordOutcome(outcome) {}
 
 // ============================================================
 // SPREADSHEET / CSV UPLOAD
@@ -3443,12 +3305,6 @@ async function setManualLocation() {
   } catch { showToast('Geocode failed — check connection'); }
 }
 
-function clearManualLocation() {
-  saveManualOrigin(null);
-  document.getElementById('manual-location-input').value = '';
-  document.getElementById('location-gps-status').textContent = 'GPS auto-detected on next optimize';
-  showToast('Manual location cleared');
-}
 
 // ============================================================
 // AI FEATURES — silently enhanced when API key is present
@@ -3570,14 +3426,6 @@ async function setEndLocation() {
   } catch { showToast('Geocode failed — check connection'); }
 }
 
-function clearEndLocation() {
-  endLocation = null;
-  localStorage.removeItem('inspector-end-location');
-  document.getElementById('end-location-input').value = '';
-  const el = document.getElementById('end-location-status');
-  if (el) el.textContent = 'Not set — route ends at last stop';
-  showToast('End location cleared');
-}
 
 // 2-opt improvement pass — swap pairs of stops that reduce total distance
 function twoOpt(route, origin, endpoint) {
@@ -3843,8 +3691,10 @@ function renderRoute() {
     if (action === 'close') openCloseModal(Number(btn.dataset.id));
     if (action === 'notes') openNotesModal(Number(btn.dataset.id));
     if (action === 'pin')   togglePinnedStart(Number(btn.dataset.id));
-    if (action === 'up')  { const idx = Number(btn.dataset.idx); if (idx > 0) routeReorder(idx, idx - 1); }
-    if (action === 'dn')  { const idx = Number(btn.dataset.idx); if (idx < getPendingStops().length - 1) routeReorder(idx, idx + 1); }
+    if (action === 'up')      { const idx = Number(btn.dataset.idx); if (idx > 0) routeReorder(idx, idx - 1); }
+    if (action === 'dn')      { const idx = Number(btn.dataset.idx); if (idx < getPendingStops().length - 1) routeReorder(idx, idx + 1); }
+    if (action === 'restore') { const s = stops.find(x => x.id === Number(btn.dataset.id)); if (s) { s.done = false; s.completedAt = null; saveStops(); renderAll(); markRouteChanged(); showToast('Stop restored'); } }
+    if (action === 'del')     { openCloseModal(Number(btn.dataset.id)); }
   });
 }
 
@@ -4124,6 +3974,15 @@ function showMapStopPopup(id) {
   if (upBtn) { upBtn.style.opacity = idx<=0?'0.25':'1'; upBtn.style.pointerEvents = idx<=0?'none':'auto'; }
   if (dnBtn) { dnBtn.style.opacity = idx>=total-1?'0.25':'1'; dnBtn.style.pointerEvents = idx>=total-1?'none':'auto'; }
 
+  // Show/hide arrive button based on whether stop has been arrived at
+  const arriveBtn = document.getElementById('map-popup-arrive');
+  if (arriveBtn) {
+    arriveBtn.style.display = s.arrivedAt ? 'none' : 'flex';
+    arriveBtn.title = s.arrivedAt
+      ? 'Arrived at ' + new Date(s.arrivedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+      : 'Mark arrived — starts dwell timer';
+  }
+
   const popup = document.getElementById('map-stop-popup');
   popup.style.display = 'block';
   popup.scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -4170,15 +4029,6 @@ function mapCsbActive() {
   if (s) openCsbForAddress(s.address);
 }
 
-// ── Misc City Contacts & Resources modal ─────────────────────────────────────
-function miscToggle(id) {
-  var el = document.getElementById(id);
-  var arrow = document.getElementById(id + '-arrow');
-  if (!el) return;
-  var isOpen = el.style.display !== 'none';
-  el.style.display = isOpen ? 'none' : 'block';
-  if (arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
-}
 
 // ── Analytics utilities ─────────────────────────────────────────────────────
 // Anonymous device ID — generated once, stored in localStorage, never linked to PII
@@ -4194,20 +4044,27 @@ function _getDeviceId() {
 // Fire-and-forget analytics beacon. URL stored in localStorage['analytics-beacon-url']
 // Never sends PII — only event name, metadata, timestamp, anonymous deviceId
 function _beacon(event, meta) {
+  // Wrapped entirely — never throws, never blocks UI
   try {
-    const beaconUrl = localStorage.getItem('analytics-beacon-url') || '';
-    const payload = JSON.stringify(Object.assign({ event, deviceId: _getDeviceId(), ts: new Date().toISOString() }, meta||{}));
-    // Local event log (always, for your own export)
+    const deviceId = _getDeviceId();
+    const ts = new Date().toISOString();
+    const payload = JSON.stringify(Object.assign({ event, deviceId, ts }, meta||{}));
+    // Local event log — capped at 1000 entries, pruned on overflow
     try {
       const key = 'analytics-event-log';
       const log = JSON.parse(localStorage.getItem(key)||'[]');
-      log.push({ event, meta, ts: new Date().toISOString() });
-      localStorage.setItem(key, JSON.stringify(log.slice(-1000)));
+      log.push({ event, meta: meta||null, ts });
+      // Guard against localStorage quota: if setItem fails, trim and retry once
+      try { localStorage.setItem(key, JSON.stringify(log.slice(-1000))); }
+      catch(quota) { localStorage.setItem(key, JSON.stringify(log.slice(-200))); }
     } catch(e) {}
-    // Remote beacon (only if URL configured)
+    // Remote beacon — only if URL configured
+    const beaconUrl = localStorage.getItem('analytics-beacon-url') || '';
     if (beaconUrl) {
-      if (navigator.sendBeacon) { navigator.sendBeacon(beaconUrl, payload); }
-      else { fetch(beaconUrl, { method:'POST', mode:'no-cors', body:payload }).catch(()=>{}); }
+      try {
+        if (navigator.sendBeacon) { navigator.sendBeacon(beaconUrl, payload); }
+        else { fetch(beaconUrl, { method:'POST', mode:'no-cors', body:payload }).catch(()=>{}); }
+      } catch(e) {}
     }
   } catch(e) {}
 }
@@ -4437,7 +4294,6 @@ function openMiscLinks() {
     }
   }
 
-  body.innerHTML = html;
   // Attach toggle via event delegation after innerHTML is set
   body.addEventListener('click', function(e) {
     var hdr = e.target.closest('.misc-col-hdr');
@@ -4488,13 +4344,12 @@ function openCsbForAddress(addr) {
   }
   window.open(csbUrl, '_blank', 'noopener');
 }
+
+
 function mapArriveActive() {
-  if (activeMapStopId) {
-    markStopArrived(activeMapStopId);
-    // Hide arrive button after tapping
-    const arrBtn = document.getElementById('map-popup-arrive');
-    if (arrBtn) arrBtn.style.display = 'none';
-  }
+  if (!activeMapStopId) return;
+  markStopArrived(activeMapStopId);
+  showMapStopPopup(activeMapStopId); // re-render popup to hide arrive btn and update state
 }
 
 function mapCloseActive() {
@@ -4894,6 +4749,8 @@ async function _scanWithTextDetector(file) {
 async function handleScanImage(event) {
   const file = event.target.files[0];
   if (!file) return;
+  // Prevent double-tap / re-entry while scan is in progress
+  if (document.getElementById('btn-scan')?.classList.contains('scanning')) return;
 
   const preview      = document.getElementById('scan-preview');
   const statusEl     = document.getElementById('scan-status');
@@ -5351,9 +5208,9 @@ function setInspectorId(v) { if (v) localStorage.setItem('inspector-id', v); els
 // SHARE APP LINK / CLIPBOARD
 // ============================================================
 function shareAppUrl() {
-  const url = 'https://gilbertbstlousmogov.github.io/forestryroute/';
+  const url = 'https://yourcityroute.com';
   if (navigator.share) {
-    navigator.share({ title: 'STLCityRoute', url }).catch(() => _clipboardFallback(url));
+    navigator.share({ title: 'YourCityRoute', url }).catch(() => _clipboardFallback(url));
   } else {
     _clipboardFallback(url);
   }
@@ -6455,8 +6312,6 @@ function removeRefDoc(i) {
   showToast('Image removed');
 }
 
-// ── ID Photo upload / rotate ──────────────────────────────────
-function openCredsUpload() { document.getElementById('creds-id-input').click(); }
 
 function handleCredsUpload(event) {
   const file = event.target.files[0]; if (!file) return;
@@ -6824,10 +6679,6 @@ function closeIdFullscreen() {
   if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch(e) {} }
 }
 
-// Legacy stubs — keep so old references don't throw
-function initOrdinance() {}
-function ordinanceClearHighlights() {}
-function handleOrdinanceSelection() {}
 
 
 function buildSwipeDots() {
@@ -7504,28 +7355,24 @@ function pushToGoogleSheets() {
   // Show sending indicator
   showToast('📊 Pushing to Sheets…');
 
+  // Note: no-cors mode means the response is opaque — we can't check status.
+  // A successful delivery is assumed if no network error is thrown.
   fetch(webhookUrl, {
     method: 'POST',
-    mode: 'no-cors', // Apps Script requires no-cors from browser
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   }).then(() => {
-    showToast('✅ Sent to Google Sheets ✓');
+    showToast('✅ Pushed to Google Sheets ✓');
     document.getElementById('data-export-modal').style.display = 'none';
-  }).catch(err => {
-    showToast('❌ Push failed — check your webhook URL');
-    // Offer to clear and re-enter the URL
-    if (confirm('Push failed. Clear saved webhook URL and re-enter?')) {
+  }).catch(() => {
+    showToast('❌ Network error — check your webhook URL and connection');
+    if (confirm('Push failed. Clear saved webhook URL and re-enter a new one?')) {
       localStorage.removeItem('sheets-webhook-url');
     }
   });
 }
 
-// Clear saved webhook URL (called from Settings if needed)
-function clearSheetsWebhook() {
-  localStorage.removeItem('sheets-webhook-url');
-  showToast('Sheets webhook cleared');
-}
 
 function _buildDataSummaryText() {
   var range = _dataRange || 'today';
@@ -7642,33 +7489,6 @@ function exportDataText() {
   }
 }
 
-function exportDataJSON() {
-  try {
-    const data = {
-      exportedAt: new Date().toISOString(),
-      inspector: getInspectorId() || '',
-      deviceId: _getDeviceId(),
-      stops: stops.map(s => ({
-        address: s.address, fullAddress: s.fullAddress||s.address, type: s.type,
-        notes: s.notes||'', done: s.done, addedAt: s.addedAt,
-        completedAt: s.completedAt||null, lat: s.lat||null, lng: s.lng||null,
-        durationMins: (s.completedAt && s.addedAt) ? ((new Date(s.completedAt).getTime()-new Date(s.addedAt).getTime())/60000).toFixed(1) : null
-      })),
-      metrics: computeMetrics('today'),
-      shiftLog: (function(){ try{ return JSON.parse(localStorage.getItem('shift-log')||'[]'); }catch(e){return [];} })(),
-      clockLog: (function(){ try{ return JSON.parse(localStorage.getItem('clock-log')||'[]'); }catch(e){return [];} })()
-    };
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'stlcityroute-data.json'; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-    showToast('JSON downloaded ✓');
-  } catch(e) {
-    showToast('JSON export failed: ' + e.message);
-  }
-}
 
 function shareDataNative() {
   const txt = _buildDataSummaryText();
