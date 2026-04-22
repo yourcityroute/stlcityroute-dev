@@ -6410,12 +6410,15 @@ function _stampImageBlob(blob, meta) {
         var barH = totalTextH + pad*2;
         var barY = h - barH;
 
-        // Dark bar at reduced opacity so the photo shows through behind the text
+        // Bar starts right at the first line of text (minimal top padding),
+        // keeps normal bottom padding. Height recomputed accordingly.
+        var topPad = Math.round(base * 0.15);
+        var tightBarH = totalTextH + topPad + pad;
+        var tightBarY = h - tightBarH;
+
+        // Translucent dark bar — photo shows through behind the text. No gold stripe.
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
-        ctx.fillRect(0, barY, w, barH);
-        // Thicker gold accent stripe at top of bar — visible even in thumbnails
-        ctx.fillStyle = 'rgba(255,200,60,0.95)';
-        ctx.fillRect(0, barY, w, Math.max(3, Math.round(base*0.14)));
+        ctx.fillRect(0, tightBarY, w, tightBarH);
 
         // Draw text — white with heavier stroke for clean readability against
         // the now more-transparent bar
@@ -6423,7 +6426,7 @@ function _stampImageBlob(blob, meta) {
         ctx.textAlign = 'left';
         ctx.shadowColor = 'rgba(0,0,0,0.95)';
         ctx.shadowBlur = Math.round(base*0.4);
-        var y = barY + pad;
+        var y = tightBarY + topPad;
         wrapped.forEach(function(l) {
           var size = sizeFor[l.size];
           ctx.font = (l.size === 'big' ? '900 ' : l.size === 'small' ? '600 ' : '700 ') + size + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
