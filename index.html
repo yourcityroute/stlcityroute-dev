@@ -428,11 +428,6 @@ header{
 #swipe-indicator{display:flex;justify-content:center;gap:5px;padding:4px 0 2px;pointer-events:none}
 .swipe-dot{width:4px;height:4px;border-radius:50%;background:rgba(200,230,201,0.2);transition:all 0.2s}
 .swipe-dot.active{background:var(--lime);width:14px;border-radius:2px}
-[data-contrast="high"]{filter:contrast(1.2)!important}
-[data-contrast="high"] .card-face,[data-contrast="high"] .route-card{border-width:2px!important}
-[data-motion="reduced"] *{animation-duration:0.001ms!important;transition-duration:0.001ms!important}
-.resource-item-label{font-size:clamp(0.78rem,2.2vw,0.88rem)!important}
-.resource-item-sub{font-size:clamp(0.68rem,1.9vw,0.76rem)!important;line-height:1.65!important}
 </style>
 </head>
 <body>
@@ -807,8 +802,7 @@ header{
 <!-- ===== ROUTE SCREEN ===== -->
 <div class="screen" id="screen-route">
   <div style="background:rgba(126,200,80,0.06);border:1px solid rgba(126,200,80,0.18);border-radius:10px;padding:8px 12px;margin-bottom:9px;font-size:0.58rem;color:rgba(210,225,255,0.75);font-family:'Space Mono',monospace;line-height:1.7">
-    <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Pull over safely before using this app. Missouri hands-free law in effect.</div>
-<div id="location-gps-status" style="margin-bottom:2px">📡 GPS auto-detected on optimize</div>
+    <div id="location-gps-status" style="margin-bottom:2px">📡 GPS auto-detected on optimize</div>
   <div id="route-ai-narrative" style="display:none;font-size:0.6rem;color:#555;font-family:Space Mono,monospace;background:#f0f7ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;line-height:1.6"></div>
     💡 To start from a specific stop, tap the 📌 pin button on that stop before optimizing.
     <input type="text" id="manual-location-input" style="display:none">
@@ -863,11 +857,12 @@ header{
         <div id="map-popup-addr" style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
         <div id="map-popup-meta" style="font-size:0.6rem;color:#888;margin-top:2px"></div>
         <div style="display:flex;gap:4px;margin-top:6px;align-items:center;flex-wrap:nowrap">
-          <button onclick="mapNotesActive()" style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.2);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center" title="Notes">📝</button>
-          <button onclick="mapReconActive()" style="background:#1a3c6e;color:#7ec8ff;border:1.5px solid rgba(91,164,207,0.3);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center" title="Recon — Search, GIS, CSB">🔭</button>
+          <button onclick="mapPropActive()" style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.2);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none" title="Property search">🔍</button>
+          <button onclick="mapGISActive()" style="background:#1a3c6e;color:#5ba4cf;border:1.5px solid rgba(91,164,207,0.3);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center" title="Open ArcGIS parcel viewer at this stop">🗺️</button>
+          <button onclick="mapCsbActive()" style="background:#fff3e0;color:#e65100;border:1.5px solid rgba(230,81,0,0.25);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none" title="CSB">📞</button>
           <button onclick="mapArriveActive()" id="map-popup-arrive" style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none" title="Mark arrived">📍</button>
           <button onclick="mapCloseActive()" style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none" title="Close stop">✓</button>
-          <button onclick="mapNavToActive()" style="margin-left:auto;padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button></div>
+          <button onclick="mapNavToActive()" style="margin-left:auto;padding:6px 14px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.65rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:32px;display:flex;align-items:center;gap:4px">🧭 Navigate</button></div>
       </div>
     </div>
   </div>
@@ -1551,284 +1546,6 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 // Save stops to localStorage
 let _saveStopsTimer = null;
-function _applyA11y() {
-  var sc = parseFloat(localStorage.getItem('a11y-scale') || '1');
-  document.documentElement.style.setProperty('--a11y-scale', sc);
-  if (localStorage.getItem('a11y-contrast')==='1') document.documentElement.setAttribute('data-contrast','high');
-  else document.documentElement.removeAttribute('data-contrast');
-  if (localStorage.getItem('a11y-reduced-motion')==='1') document.documentElement.setAttribute('data-motion','reduced');
-  else document.documentElement.removeAttribute('data-motion');
-  // Update toggle button labels
-  var cb = document.getElementById('a11y-contrast-btn'); if (cb) cb.textContent = localStorage.getItem('a11y-contrast')==='1' ? 'ON' : 'OFF';
-  var mb = document.getElementById('a11y-motion-btn');   if (mb) mb.textContent = localStorage.getItem('a11y-reduced-motion')==='1' ? 'ON' : 'OFF';
-}
-function setA11yScale(v) { localStorage.setItem('a11y-scale',v); _applyA11y(); showToast('Text size updated'); }
-function setA11yContrast(on) { localStorage.setItem('a11y-contrast',on?'1':'0'); _applyA11y(); }
-function setA11yMotion(on) { localStorage.setItem('a11y-reduced-motion',on?'1':'0'); _applyA11y(); }
-
-
-// ── POS Payment Platform ──────────────────────────────────────────────────────
-const POS_LINKS = {
-  square:     'square://payment',
-  paypal:     'paypal://invoice',
-  venmo:      'venmo://paycharge',
-  cashapp:    'cashapp://pay',
-  stripe:     'stripe://dashboard',
-  quickbooks: 'qbmobile://invoice/new',
-  zelle:      'zelle://send',
-};
-const POS_NAMES = {
-  square:'Square', paypal:'PayPal', venmo:'Venmo', cashapp:'Cash App',
-  stripe:'Stripe', quickbooks:'QuickBooks', zelle:'Zelle', custom:'Pay'
-};
-
-function savePOSPlatform() {
-  var sel = document.getElementById('settings-pos-platform');
-  var custom = document.getElementById('settings-pos-custom');
-  if (!sel) return;
-  var platform = sel.value;
-  localStorage.setItem('pos-platform', platform);
-  if (custom) custom.style.display = platform === 'custom' ? 'block' : 'none';
-  if (platform === 'custom' && custom && custom.value) {
-    localStorage.setItem('pos-custom-url', custom.value.trim());
-  }
-  renderAll(); // refresh stop cards to show/hide pay button
-  showToast(platform ? (POS_NAMES[platform]||'Payment app') + ' set ✓' : 'Payment app removed');
-}
-
-function loadPOSSettings() {
-  var sel = document.getElementById('settings-pos-platform');
-  var custom = document.getElementById('settings-pos-custom');
-  if (!sel) return;
-  var saved = localStorage.getItem('pos-platform') || '';
-  sel.value = saved;
-  if (custom) {
-    custom.style.display = saved === 'custom' ? 'block' : 'none';
-    custom.value = localStorage.getItem('pos-custom-url') || '';
-  }
-}
-
-function openPOSApp() {
-  var platform = localStorage.getItem('pos-platform') || '';
-  if (!platform) {
-    showToast('Set your payment app in ⚙️ Settings → Payment App');
-    setTimeout(openSettings, 600);
-    return;
-  }
-  var url = platform === 'custom'
-    ? (localStorage.getItem('pos-custom-url') || '')
-    : (POS_LINKS[platform] || '');
-  if (!url) { showToast('No URL for ' + (POS_NAMES[platform]||platform)); return; }
-  window.open(url, '_blank');
-  trackResourceClick('POS Launch: ' + (POS_NAMES[platform]||platform), 'POS', url);
-}
-
-
-// ══════════════════════════════════════════════════════════════════════════════
-// MULTI-PROFILE SYSTEM
-// Profiles let you switch between different identities with one tap.
-// ══════════════════════════════════════════════════════════════════════════════
-
-const PROFILE_KEYS = [
-  'inspector-id','creds-title','creds-division','creds-department',
-  'creds-scope','creds-sub','creds-email','creds-phone',
-  'selected-job-role','selected-sector','pos-platform','pos-custom-url',
-  'creds-id-front','anthropic-api-key','sheets-webhook-url',
-  'creds-roles_whoami_body','creds-roles_authority_body',
-  'creds-roles_enforce_body','creds-roles_exempt_body',
-  'creds-ord_header','creds-ord_body',
-];
-
-function _getProfiles() {
-  return safeParseLS('profiles', []);
-}
-function _saveProfiles(arr) {
-  try { localStorage.setItem('profiles', JSON.stringify(arr)); } catch(e) {}
-}
-function _getActiveProfileId() {
-  return localStorage.getItem('active-profile-id') || '';
-}
-
-function _captureCurrentProfile() {
-  // Snapshot all profile keys from localStorage
-  var snap = {};
-  PROFILE_KEYS.forEach(function(k) { snap[k] = localStorage.getItem(k) || ''; });
-  return snap;
-}
-
-function _applyProfile(snap) {
-  // Restore all profile keys to localStorage
-  PROFILE_KEYS.forEach(function(k) {
-    if (snap[k] !== undefined) {
-      if (snap[k]) localStorage.setItem(k, snap[k]);
-      else localStorage.removeItem(k);
-    }
-  });
-  // Refresh UI
-  if (typeof initCreds === 'function') initCreds();
-  if (typeof renderAll === 'function') renderAll();
-}
-
-function _profileDisplayName(profile) {
-  return profile.displayName || profile.snap['creds-title'] || profile.snap['inspector-id'] || 'Profile ' + profile.id;
-}
-
-function closeProfileModal() {
-  var m = document.getElementById('profile-modal');
-  if (m) m.style.display = 'none';
-}
-
-function openProfileModal() {
-  var modal = document.getElementById('profile-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'profile-modal';
-    modal.setAttribute('style','position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9600;display:flex;align-items:flex-end;justify-content:center');
-    document.body.appendChild(modal);
-  }
-  _renderProfileModal(modal);
-  modal.style.display = 'flex';
-}
-
-function _renderProfileModal(modal) {
-  var profiles = _getProfiles();
-  var activeId  = _getActiveProfileId();
-
-  // If no profiles yet, create a default from current settings
-  if (!profiles.length) {
-    var snap = _captureCurrentProfile();
-    var defaultP = { id: Date.now(), displayName: snap['creds-title'] || snap['inspector-id'] || 'My Profile', snap: snap };
-    profiles.push(defaultP);
-    _saveProfiles(profiles);
-    localStorage.setItem('active-profile-id', String(defaultP.id));
-    activeId = String(defaultP.id);
-  }
-
-  var listHTML = profiles.map(function(p) {
-    var active = String(p.id) === activeId;
-    var name   = _profileDisplayName(p);
-    var title  = p.snap['creds-title']    || '';
-    var div    = p.snap['creds-division'] || '';
-    var sub    = [title, div].filter(Boolean).join(' · ');
-    return '<div style="background:' + (active ? 'linear-gradient(135deg,#e8f5e9,#f1f8e9)' : 'white') + ';border:' + (active ? '2px solid #2ecc71' : '1.5px solid #e0e0e0') + ';border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px">' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.88rem;color:#0d2b6b">' + escHtml(name) + (active ? ' <span style=\"background:#2ecc71;color:white;border-radius:4px;padding:1px 5px;font-size:0.52rem;letter-spacing:0.5px\">ACTIVE</span>' : '') + '</div>' +
-        (sub ? '<div style="font-size:0.7rem;color:#666;font-family:Syne,sans-serif;margin-top:2px">' + escHtml(sub) + '</div>' : '') +
-      '</div>' +
-      (!active ? '<button onclick="switchProfile(' + p.id + ')" style="padding:6px 12px;background:#0d2b6b;color:white;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">Switch</button>' : '') +
-      '<button onclick="editProfileName(' + p.id + ')" style="padding:6px 10px;background:#f0f0f0;color:#555;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">✏️</button>' +
-      (profiles.length > 1 && !active ? '<button onclick="deleteProfile(' + p.id + ')" style="padding:6px 10px;background:#fde8e8;color:#c0392b;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">✕</button>' : '') +
-    '</div>';
-  }).join('');
-
-  modal.innerHTML =
-    '<div style="background:white;border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:0 0 32px;box-shadow:0 -8px 40px rgba(0,0,0,0.25)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:18px 18px 0">' +
-        '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:1rem;color:#0d2b6b">👤 Profiles</div>' +
-        '<button onclick="closeProfileModal()" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer">\u2715</button>' +
-      '</div>' +
-      '<div style="font-size:0.7rem;color:#888;font-family:Syne,sans-serif;padding:6px 18px 14px;border-bottom:1px solid #f0f0f0">Switch identities for different roles or employers. Your stops and route are shared across all profiles.</div>' +
-      '<div style="padding:14px 18px 10px">' + listHTML + '</div>' +
-      '<div style="padding:0 18px">' +
-        '<button onclick="createNewProfile()" style="width:100%;padding:12px;background:#0d2b6b;color:white;border:none;border-radius:10px;font-family:Syne,sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer">+ Create New Profile</button>' +
-      '</div>' +
-    '</div>';
-}
-
-function switchProfile(profileId) {
-  var profiles = _getProfiles();
-  var target = profiles.find(function(p){ return p.id === profileId; });
-  if (!target) return;
-  var name = _profileDisplayName(target);
-  if (!confirm('Switch to "' + name + '"? Current settings will be saved.')) return;
-  // Save current state back to active profile
-  var activeId = _getActiveProfileId();
-  var activeP = profiles.find(function(p){ return String(p.id) === activeId; });
-  if (activeP) {
-    activeP.snap = _captureCurrentProfile();
-    _saveProfiles(profiles);
-  }
-  // Apply new profile
-  localStorage.setItem('active-profile-id', String(profileId));
-  _applyProfile(target.snap);
-  showToast('Switched to "' + name + '" ✓');
-  var modal = document.getElementById('profile-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-function createNewProfile() {
-  var profileName = prompt('Name for new profile (e.g. Delivery Driver, Weekend Inspector):');
-  if (!profileName || !profileName.trim()) return;
-  profileName = profileName.trim();
-  // Save current state to active profile first
-  var profiles = _getProfiles();
-  var activeId = _getActiveProfileId();
-  var activeP = profiles.find(function(p){ return String(p.id) === activeId; });
-  if (activeP) { activeP.snap = _captureCurrentProfile(); }
-  // Create new empty profile
-  var newP = {
-    id: Date.now(),
-    displayName: profileName,
-    snap: { 'creds-title': profileName, 'inspector-id': '', 'selected-sector': 'private' }
-  };
-  profiles.push(newP);
-  _saveProfiles(profiles);
-  if (!confirm('Switch to "' + profileName + '" now?\n\nYou can fill in the details from Settings after switching.')) {
-    // Just save without switching
-    showToast('"' + profileName + '" profile created');
-    var modal = document.getElementById('profile-modal');
-    if (modal) _renderProfileModal(modal);
-    return;
-  }
-  // Switch to new profile
-  localStorage.setItem('active-profile-id', String(newP.id));
-  _applyProfile(newP.snap);
-  var modal = document.getElementById('profile-modal');
-  if (modal) modal.style.display = 'none';
-  // Open settings so user can fill in details
-  setTimeout(openSettings, 400);
-  showToast('"' + profileName + '" created — fill in your details below');
-}
-
-function editProfileName(profileId) {
-  var profiles = _getProfiles();
-  var p = profiles.find(function(x){ return x.id === profileId; });
-  if (!p) return;
-  var current = _profileDisplayName(p);
-  var newName = prompt('Rename profile:', current);
-  if (!newName || !newName.trim() || newName.trim() === current) return;
-  p.displayName = newName.trim();
-  _saveProfiles(profiles);
-  showToast('Profile renamed ✓');
-  var modal = document.getElementById('profile-modal');
-  if (modal) _renderProfileModal(modal);
-}
-
-function deleteProfile(profileId) {
-  var profiles = _getProfiles();
-  var p = profiles.find(function(x){ return x.id === profileId; });
-  if (!p) return;
-  var name = _profileDisplayName(p);
-  if (!confirm('Delete "' + name + '"? Cannot be undone.')) return;
-  profiles = profiles.filter(function(x){ return x.id !== profileId; });
-  _saveProfiles(profiles);
-  showToast('"' + name + '" deleted');
-  var modal = document.getElementById('profile-modal');
-  if (modal) _renderProfileModal(modal);
-}
-
-// Save current profile state on settings close
-function _saveCurrentProfileSnapshot() {
-  var profiles = _getProfiles();
-  var activeId = _getActiveProfileId();
-  if (!activeId || !profiles.length) return;
-  var p = profiles.find(function(x){ return String(x.id) === activeId; });
-  if (p) {
-    p.snap = _captureCurrentProfile();
-    _saveProfiles(profiles);
-  }
-}
-
 function saveStopsDebounced() {
   clearTimeout(_saveStopsTimer);
   _saveStopsTimer = setTimeout(saveStops, 300);
@@ -2112,16 +1829,6 @@ function _attachStopsListListener() {
     if (!btn) return;
     const { action, id, addr } = btn.dataset;
     const numId = Number(id);
-    if (action === 'recon') {
-      var menuEl = document.getElementById('recon-menu-' + id);
-      if (menuEl) {
-        var open = menuEl.style.display === 'flex';
-        menuEl.style.display = open ? 'none' : 'flex';
-        btn.style.background  = open ? '#1a3c6e' : '#2563eb';
-        btn.style.color       = open ? '#7ec8ff' : 'white';
-      }
-      return;
-    }
     if (action === 'nav')            navToStop(addr);
     if (action === 'prop')           openPropertySearch(addr, parseFloat(btn.dataset.lat)||null, parseFloat(btn.dataset.lng)||null);
     if (action === 'gis')            openGISMap(parseFloat(btn.dataset.lat)||null, parseFloat(btn.dataset.lng)||null);
@@ -2786,10 +2493,6 @@ function toggleClock() {
   if (!_clockInTime) {
     // CLOCK IN
     _clockInTime = Date.now();
-    // Safety reminder at clock-in
-    setTimeout(function() {
-      showToast('⚠️ You are now clocked in. Never use this app while driving. Pull over first.');
-    }, 600);
     _totalBreakMs = 0;
     _breakStartTime = null;
     localStorage.setItem('clock-in-time', JSON.stringify({t:_clockInTime, breaks:0}));
@@ -3634,14 +3337,11 @@ function renderStops() {
   const renderStop = (s, i) => {
     const fullAddr = escHtml(s.fullAddress || s.address + ', St. Louis, MO');
     const addr     = escHtml(s.address);
-  const addrWarn = s._geocodeFailed
-    ? '<span style="background:#fde8e8;color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:4px;font-size:0.42rem;padding:1px 5px;font-family:Syne,sans-serif;font-weight:800;letter-spacing:0.3px;vertical-align:middle;margin-left:4px">⚠ BAD ADDRESS — TAP 📝 TO FIX</span>'
-    : '';
     return `<div class="card ${s.type||'inspection'} ${s.done?'completed':''}">
       <div class="card-header">
         <div class="stop-num">${s.done?'\u2713':(i+1)}</div>
         <div class="addr-block">
-          <div class="addr-main">${escHtml(s.address)}${addrWarn}</div>
+          <div class="addr-main">${escHtml(s.address)}</div>
           ${s.notes ? `<div class="addr-sub">${escHtml(s.notes)}</div>` : ''}
           ${s.addedAt ? `<div style="font-size:0.5rem;color:#bbb;font-family:Space Mono,monospace;margin-top:1px">Added ${new Date(s.addedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>` : ''}
           ${s.verified === false ? `<div style="font-size:0.52rem;color:var(--warn);font-family:Syne,sans-serif;font-weight:700;margin-top:2px">\u26a0 Address unverified</div>` : ''}
@@ -3650,37 +3350,31 @@ function renderStops() {
         <span class="type-pill ${typePillClass(s.type)}" style="cursor:pointer"
           data-action="type" data-id="${s.id}" title="Tap to change type">${typeLabel(s.type)}</span>
       </div>
-      <div class="card-actions" style="display:flex;flex-direction:column;gap:4px;padding-top:4px">
-        <!-- Main button row: RECON | NOTES | ARRIVE or CLOSE | Nav -->
-        <div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap">
-          <button data-action="recon" data-id="${s.id}" title="Recon — Property Search, GIS Map, CSB"
-            style="background:#1a3c6e;color:#7ec8ff;border:1.5px solid rgba(91,164,207,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🔭<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">RECON</span></button>
-          <button data-action="notes" data-id="${s.id}" title="Notes"
-            style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📝<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">NOTES</span></button>
-          ${s.done
-            ? `<button data-action="restore" data-id="${s.id}" title="Restore stop"
-                 style="background:#e8f5e9;color:var(--moss);border:1.5px solid rgba(39,174,96,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">↩<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">RESTORE</span></button>
-               <button data-action="del" data-id="${s.id}" title="Delete stop"
-                 style="background:#fff0f0;color:var(--danger);border:1.5px solid rgba(192,57,43,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🗑<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">DEL</span></button>`
-            : s.arrivedAt
+      <div class="card-actions" style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;padding-top:4px">
+        <button data-action="notes" data-id="${s.id}" title="Notes"
+          style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📝<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">NOTES</span></button>
+        <button data-action="prop" data-addr="${addr}" data-lat="${s.lat||''}" data-lng="${s.lng||''}" title="Property Search — opens GIS parcel view if geocoded"
+          style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🔍<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">SEARCH</span></button>
+        <button data-action="gis" data-lat="${s.lat||''}" data-lng="${s.lng||''}" data-addr="${addr}" title="Open ArcGIS parcel viewer at this stop"
+          style="background:#1a3c6e;color:#5ba4cf;border:1.5px solid rgba(91,164,207,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🗺️<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">GIS</span></button>
+        <button data-action="csb" data-addr="${addr}" title="Citizens Service Bureau"
+          style="background:#fff3e0;color:#e65100;border:1.5px solid rgba(230,81,0,0.25);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📞<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">CSB</span></button>
+        ${s.done
+          ? `<button data-action="restore" data-id="${s.id}" title="Restore stop"
+               style="background:#e8f5e9;color:var(--moss);border:1.5px solid rgba(39,174,96,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">↩<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">RESTORE</span></button>
+             <button data-action="del" data-id="${s.id}" title="Delete"
+               style="background:#fde8e8;color:var(--danger);border:1.5px solid rgba(192,57,43,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🗑<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">DELETE</span></button>`
+          : (s.arrivedAt
               ? `<button data-action="close" data-id="${s.id}" title="Mark complete"
                    style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">✓<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">CLOSE</span></button>`
-              : `<button data-action="arrive" data-id="${s.id}" title="Mark arrived"
-                   style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📍<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">ARRIVE</span></button>`
-          }
-          <button data-action="nav" data-addr="${addr}" title="Navigate to stop"
-            style="margin-left:auto;padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
-          <button onclick="openPOSApp()" title="${localStorage.getItem('pos-platform') ? 'Open payment app' : 'Set up a payment app in Settings'}" style="padding:5px 8px;border:none;border-radius:8px;background:${localStorage.getItem('pos-platform') ? '#1a7a4a' : '#ccc'};color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer;flex-shrink:0;height:30px;display:flex;align-items:center;gap:3px;white-space:nowrap">💳 Pay</button>
-        </div>
-        <!-- RECON sub-menu (hidden until RECON tapped) -->
-        <div id="recon-menu-${s.id}" style="display:none;flex-wrap:nowrap;gap:4px">
-          <button data-action="prop" data-addr="${addr}" data-lat="${s.lat||''}" data-lng="${s.lng||''}" title="Property Search"
-            style="flex:1;background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.2);padding:6px 4px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">🔍 Search</button>
-          <button data-action="gis" data-lat="${s.lat||''}" data-lng="${s.lng||''}" data-addr="${addr}" title="GIS Parcel Map"
-            style="flex:1;background:#1a3c6e;color:#7ec8ff;border:1.5px solid rgba(91,164,207,0.3);padding:6px 4px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">🗺️ GIS</button>
-          <button data-action="csb" data-addr="${addr}" title="Citizens Service Bureau"
-            style="flex:1;background:#fff3e0;color:#e65100;border:1.5px solid rgba(230,81,0,0.25);padding:6px 4px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px">📞 CSB</button>
-        </div>      </div>
+              : `<button data-action="arrive" data-id="${s.id}" title="Mark arrived — starts timer"
+                   style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📍<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">ARRIVE</span></button>
+                 <button data-action="close" data-id="${s.id}" title="Mark complete"
+                   style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">✓<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">CLOSE</span></button>`)
+        }
+        <button data-action="nav" data-addr="${fullAddr}" title="Navigate"
+          style="margin-left:auto;background:var(--forest);color:var(--lime);border:none;border-radius:20px;padding:6px 14px;font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:32px;display:flex;align-items:center;gap:4px">🧭 Navigate</button>
+      </div>
     </div>`;
   };
 
@@ -3951,41 +3645,16 @@ async function _resolveOrigin(pending, statusEl) {
 
 // ── Step 2: geocode stops missing coordinates ─────────────────────────────
 async function _geocodeStops(pending) {
-  // Attempt geocoding for every un-geocoded stop.
-  // Stops that fail geocoding are KEPT in the route but flagged with a warning
-  // so they can be reviewed/fixed — they are never silently culled.
-  const failed = [];
   try {
     for (const s of pending) {
-      if (!s.lat) {
-        const c = await geocodeAddress(s.fullAddress || s.address + ', St. Louis, MO');
-        if (c) {
-          s.lat = c.lat; s.lng = c.lng;
-          if (typeof saveStops === 'function') saveStops();
-        } else {
-          failed.push(s);
-          // Mark stop so the UI can flag it
-          s._geocodeFailed = true;
+        if (!s.lat) {
+          const c = await geocodeAddress(s.fullAddress || s.address + ', St. Louis, MO');
+          if (c) { s.lat = c.lat; s.lng = c.lng; }
+          await new Promise(r => setTimeout(r, 250));
         }
-        await new Promise(r => setTimeout(r, 250));
       }
-    }
-    // Return ALL stops — geocoded first (for routing quality), un-geocodeable appended at end
-    const geocoded   = pending.filter(s => s.lat);
-    const unresolved = pending.filter(s => !s.lat);
-    if (failed.length) {
-      // Surface a fix-it toast listing the bad addresses
-      const labels = failed.slice(0,3).map(s => '"' + s.address.slice(0,25) + '"').join(', ');
-      const more   = failed.length > 3 ? ' + ' + (failed.length-3) + ' more' : '';
-      showToast('[Warning] ' + (failed.length>1 ? failed.length+' addresses' : '1 address') +
-        ' could not be located: ' + labels + more +
-        ' -- kept at end of route. Tap Notes to fix.');
-    }
-    return geocoded.concat(unresolved);
-  } catch(e) {
-    console.warn('[geocode] batch failed:', e.message);
-    return pending; // return all stops rather than none on total failure
-  }
+      return pending.filter(s => s.lat);
+  } catch(e) { console.warn("[geocode] batch failed:", e.message); }
 }
 
 // ── Step 3: sort stops (nearest-neighbor + 2-opt) ─────────────────────────
@@ -4138,8 +3807,12 @@ function renderRoute() {
             style="${pinnedStartId===s.id?'background:#e8a020;color:#fff;border:none;':'background:#fff8ec;color:#7a5000;border:1px solid rgba(232,160,32,0.3);'}padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">${pinnedStartId===s.id?'📌':'📌'}</button>
           <button data-action="notes" data-id="${s.id}" title="Notes"
             style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.2);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">📝</button>
-          <button data-action="recon" data-id="${s.id}" title="Recon"
-            style="background:#1a3c6e;color:#7ec8ff;border:1.5px solid rgba(91,164,207,0.3);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">🔭</button>
+          <button data-action="prop" data-full="${escHtml(s.address)}" data-lat="${s.lat||''}" data-lng="${s.lng||''}" title="Property search"
+            style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.2);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">🔍</button>
+          <button data-action="gis" data-lat="${s.lat||''}" data-lng="${s.lng||''}" data-addr="${escHtml(s.address)}" title="Open ArcGIS parcel viewer at this stop"
+            style="background:#1a3c6e;color:#5ba4cf;border:1.5px solid rgba(91,164,207,0.3);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">🗺️</button>
+          <button data-action="csb" data-addr="${escHtml(s.address)}" title="CSB"
+            style="background:#fff3e0;color:#e65100;border:1.5px solid rgba(230,81,0,0.25);padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">📞</button>
           ${s.arrivedAt
             ? `<button data-action="close" data-id="${s.id}" title="Mark complete"
                  style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">✓</button>`
@@ -4149,7 +3822,7 @@ function renderRoute() {
                  style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;padding:0;border-radius:7px;font-size:0.68rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center">✓</button>`
           }
           <button data-action="nav" data-addr="${escHtml(s.fullAddress||s.address+', St. Louis, MO')}"
-            style="margin-left:auto;padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
+            style="margin-left:auto;padding:6px 14px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:32px;display:flex;align-items:center;gap:4px">🧭 Navigate</button>
         </div>
       </div>`;
 
@@ -4173,44 +3846,8 @@ function renderRoute() {
     const action = btn.dataset.action;
     if (action === 'nav')   navToStop(btn.dataset.addr);
     if (action === 'arrive') markStopArrived(btn.dataset.id);
-    if (action === 'recon') {
-      var _rs = stops.find(function(x){return x.id===Number(btn.dataset.id);});
-      if (!_rs) return;
-      // Remove any existing popup
-      var _old = document.getElementById('route-recon-popup');
-      if (_old) { _old.remove(); return; }
-      var _pop = document.createElement('div');
-      _pop.id = 'route-recon-popup';
-      _pop.setAttribute('style','position:fixed;z-index:9100;background:white;border:1.5px solid #ddd;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:2px;box-shadow:0 4px 16px rgba(0,0,0,0.18);min-width:160px');
-      var _addr = _rs.address;
-      var _lat  = _rs.lat  || null;
-      var _lng  = _rs.lng  || null;
-      function _mkBtn(icon, label, color, fn) {
-        var b = document.createElement('button');
-        b.setAttribute('style','text-align:left;background:none;border:none;padding:7px 10px;font-size:0.82rem;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;color:'+color+';border-radius:6px;');
-        b.textContent = icon + ' ' + label;
-        b.onclick = function() { fn(); _pop.remove(); };
-        return b;
-      }
-      var _hdr = document.createElement('div');
-      _hdr.setAttribute('style','font-size:0.58rem;font-family:Syne,sans-serif;font-weight:800;color:#0d2b6b;letter-spacing:1px;padding:2px 6px 6px;border-bottom:1px solid #eee;margin-bottom:2px');
-      _hdr.textContent = String.fromCodePoint(0x1F52D) + ' RECON';
-      _pop.appendChild(_hdr);
-      _pop.appendChild(_mkBtn(String.fromCodePoint(0x1F50D), 'Property Search', '#1a5276', function(){ openPropertySearch(_addr, _lat, _lng); }));
-      _pop.appendChild(_mkBtn(String.fromCodePoint(0x1F5FA), 'GIS Map', '#1a3c6e', function(){ openGISMap(_lat, _lng); }));
-      _pop.appendChild(_mkBtn(String.fromCodePoint(0x1F4DE), 'CSB', '#e65100', function(){ openCsbForAddress(_addr); }));
-      var _close = document.createElement('button');
-      _close.setAttribute('style','background:none;border:none;padding:4px 8px;font-size:0.65rem;cursor:pointer;color:#aaa');
-      _close.textContent = '✕ Close';
-      _close.onclick = function(){ _pop.remove(); };
-      _pop.appendChild(_close);
-      document.body.appendChild(_pop);
-      var _rect = btn.getBoundingClientRect();
-      _pop.style.top  = (_rect.bottom+6)+'px';
-      _pop.style.left = Math.min(_rect.left, window.innerWidth-170)+'px';
-      setTimeout(function(){ document.addEventListener('click', function _rh(e){ if(!e.target.closest('#route-recon-popup')){ _pop.remove(); document.removeEventListener('click',_rh); } }, {once:true}); }, 50);
-    }
-
+    if (action === 'prop')  openPropertySearch(btn.dataset.full, parseFloat(btn.dataset.lat)||null, parseFloat(btn.dataset.lng)||null);
+    if (action === 'gis')   openGISMap(parseFloat(btn.dataset.lat)||null, parseFloat(btn.dataset.lng)||null);
     if (action === 'csb')   openCsbForAddress(btn.dataset.addr);
     if (action === 'close') openCloseModal(Number(btn.dataset.id));
     if (action === 'notes') openNotesModal(Number(btn.dataset.id));
@@ -4550,42 +4187,6 @@ function mapGISActive() {
   if (s) openGISMap(s.lat || null, s.lng || null);
 }
 
-function mapReconActive() {
-  if (!activeMapStopId) return;
-  var s = stops.find(function(x){return x.id===activeMapStopId;});
-  if (!s) return;
-  var old = document.getElementById('map-recon-popup');
-  if (old) { old.remove(); return; }
-  var pop = document.createElement('div');
-  pop.id = 'map-recon-popup';
-  pop.setAttribute('style','position:fixed;z-index:9100;background:white;border:1.5px solid #ddd;border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:2px;box-shadow:0 4px 16px rgba(0,0,0,0.18);min-width:160px;bottom:140px;left:50%;transform:translateX(-50%)');
-  function mkBtn(icon, label, color, fn) {
-    var b = document.createElement('button');
-    b.setAttribute('style','text-align:left;background:none;border:none;padding:7px 10px;font-size:0.82rem;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;color:'+color+';border-radius:6px;');
-    b.textContent = icon+' '+label;
-    b.onclick = function(){fn(); pop.remove();};
-    return b;
-  }
-  var hdr = document.createElement('div');
-  hdr.setAttribute('style','font-size:0.58rem;font-family:Syne,sans-serif;font-weight:800;color:#0d2b6b;letter-spacing:1px;padding:2px 6px 6px;border-bottom:1px solid #eee;margin-bottom:2px');
-  hdr.textContent = String.fromCodePoint(0x1F52D)+' RECON';
-  pop.appendChild(hdr);
-  pop.appendChild(mkBtn(String.fromCodePoint(0x1F50D),'Property Search','#1a5276',function(){mapPropActive();}));
-  pop.appendChild(mkBtn(String.fromCodePoint(0x1F5FA),'GIS Map','#1a3c6e',function(){mapGISActive();}));
-  pop.appendChild(mkBtn(String.fromCodePoint(0x1F4DE),'CSB','#e65100',function(){mapCsbActive();}));
-  var cl = document.createElement('button');
-  cl.setAttribute('style','background:none;border:none;padding:4px 8px;font-size:0.65rem;cursor:pointer;color:#aaa');
-  cl.textContent='✕ Close'; cl.onclick=function(){pop.remove();};
-  pop.appendChild(cl);
-  document.body.appendChild(pop);
-  setTimeout(function(){document.addEventListener('click',function _mh(e){if(!e.target.closest('#map-recon-popup')){pop.remove();document.removeEventListener('click',_mh);}},{once:true});},50);
-}
-
-function mapNotesActive() {
-  if (!activeMapStopId) return;
-  openNotesModal(activeMapStopId);
-}
-
 function mapPropActive() {
   const s = stops.find(x => x.id === activeMapStopId);
   if (s) openPropertySearch(s.address);
@@ -4651,53 +4252,11 @@ function openMiscLinks() {
 
   var sections = [
     {
-      heading: '🐾 ANIMALS & WILDLIFE',
+      heading: '📣 LOCAL BUSINESS LISTINGS',
       items: [
-        { label: 'City Animal Care & Control — Report a Problem', sub: 'Stray · cruelty · injured animal · deceased animal', url: 'https://www.stlouis-mo.gov/government/departments/health/animal-care-control/report-animal-problem.cfm', phone: '3146571500' },
-        { label: 'City Animal Care & Control — After Hours', sub: 'Distressed animals after hours and weekends', url: 'tel:+13142311212', phone: '3142311212', display: '(314) 231-1212' },
-        { label: 'CARE STL — City Shelter (2801 Clark Ave)', sub: 'Adoptions · lost pet · foster. 2801 Clark Ave', url: 'https://www.icarestl.org/', phone: '3146571500' },
-        { label: 'Stray Rescue of St. Louis', sub: 'Stray and injured dogs and cats. 2320 Pine St', url: 'https://www.strayrescue.org/', phone: '3147716121' },
-        { label: 'Humane Society of Missouri', sub: 'Adoption · cruelty task force · low-cost vet. 1201 Macklind Ave', url: 'https://hsmo.org/', phone: '3149511588' },
-        { label: 'HSMO — Animal Cruelty Task Force', sub: 'Report animal abuse or neglect', url: 'https://hsmo.org/', phone: '3149511588' },
-        { label: 'APA of Missouri — Animal Protective Association', sub: 'Adoption · spay/neuter · vet assistance fund', url: 'https://apamo.org/', phone: '3146452550' },
-        { label: 'Gateway Pet Guardians', sub: 'Spay/neuter · community cats · East St. Louis', url: 'https://www.gatewaypetguardians.org/', phone: '6183989077' },
-        { label: 'Tenth Life Cat Rescue', sub: 'Cat rescue, foster, adoption, TNR', url: 'https://tenthlifestl.org/', phone: '3143890099' },
-        { label: 'St. Louis Feral Cat Outreach', sub: 'Feral cat TNR. City Ordinance 69798. Must register colonies', url: 'https://www.stlouis-mo.gov/government/departments/health/animal-care-control/shelter.cfm', phone: '3146695228' },
-        { label: 'Wild Bird Rehabilitation', sub: 'Injured songbirds. 9624 Midland Blvd, Overland', url: 'https://wildbirdrehab.org/', phone: '3144266400' },
-        { label: 'World Bird Sanctuary — Raptor Hospital', sub: 'Injured BIRDS OF PREY — hawks, owls, eagles, falcons, vultures, herons, pelicans, swans. 636-861-1392 or text a photo', url: 'https://www.worldbirdsanctuary.org/', phone: '6368611392' },
-        { label: 'Wildlife Rescue Center', sub: 'Injured/orphaned native MAMMALS (not deer), reptiles, amphibians, waterfowl, game birds. MDC and USFWS licensed', url: 'https://www.mowildlife.org/', phone: '6363941880' },
-        { label: 'Missouri Dept of Conservation — St. Louis Regional Office', sub: 'Wildlife laws · nuisance wildlife questions · deer · problem coyotes or foxes · licensed trapper referrals', url: 'https://mdc.mo.gov/', phone: '6364414554' },
-      ]
-    },
-    {
-      heading: '🔥 EMERGENCY UTILITY CONTACTS',
-      items: [
-        { label: 'Spire (Laclede Gas) — Gas Emergency', sub: 'Gas leak · gas odor · downed gas line — 24 hours', url: 'tel:+18008874173', phone: '8008874173', display: '(800) 887-4173' },
-        { label: 'AmerenUE — Electric Emergency', sub: 'Downed power line · electrical fire · outage — 24 hours', url: 'tel:+18005527583', phone: '8005527583', display: '(800) 552-7583' },
-        { label: 'MSD — Sewer Emergency & Reports', sub: 'Sewage backup · sewer overflow · illicit discharge — 24 hours', url: 'https://msdprojectclear.org/customers/problems-tips/report-issue/', phone: '3147686260', display: '(314) 768-6260' },
-        { label: 'Missouri American Water — Emergency', sub: 'Water main break · contamination concern', url: 'tel:+18006854184', phone: '8006854184', display: '(800) 685-4184' },
-        { label: 'SLMPD Non-Emergency Dispatch', sub: 'Non-emergency police — illegal occupancy assist · nuisance · property crime', url: 'tel:+13144445000', phone: '3144445000', display: '(314) 444-5000' },
-      ]
-    },
-    {
-      heading: '🌿 ENVIRONMENTAL & REGULATORY',
-      items: [
-        { label: 'Missouri DNR Air Pollution Control', sub: 'Open burning violations · asbestos NESHAP · industrial source complaints', url: 'https://www.stlouis-mo.gov/government/departments/health/index.cfm', phone: '5737514817', display: '(573) 751-4817' },
-        { label: 'DNR Environmental Emergency Hotline', sub: 'After-hours spill · release · illegal dump burning', url: 'tel:+15736342436', phone: '5736342436', display: '(573) 634-2436' },
-        { label: 'Missouri Dept of Agriculture — Weights & Measures', sub: 'Scale and fuel pump certification · condemned device support', url: 'https://www.mda.mo.gov/', phone: '5737514316', display: '(573) 751-4316' },
-        { label: 'City Department of Health', sub: 'Environmental health · food establishments · vector control · lead paint', url: 'https://www.stlouis-mo.gov/government/departments/health/index.cfm', phone: '3146224800' },
-      ]
-    },
-    {
-      heading: '📐 MAPS & GIS TOOLS',
-      items: [
-        { label: 'St. Louis City GIS Parcel Viewer', sub: 'Official ArcGIS map — parcel, ownership, zoning, ROW', url: 'https://stlcity.maps.arcgis.com/apps/Embed/index.html?webmap=843f82c3fcbb4d80a7c9c6d833de1ac3&level=19&scale=true&search=true&&searchextent=true&details=true&legendlayers=true&previewImage=false&active_panel=legend&show_panel=false&basemap_gallery=true&basemap_toggle=true&alt_basemap=Streets&disable_scroll=false&level=18&legend=true&theme=light&&center=907269.612838;1021882.7955;102696&marker=907269.612838;1021882.7955;102696;;;' },
-        { label: 'STL City Address Search (JNEM)', sub: 'Official address lookup — parcel ID, owner, value', url: 'https://www.stlouis-mo.gov/data/address-search/index.cfm' },
-        { label: 'LRA Owned Properties Map', sub: 'City-owned vacant lots and structures', url: 'https://www.stlouis-mo.gov/government/departments/sldc/real-estate/lra-owned-properties-map.cfm' },
-        { label: 'Cultural Resources Areas of Review Map', sub: 'Parcels requiring CRO review in historic districts', url: 'https://www.stlouis-mo.gov/government/departments/planning/news/cultural-resources-preservation-board-areas-of-review-map.cfm' },
-        { label: 'Citywide Zoning District Map', sub: 'All 12 zoning districts and overlays', url: 'https://www.stlouis-mo.gov/government/departments/public-safety/building/zoning/index.cfm' },
-        { label: 'STL City Open Data Portal', sub: 'Inspections, permits, 311, wards — GeoJSON/CSV downloads', url: 'https://www.stlouis-mo.gov/data/' },
-        { label: 'Missouri Spatial Data Information Service (MSDIS)', sub: 'State GIS layers — census, floodplains, USGS, aerial', url: 'https://msdis.missouri.edu/' },
+        { label: 'STL Pest Control', sub: 'Licensed & insured · Residential & commercial · Bed bugs · termites · rodents · ants · wasps · wildlife removal · St. Louis City & County', url: 'https://stlpestcontrol.com/', phone: '3148336222', premiere: true },
+        { label: '📣 Advertise with us', sub: 'Get your business in front of city field workers. Standard $25/yr · Featured $75/yr · Premiere $150/yr — tap to see options and contact us', url: '__ADVERTISE__' },
+        { label: '🌱 Nonprofits list free', sub: 'Qualifying nonprofit organizations — pest control, wildlife rescue, legal aid, environmental services. Tap to apply.', url: '__ADVERTISE__' },
       ]
     },
     {
@@ -4713,10 +4272,12 @@ function openMiscLinks() {
       ]
     },
     {
-      heading: '🚗 VEHICLES & TOWING',
+      heading: '⚖️ COURTS & ENFORCEMENT RECORDS',
       items: [
-        { label: 'Report Abandoned or Derelict Vehicles', sub: 'Street: no movement in 5 days = tow eligible after sticker. Private property: hazardous = tow eligible', url: 'https://www.stlouis-mo.gov/government/departments/street/street-division/abandoned-cars.cfm' },
-        { label: 'City Towing Lookup & Retrieval', sub: '7410 Hall St · Mon–Fri 9a–6p · Sat 9a–12:30p', url: 'https://www.stlouis-mo.gov/government/departments/street/towing/lookup/index.cfm', phone: '3143837546' },
+        { label: 'Missouri Case.net — 22nd Judicial Circuit', sub: 'Open cases, ordinance violations, prior enforcement by owner name', url: 'https://www.courts.mo.gov/cnet/welcome.do' },
+        { label: 'City Municipal Court Violation Search', sub: 'Look up your issued citations by case number or name', url: 'https://www.stlouis-mo.gov/government/departments/municipal-courts/city-court-violation-search.cfm' },
+        { label: 'Board of Adjustment — Zoning Variances', sub: 'Check variances and SUPs before issuing a zoning NOV', url: 'https://www.stlouis-mo.gov/government/departments/public-safety/building/zoning/board-adjustment.cfm' },
+        { label: 'Building Inspection History (Open Data)', sub: 'Complaint inspections, condemnations, vacant records by address', url: 'https://www.stlouis-mo.gov/data/datasets/dataset.cfm?id=11' },
       ]
     },
     {
@@ -4766,15 +4327,6 @@ function openMiscLinks() {
       ]
     },
     {
-      heading: '⚖️ COURTS & ENFORCEMENT RECORDS',
-      items: [
-        { label: 'Missouri Case.net — 22nd Judicial Circuit', sub: 'Open cases, ordinance violations, prior enforcement by owner name', url: 'https://www.courts.mo.gov/cnet/welcome.do' },
-        { label: 'City Municipal Court Violation Search', sub: 'Look up your issued citations by case number or name', url: 'https://www.stlouis-mo.gov/government/departments/municipal-courts/city-court-violation-search.cfm' },
-        { label: 'Board of Adjustment — Zoning Variances', sub: 'Check variances and SUPs before issuing a zoning NOV', url: 'https://www.stlouis-mo.gov/government/departments/public-safety/building/zoning/board-adjustment.cfm' },
-        { label: 'Building Inspection History (Open Data)', sub: 'Complaint inspections, condemnations, vacant records by address', url: 'https://www.stlouis-mo.gov/data/datasets/dataset.cfm?id=11' },
-      ]
-    },
-    {
       heading: '🏛️ KEY CITY DEPARTMENTS',
       items: [
         { label: 'Zoning Section', sub: 'Zoning district lookup · variance questions · code questions', url: 'https://www.stlouis-mo.gov/government/departments/public-safety/building/zoning/index.cfm', phone: '3146223666' },
@@ -4789,91 +4341,63 @@ function openMiscLinks() {
       ]
     },
     {
-      heading: '💼 Business Resources',
-      _label_only: true,
-      items: []
-    },
-    {
-      heading: '🏢 BUSINESS DIRECTORY',
+      heading: '🚗 VEHICLES & TOWING',
       items: [
-        { label: '📣 Advertise with us', sub: 'stlcityroute.com/advertise', url: '__ADVERTISE__' },
-        { label: '🌱 Nonprofits list free', sub: 'stlcityroute.com/nonprofits', url: '__ADVERTISE__' },
+        { label: 'Report Abandoned or Derelict Vehicles', sub: 'Street: no movement in 5 days = tow eligible after sticker. Private property: hazardous = tow eligible', url: 'https://www.stlouis-mo.gov/government/departments/street/street-division/abandoned-cars.cfm' },
+        { label: 'City Towing Lookup & Retrieval', sub: '7410 Hall St · Mon–Fri 9a–6p · Sat 9a–12:30p', url: 'https://www.stlouis-mo.gov/government/departments/street/towing/lookup/index.cfm', phone: '3143837546' },
       ]
     },
     {
-      heading: '🍔 Food — Field Worker Lunch Spots',
+      heading: '🔥 EMERGENCY UTILITY CONTACTS',
       items: [
-        { label: "Hodak's Restaurant & Bar", sub: 'Fried chicken. 2100 Gravois Ave', url: 'https://hodaks.com/', phone: '3147762331' },
-        { label: "Wally's Chips & Dogs", sub: 'Hot dogs and chips. 3801 Juniata', url: 'https://wallyschipdogs.com/', phone: '3143570765' },
-        { label: 'Salt + Smoke', sub: 'Award-winning STL BBQ. 6525 Delmar Blvd', url: 'https://saltandsmokestl.com/', phone: '3147273700' },
-        { label: 'Seoul Taco', sub: 'Korean-Mexican fusion. Multiple STL locations', url: 'https://seoultaco.com/', phone: '3148813936' },
-        { label: 'Pi Pizzeria', sub: 'Deep dish and thin crust. Multiple locations', url: 'https://restaurantpi.com/', phone: '3142312971' },
-        { label: "Adriana's on The Hill", sub: 'Italian sandwiches. 5101 Shaw Ave', url: 'https://adrianaonthehill.com/', phone: '3143595931' },
-        { label: "Gus's World Famous Fried Chicken", sub: 'Hot fried chicken. 4201 Laclede Ave', url: 'https://gusfriedchicken.com/', phone: '3147571552' },
-        { label: 'Mission Taco Joint', sub: 'Street tacos. Multiple STL locations', url: 'https://missiontacojoint.com/', phone: '3143693355' },
-        { label: 'The Boathouse Forest Park', sub: 'Casual lunch with park views. 6101 Government Dr', url: 'https://boathousestl.com/', phone: '3147655514' },
-        { label: 'Five Star Burgers', sub: 'Quality burgers. Multiple STL locations', url: 'https://fivestarburgersrestaurant.com/', phone: '3149848005' },
-        { label: "Imo's Pizza", sub: 'St. Louis-style thin crust. Multiple locations', url: 'https://imospizza.com/', phone: '3148484224' },
-        { label: "Pappy's Smokehouse", sub: 'Top-rated BBQ. 3106 Olive St', url: 'https://pappyssmokehouse.com/', phone: '3145350145' },
-        { label: 'Tacos El Bronco', sub: 'Authentic tacos. 3524 Cherokee St', url: 'https://tacoselbroncostl.com/', phone: '3143560780' },
-        { label: 'Crown Candy Kitchen', sub: 'Historic lunch counter. 1401 St. Louis Ave', url: 'https://crowncandykitchen.net/', phone: '3142214847' },
-        { label: "Sweetie Pie's Upper Crust", sub: 'Soul food daily plates. 4270 Manchester Ave', url: 'https://sweetiepieskitchen.com/', phone: '3143677788' },
-      ]
-        },
-    {
-      heading: '🔒 Boarding & Securing',
-      items: [
-        { label: 'Your company here', sub: 'Vacant structure boarding and securing', url: '__ADVERTISE__' },
+        { label: 'Spire (Laclede Gas) — Gas Emergency', sub: 'Gas leak · gas odor · downed gas line — 24 hours', url: 'tel:+18008874173', phone: '8008874173', display: '(800) 887-4173' },
+        { label: 'AmerenUE — Electric Emergency', sub: 'Downed power line · electrical fire · outage — 24 hours', url: 'tel:+18005527583', phone: '8005527583', display: '(800) 552-7583' },
+        { label: 'MSD — Sewer Emergency & Reports', sub: 'Sewage backup · sewer overflow · illicit discharge — 24 hours', url: 'https://msdprojectclear.org/customers/problems-tips/report-issue/', phone: '3147686260', display: '(314) 768-6260' },
+        { label: 'Missouri American Water — Emergency', sub: 'Water main break · contamination concern', url: 'tel:+18006854184', phone: '8006854184', display: '(800) 685-4184' },
+        { label: 'SLMPD Non-Emergency Dispatch', sub: 'Non-emergency police — illegal occupancy assist · nuisance · property crime', url: 'tel:+13144445000', phone: '3144445000', display: '(314) 444-5000' },
       ]
     },
     {
-      heading: '🐀 Pest Control',
+      heading: '🌿 ENVIRONMENTAL & REGULATORY',
       items: [
-        { label: 'STL Pest Control', sub: 'Rodents · insects · vermin · wildlife. City & County', url: 'https://stlpestcontrol.com/', phone: '3148336222', premiere: true },
+        { label: 'Missouri DNR Air Pollution Control', sub: 'Open burning violations · asbestos NESHAP · industrial source complaints', url: 'https://www.stlouis-mo.gov/government/departments/health/index.cfm', phone: '5737514817', display: '(573) 751-4817' },
+        { label: 'DNR Environmental Emergency Hotline', sub: 'After-hours spill · release · illegal dump burning', url: 'tel:+15736342436', phone: '5736342436', display: '(573) 634-2436' },
+        { label: 'Missouri Dept of Agriculture — Weights & Measures', sub: 'Scale and fuel pump certification · condemned device support', url: 'https://www.mda.mo.gov/', phone: '5737514316', display: '(573) 751-4316' },
+        { label: 'City Department of Health', sub: 'Environmental health · food establishments · vector control · lead paint', url: 'https://www.stlouis-mo.gov/government/departments/health/index.cfm', phone: '3146224800' },
       ]
     },
     {
-      heading: '🔨 Property Rehab',
+      heading: '📐 MAPS & GIS TOOLS',
       items: [
-        { label: 'Your company here', sub: 'Distressed property rehabilitation', url: '__ADVERTISE__' },
+        { label: 'St. Louis City GIS Parcel Viewer', sub: 'Official ArcGIS map — parcel boundaries, ownership, zoning layers, building footprints, ROW. Best property lookup in the city.', url: 'https://stlcity.maps.arcgis.com/apps/Embed/index.html?webmap=843f82c3fcbb4d80a7c9c6d833de1ac3&level=19&scale=true&search=true&&searchextent=true&details=true&legendlayers=true&previewImage=false&active_panel=legend&show_panel=false&basemap_gallery=true&basemap_toggle=true&alt_basemap=Streets&disable_scroll=false&level=18&legend=true&theme=light&&center=907269.612838;1021882.7955;102696&marker=907269.612838;1021882.7955;102696;;;' },
+        { label: 'STL City Address Search (JNEM)', sub: 'City of St. Louis official address lookup — parcel ID, owner name, assessed value, property class', url: 'https://www.stlouis-mo.gov/data/address-search/index.cfm' },
+        { label: 'LRA Owned Properties Map', sub: 'Land Reutilization Authority inventory — city-owned vacant lots and structures available for acquisition', url: 'https://www.stlouis-mo.gov/government/departments/sldc/real-estate/lra-owned-properties-map.cfm' },
+        { label: 'Cultural Resources Areas of Review Map', sub: 'Which parcels require CRO review before demo or exterior work in historic districts', url: 'https://www.stlouis-mo.gov/government/departments/planning/news/cultural-resources-preservation-board-areas-of-review-map.cfm' },
+        { label: 'Citywide Zoning District Map', sub: 'All 12 primary zoning districts and overlay districts', url: 'https://www.stlouis-mo.gov/government/departments/public-safety/building/zoning/index.cfm' },
+        { label: 'STL City Open Data Portal', sub: 'Datasets: inspections, condemnations, permits, 311 requests, ward boundaries, building footprints — downloadable GeoJSON/CSV', url: 'https://www.stlouis-mo.gov/data/' },
+        { label: 'Missouri Spatial Data Information Service (MSDIS)', sub: 'State-level GIS layers: census boundaries, floodplains, USGS data, soil surveys, aerial imagery', url: 'https://msdis.missouri.edu/' },
       ]
     },
     {
-      heading: '🤝 Social Services',
+      heading: '🐾 ANIMALS & WILDLIFE',
       items: [
-        { label: 'Your org here', sub: 'Workforce · housing · mental health · reentry', url: '__ADVERTISE__' },
+        { label: 'STL Pest Control — Wildlife Removal', sub: 'Rats · mice · squirrels · raccoons · bats · birds · bed bugs · wasps · ants · termites. Licensed & insured. City & County. 24-hr emergency line.', url: 'https://stlpestcontrol.com/', phone: '3148336222' },
+        { label: 'City Animal Care & Control — Report a Problem', sub: 'Stray · cruelty · bite/attack · injured animal · deceased animal. M–F 8a–5p call ACC directly. After hours/weekends call (314) 231-1212', url: 'https://www.stlouis-mo.gov/government/departments/health/animal-care-control/report-animal-problem.cfm', phone: '3146571500' },
+        { label: 'City Animal Care & Control — After Hours', sub: 'Animal in distress after hours, weekends, and holidays', url: 'tel:+13142311212', phone: '3142311212', display: '(314) 231-1212' },
+        { label: 'CARE STL — City Shelter (2801 Clark Ave)', sub: 'Adoptions · lost pet search · foster. Managed nonprofit partner of City shelter. 7 days/week 10a–5p', url: 'https://www.icarestl.org/', phone: '3146571500' },
+        { label: 'Stray Rescue of St. Louis', sub: 'Stray and injured dogs and cats within City limits — urgent medical cases prioritized. 2320 Pine St', url: 'https://www.strayrescue.org/', phone: '3147716121' },
+        { label: 'Humane Society of Missouri', sub: 'Animal cruelty task force · adoption · low-cost vet clinic. 11660 Administration Dr (Page & Schuetz)', url: 'https://hsmo.org/', phone: '3149511588' },
+        { label: 'HSMO — Animal Cruelty Task Force', sub: 'Report suspected animal abuse or neglect — investigation and enforcement', url: 'https://hsmo.org/', phone: '3149511588' },
+        { label: 'APA of Missouri — Animal Protective Association', sub: 'Adoption center · low-cost spay/neuter · veterinary assistance fund · therapy animal programs', url: 'https://apamo.org/', phone: '3146452550' },
+        { label: 'Gateway Pet Guardians', sub: 'Low-cost spay/neuter · community cats · East St. Louis/St. Clair County focused', url: 'https://www.gatewaypetguardians.org/', phone: '6183989077' },
+        { label: 'Tenth Life Cat Rescue', sub: 'Cats and kittens — rescue, foster, adoption. City-focused TNR and feral cat programs', url: 'https://tenthlifestl.org/', phone: '3143890099' },
+        { label: 'St. Louis Feral Cat Outreach', sub: 'Feral cat TNR program — City Ordinance 69798 authorizes TNR. Colonies must be registered with City', url: 'https://www.stlouis-mo.gov/government/departments/health/animal-care-control/shelter.cfm', phone: '3146695228' },
+        { label: 'Wild Bird Rehabilitation', sub: 'Injured or orphaned SONGBIRDS — robins, cardinals, sparrows, doves, finches. 9624 Midland Blvd, Overland. 9a–5p daily', url: 'https://wildbirdrehab.org/', phone: '3144266400' },
+        { label: 'World Bird Sanctuary — Raptor Hospital', sub: 'Injured BIRDS OF PREY — hawks, owls, eagles, falcons, vultures, herons, pelicans, swans. 636-861-1392 or text a photo', url: 'https://www.worldbirdsanctuary.org/', phone: '6368611392' },
+        { label: 'Wildlife Rescue Center', sub: 'Injured/orphaned native MAMMALS (not deer), reptiles, amphibians, waterfowl, game birds. MDC and USFWS licensed', url: 'https://www.mowildlife.org/', phone: '6363941880' },
+        { label: 'Missouri Dept of Conservation — St. Louis Regional Office', sub: 'Wildlife laws · nuisance wildlife questions · deer · problem coyotes or foxes · licensed trapper referrals', url: 'https://mdc.mo.gov/', phone: '6364414554' },
       ]
     },
-    {
-      heading: '🚛 Towing & Recovery',
-      items: [
-        { label: 'Your company here', sub: 'Abandoned vehicles · junk removal', url: '__ADVERTISE__' },
-      ]
-    },
-    {
-      heading: '🦝 Wildlife Removal',
-      items: [
-        { label: 'STL Pest Control', sub: 'Licensed nuisance trapping. City & County', url: 'https://stlpestcontrol.com/', phone: '3148336222', premiere: true },
-      ]
-    },
-    {
-      heading: '🏗️ Demolition',
-      items: [
-        { label: 'Your company here', sub: 'Licensed demolition contractors', url: '__ADVERTISE__' },
-      ]
-    },
-    {
-      heading: '☣️ Environmental',
-      items: [
-        { label: 'Your company here', sub: 'Asbestos · mold · hazmat assessment', url: '__ADVERTISE__' },
-      ]
-    },
-    {
-      heading: '⚖️ Property Law',
-      items: [
-        { label: 'Your firm here', sub: 'Code enforcement defense · property litigation', url: '__ADVERTISE__' },
-      ]
-    }
   ];
 
   function fmtPhone(p) {
@@ -4896,7 +4420,7 @@ function openMiscLinks() {
       var isTel = item.url && item.url.indexOf('tel:') === 0;
       var displayPhone = item.display || (item.phone ? fmtPhone(item.phone) : '');
       var isPremiereItem = !!item.premiere;
-      var itemBg = isPremiereItem ? 'background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f5c518;border-radius:10px;padding:12px 14px;margin-bottom:6px' : 'padding:10px 0;border-bottom:1px solid #eee';
+      var itemBg = isPremiereItem ? 'background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f5c518;border-radius:8px;padding:8px 10px;margin-bottom:4px' : 'padding:7px 0;border-bottom:1px solid #f5f5f5';
       itemsHtml += '<div style="' + itemBg + '">';
       if (isPremiereItem) {
         itemsHtml += '<div style="font-size:0.46rem;font-family:Syne,sans-serif;font-weight:800;color:#e6a100;letter-spacing:1px;margin-bottom:3px">⭐ PREMIERE PARTNER</div>';
@@ -4933,7 +4457,7 @@ function openMiscLinks() {
       html += '<div style="margin-bottom:6px;border:1px solid rgba(37,99,235,0.1);border-radius:10px;overflow:hidden">';
       html += '<div class="misc-col-hdr" data-s="' + s + '" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(37,99,235,0.04);cursor:pointer;user-select:none">';
       html += '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:var(--forest);letter-spacing:0.5px">' + escHtml(sec.heading) + '</div>';
-      html += '<div id="misc-arrow-' + s + '" style="font-size:0.75rem;color:#666;transition:transform 0.18s">&#9654;</div>';
+      html += '<div id="misc-arrow-' + s + '" style="font-size:0.6rem;color:#aaa;transition:transform 0.18s">&#9654;</div>';
       html += '</div>';
       html += '<div id="misc-col-' + s + '" style="display:none;padding:6px 12px 10px">';
       html += itemsHtml;
@@ -5461,88 +4985,15 @@ async function handleScanImage(event) {
 
 function renderScanResults() {
   const list = document.getElementById('scan-results-list');
-  if (!scannedAddresses.length) {
-    list.innerHTML = '<div style="padding:10px;font-size:0.7rem;color:#999;text-align:center">No addresses found</div>';
-    return;
-  }
-  // Anomaly detection: flag addresses with trailing standalone digits (OCR garbage)
-  const anomalyRe = /\s+\d{1,2}$/;
-  list.innerHTML = scannedAddresses.map((item, i) => {
-    const hasAnomaly = anomalyRe.test(item.address.trim());
+  if (!scannedAddresses.length) { list.innerHTML='<div style="padding:10px;font-size:0.7rem;color:#999;text-align:center">No addresses found</div>'; return; }
+  list.innerHTML = scannedAddresses.map((item,i) => {
     const c = findCase(item.address);
     const badge = c ? ` ${stagePill(c.stage)}` : '';
-    const anomalyBadge = hasAnomaly
-      ? '<span style="background:#fde8e8;color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:4px;font-size:0.42rem;padding:1px 5px;font-family:Syne,sans-serif;font-weight:800;margin-left:4px;vertical-align:middle">⚠ CHECK</span>'
-      : '';
-    const isEditing = item._editing;
-    return `<div class="scan-result-row" style="align-items:flex-start;gap:6px;padding:7px 0;border-bottom:1px solid #f0f0f0">
-      <input type="checkbox" id="scan-chk-${i}" ${item.checked ? 'checked' : ''} onchange="scannedAddresses[${i}].checked=this.checked" style="margin-top:4px;flex-shrink:0">
-      <div style="flex:1;min-width:0">
-        ${isEditing ? `
-          <input id="scan-edit-addr-${i}" type="text" value="${escHtml(item.address)}"
-            style="width:100%;padding:5px 8px;border-radius:6px;border:1.5px solid #2563eb;font-size:0.72rem;font-family:'Space Mono',monospace;margin-bottom:4px;box-sizing:border-box"
-            onkeydown="if(event.key==='Enter')scanSaveEdit(${i})">
-          <input id="scan-edit-notes-${i}" type="text" value="${escHtml(item.notes||'')}" placeholder="Notes (optional)"
-            style="width:100%;padding:5px 8px;border-radius:6px;border:1.5px solid #ccc;font-size:0.65rem;font-family:'Space Mono',monospace;margin-bottom:4px;box-sizing:border-box"
-            onkeydown="if(event.key==='Enter')scanSaveEdit(${i})">
-          <div style="display:flex;gap:5px">
-            <button onclick="scanSaveEdit(${i})" style="flex:1;padding:4px;background:#2563eb;color:white;border:none;border-radius:6px;font-size:0.62rem;font-family:Syne,sans-serif;font-weight:800;cursor:pointer">Save ✓</button>
-            <button onclick="scanCancelEdit(${i})" style="padding:4px 8px;background:#f0f0f0;color:#666;border:none;border-radius:6px;font-size:0.62rem;cursor:pointer">Cancel</button>
-          </div>
-        ` : `
-          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:3px">
-            <span style="font-size:0.72rem;font-family:'Space Mono',monospace;color:#222;word-break:break-all">${escHtml(item.address)}</span>${anomalyBadge}${badge}
-          </div>
-          ${item.notes ? `<div style="font-size:0.6rem;color:#888;font-family:'Space Mono',monospace;margin-top:2px">📝 ${escHtml(item.notes)}</div>` : ''}
-          <div style="display:flex;gap:4px;margin-top:4px">
-            <button onclick="scanStartEdit(${i})" style="padding:3px 8px;background:#f3f0ff;color:#6b21a8;border:1px solid rgba(107,33,168,0.2);border-radius:5px;font-size:0.55rem;font-family:Syne,sans-serif;font-weight:800;cursor:pointer">✏️ Edit</button>
-            ${hasAnomaly ? `<button onclick="scanFixAnomaly(${i})" style="padding:3px 8px;background:#fde8e8;color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:5px;font-size:0.55rem;font-family:Syne,sans-serif;font-weight:800;cursor:pointer">✂️ Fix</button>` : ''}
-            <button onclick="scanRemoveItem(${i})" style="padding:3px 8px;background:#f8f8f8;color:#999;border:1px solid #ddd;border-radius:5px;font-size:0.55rem;font-family:Syne,sans-serif;font-weight:800;cursor:pointer">✕</button>
-          </div>
-        `}
-      </div>
+    return `<div class="scan-result-row">
+      <input type="checkbox" id="scan-chk-${i}" ${item.checked?'checked':''} onchange="scannedAddresses[${i}].checked=this.checked">
+      <label for="scan-chk-${i}" class="scan-result-addr">${escHtml(item.address)}${badge}</label>
     </div>`;
   }).join('');
-}
-
-function scanStartEdit(i) {
-  scannedAddresses[i]._editing = true;
-  renderScanResults();
-  setTimeout(() => {
-    const el = document.getElementById('scan-edit-addr-' + i);
-    if (el) { el.focus(); el.select(); }
-  }, 50);
-}
-
-function scanSaveEdit(i) {
-  const addrEl  = document.getElementById('scan-edit-addr-'  + i);
-  const notesEl = document.getElementById('scan-edit-notes-' + i);
-  if (addrEl && addrEl.value.trim()) {
-    scannedAddresses[i].address = addrEl.value.trim();
-    scannedAddresses[i]._geocodeFailed = false; // clear flag on manual fix
-  }
-  if (notesEl) scannedAddresses[i].notes = notesEl.value.trim();
-  scannedAddresses[i]._editing = false;
-  renderScanResults();
-}
-
-function scanCancelEdit(i) {
-  scannedAddresses[i]._editing = false;
-  renderScanResults();
-}
-
-function scanRemoveItem(i) {
-  scannedAddresses.splice(i, 1);
-  renderScanResults();
-}
-
-function scanFixAnomaly(i) {
-  // Strip trailing standalone 1-2 digit suffix (OCR artifact from adjacent column)
-  const fixed = scannedAddresses[i].address.trim().replace(/\s+\d{1,2}$/, '').trim();
-  scannedAddresses[i].address = fixed;
-  scannedAddresses[i]._editing = false;
-  renderScanResults();
-  showToast('Address cleaned: ' + fixed);
 }
 
 function selectAllScanResults() { scannedAddresses.forEach((_,i)=>{ scannedAddresses[i].checked=true; const c=document.getElementById('scan-chk-'+i); if(c) c.checked=true; }); }
@@ -5572,7 +5023,7 @@ function addScannedStops() {
     // commitStopWithAddr handles dupe check; if dupe modal fires, addNext
     // will continue after user resolves via dupeAction
     window._scanAddNextCallback = addNext;
-    commitStopWithAddr(addr, full, type, item.notes || notes, null, null, null);
+    commitStopWithAddr(addr, full, type, notes, null, null, null);
     // If no dupe, call addNext immediately after a tick
     // If dupe, dupeAction will call window._scanAddNextCallback when resolved
     if (!_pendingDupeStop) setTimeout(addNext, 0);
@@ -5802,7 +5253,6 @@ function openSettings() {
 
 function closeSettings() {
   document.getElementById('settings-modal').style.display = 'none';
-  _saveCurrentProfileSnapshot(); // persist settings to active profile
   _pinEntry = '';
 }
 
@@ -5932,7 +5382,7 @@ function setInspectorId(v) { if (v) localStorage.setItem('inspector-id', v); els
 // SHARE APP LINK / CLIPBOARD
 // ============================================================
 function shareAppUrl() {
-  const url = 'https://stlcityroute.com';
+  const url = 'https://yourcityroute.com';
   if (navigator.share) {
     navigator.share({ title: 'YourCityRoute', url }).catch(() => _clipboardFallback(url));
   } else {
@@ -6568,79 +6018,6 @@ function getCityJobs() {
     ord_header:'GOVERNING LAW & STANDARDS',
     ord_body:'▸ Clean Air Act Section 608 — 42 U.S.C. §7671g (Refrigerant Regulations)\n▸ EPA Section 608 Rules — 40 CFR Part 82, Subpart F\n▸ International Mechanical Code (IMC) — adopted by Missouri jurisdictions\n▸ International Fuel Gas Code (IFGC) — gas-fired equipment\n▸ Missouri HVAC Contractor Licensing — RSMo §341 (Division of Professional Registration)\n▸ ASHRAE 62.1 (Ventilation for Indoor Air Quality)\n▸ ASHRAE 90.1 (Energy Standard for Buildings)\n▸ OSHA 29 CFR 1910.146 (Permit-Required Confined Spaces — relevant for mechanical rooms)',
   },
-  // ── Social Services ─────────────────────────────────────────────────────────
-  {
-    id: 'case_manager_dss',
-    label: 'Case Manager — Division of Family Services (DSS)',
-    sector: 'public',
-    whoami: 'I am a Case Manager employed by the Missouri Department of Social Services, Family Support Division. I conduct home visits and field assessments to evaluate client eligibility and well-being under state and federal social service programs.',
-    authority: 'Missouri DSS Case Managers are authorized under RSMo Chapter 207 (Division of Family Services) and applicable federal regulations under Title IV-A, Title IV-D, Title XIX (Medicaid), SNAP (7 U.S.C. §2011), and related programs.',
-    enforce: 'Case Managers assess household conditions, document compliance with program requirements, verify residency and household composition, and coordinate referrals to community services.',
-    exempt: 'Case Managers are not law enforcement officers and do not have arrest authority. Home visits are conducted with client consent unless a court order or emergency protective action is in effect.',
-    ord_header: 'RSMo Ch. 207 · Title IV-A · Title XIX (Medicaid) · SNAP 7 U.S.C. §2011',
-    ord_body: '▸ RSMo §207.010 — Division of Family Services — powers and duties\n▸ RSMo §207.020 — administration of public assistance programs\n▸ Title IV-A (TANF) — 42 U.S.C. §601 et seq.\n▸ Title XIX (Medicaid) — 42 U.S.C. §1396 et seq.\n▸ SNAP — 7 U.S.C. §2011 et seq.\n▸ Title IV-D (Child Support) — 42 U.S.C. §651 et seq.\n▸ Missouri Children\'s Division — RSMo Chapter 210 (child abuse/neglect)',
-    summary: []
-  },
-  {
-    id: 'employment_specialist',
-    label: 'Employment Specialist — Workforce Development',
-    sector: 'public',
-    whoami: 'I am an Employment Specialist working within a Workforce Development program, conducting outreach, job readiness assessments, and employer engagement on behalf of clients receiving workforce services under the Workforce Innovation and Opportunity Act (WIOA).',
-    authority: 'Authorized under the Workforce Innovation and Opportunity Act (WIOA), 29 U.S.C. §3101 et seq., and applicable Missouri Job Center program policies.',
-    enforce: 'Employment Specialists conduct individual employment plan development, skills assessments, job placement coordination, employer site visits, and follow-up contacts to verify employment retention.',
-    exempt: 'Employment Specialists have no enforcement authority. All services are voluntary and client-driven.',
-    ord_header: 'WIOA — 29 U.S.C. §3101 · Missouri Job Center Programs',
-    ord_body: '▸ Workforce Innovation and Opportunity Act (WIOA) — 29 U.S.C. §3101 et seq.\n▸ Missouri Job Centers — administered by Missouri Division of Workforce Development\n▸ WIOA Title I — adult, dislocated worker, and youth programs\n▸ WIOA Title III — Wagner-Peyser Employment Services',
-    summary: []
-  },
-  {
-    id: 'outreach_worker',
-    label: 'Outreach Worker / Street Outreach Coordinator',
-    sector: 'public',
-    whoami: 'I am an Outreach Worker conducting field-based engagement with at-risk individuals including those experiencing homelessness, substance use disorders, mental health crises, or housing instability. My role is to build trust, assess needs, and connect individuals to services.',
-    authority: 'Operating under program authorization of the host agency (nonprofit, city department, or continuum of care organization) and funded under HUD Continuum of Care, SAMHSA grants, or city/state contracts.',
-    enforce: 'Outreach Workers do not have enforcement authority. Engagement is entirely voluntary. Outreach Workers may coordinate with law enforcement or emergency services in life-threatening situations.',
-    exempt: 'No arrest authority. No authority to compel services. Engagement must be voluntary.',
-    ord_header: 'HUD CoC Program · SAMHSA Grants · City/State Service Contracts',
-    ord_body: '▸ HUD Continuum of Care Program — 42 U.S.C. §11381 et seq.\n▸ SAMHSA Substance Use Prevention and Treatment Block Grant\n▸ PATH Program (Projects for Assistance in Transition from Homelessness) — 42 U.S.C. §290cc-21\n▸ Missouri DHSS Behavioral Health Division contracts',
-    summary: []
-  },
-  {
-    id: 'child_welfare_specialist',
-    label: 'Child Welfare Specialist — Children\'s Division (DSS)',
-    sector: 'public',
-    whoami: 'I am a Child Welfare Specialist (Children\'s Division Investigator) employed by the Missouri Department of Social Services, Children\'s Division. I investigate reports of child abuse and neglect and conduct safety assessments in family homes.',
-    authority: 'Authorized under RSMo Chapter 210 (Child Abuse and Neglect) and 13 CSR 35-31. Investigators have authority to conduct safety assessments, remove children in imminent danger (with or without court order under emergency conditions), and require access to children named in reports.',
-    enforce: 'Investigators assess child safety, interview children and caregivers, photograph conditions, coordinate with law enforcement on criminal investigations, and initiate family court actions when necessary.',
-    exempt: 'Children\'s Division investigators are not law enforcement officers, though they co-respond with SLMPD on criminal abuse investigations.',
-    ord_header: 'RSMo Ch. 210 · 13 CSR 35-31 · CAPTA 42 U.S.C. §5101',
-    ord_body: '▸ RSMo §210.110 — definitions (abuse and neglect)\n▸ RSMo §210.115 — mandated reporter requirements\n▸ RSMo §210.125 — investigation procedures\n▸ RSMo §210.145 — hotline and response protocol\n▸ 13 CSR 35-31.025 — investigation standards\n▸ Child Abuse Prevention and Treatment Act (CAPTA) — 42 U.S.C. §5101\n▸ Adoption and Safe Families Act (ASFA) — 42 U.S.C. §671',
-    summary: []
-  },
-  {
-    id: 'benefits_navigator',
-    label: 'Benefits Navigator / Social Services Coordinator',
-    sector: 'public',
-    whoami: 'I am a Benefits Navigator conducting field outreach to help individuals and families enroll in public benefit programs including Medicaid, SNAP, TANF, LIHEAP, and WIC. I conduct home visits and community outreach to assist with applications and documentation.',
-    authority: 'Operating under agency program authority. Navigator activities are authorized under the Affordable Care Act navigator program provisions and applicable state agency contracts.',
-    enforce: 'Benefits Navigators have no enforcement authority. All services are voluntary assistance.',
-    exempt: 'No enforcement authority. Confidentiality of client information is governed by HIPAA, FERPA where applicable, and state public assistance confidentiality statutes (RSMo §208.120).',
-    ord_header: 'RSMo §208.120 · ACA Navigator Program · SNAP · Medicaid · LIHEAP',
-    ord_body: '▸ RSMo §208.120 — confidentiality of public assistance records\n▸ SNAP — 7 U.S.C. §2011\n▸ Medicaid — 42 U.S.C. §1396\n▸ TANF — 42 U.S.C. §601\n▸ LIHEAP — 42 U.S.C. §8621\n▸ WIC — 42 U.S.C. §1786\n▸ ACA §1311(i) — Navigator program',
-    summary: []
-  },
-  {
-    id: 'reentry_specialist',
-    label: 'Reentry Specialist / Justice-Involved Services Coordinator',
-    sector: 'public',
-    whoami: 'I am a Reentry Specialist conducting field-based case management with justice-involved individuals transitioning from incarceration. I conduct home visits, employment site visits, and community resource coordination.',
-    authority: 'Operating under program authority of the host agency (state DOC, city reentry program, or contracted nonprofit) and funded under Second Chance Act grants, DOJ / BJA grants, or city/state contracts.',
-    enforce: 'Reentry Specialists do not have law enforcement or supervision authority unless employed by DOC as parole/probation officers. Field contacts are service-oriented.',
-    exempt: 'Reentry Specialists are not probation or parole officers (unless specifically employed in that capacity) and have no arrest or supervision authority.',
-    ord_header: 'Second Chance Act · BJA Grants · Missouri DOC Programs',
-    ord_body: '▸ Second Chance Act — 42 U.S.C. §17501 et seq.\n▸ Missouri Department of Corrections — community supervision programs\n▸ DOJ Bureau of Justice Assistance (BJA) reentry grant programs\n▸ RSMo §217 — Missouri Department of Corrections',
-    summary: []
-  },
 ];
   return _cityJobsCache;
 }
@@ -6851,33 +6228,22 @@ function prefillFromPosition(jobId) {
   const job  = jobs.find(j => j.id === jobId);
   if (!job) return;
 
-  // Derive display values from job data
-  const _title = (job.label || '').split(' — ')[0].trim();
-  const _whoami = job.whoami || '';
-  const _divM  = _whoami.match(/City of St\.\s*Louis\s+([A-Za-z ,&\/]+?(?:Division|Bureau|Section|Unit)[A-Za-z ,&\/]*?)(?:,|\.|\bDepartment\b|$)/i);
-  const _deptM = _whoami.match(/Department of ([A-Za-z ,&]+?)(?:\.|,|\bI am\b|$)/i);
-  const _div   = _divM  ? _divM[1].trim()                  : '';
-  const _dept  = _deptM ? ('Dept. of ' + _deptM[1].trim()) : '';
-  const _scope = job.ord_header || '';
-
-  // WRITE TO LOCALSTORAGE FIRST so wizard step 2 reads pre-filled values via getCredsVal()
-  // This is the critical fix: without this, the wizard reads empty values on next render
-  if (_title) setCredsVal('title',      _title);
-  if (_div)   setCredsVal('division',   _div);
-  if (_dept)  setCredsVal('department', _dept);
-  if (_scope) setCredsVal('scope',      _scope);
-
-  // Also update any currently-visible Settings DOM inputs
+  // ── Title (short form before the dash)
   const titleEl = document.getElementById('creds-title-input');
-  if (titleEl) titleEl.value = _title;
+  if (titleEl) titleEl.value = (job.label || '').split(' — ')[0].trim();
+
+  // ── Division / Dept / Scope
+  const whoami = job.whoami || '';
   const divEl   = document.getElementById('creds-division-input');
   const deptEl  = document.getElementById('creds-dept-input');
   const scopeEl = document.getElementById('creds-scope-input');
-  if (divEl)   divEl.value   = _div;
-  if (deptEl)  deptEl.value  = _dept;
-  if (scopeEl) scopeEl.value = _scope;
+  const divM  = whoami.match(/City of St\. Louis\s+([A-Za-z ,&\/]+?(?:Division|Bureau|Section|Unit)[A-Za-z ,&\/]*?)(?:,|\.|\bDepartment\b|$)/i);
+  const deptM = whoami.match(/Department of ([A-Za-z ,&]+?)(?:\.|,|\bI am\b|$)/i);
+  if (divEl)   divEl.value   = divM  ? divM[1].trim()  : '';
+  if (deptEl)  deptEl.value  = deptM ? ('Dept. of ' + deptM[1].trim()) : '';
+  if (scopeEl) scopeEl.value = job.ord_header || '';
 
-  // Load role/authority/ordinance/summary content
+  // ── Load role/authority/ordinance/summary content
   setCredsVal('roles_whoami_body',    job.whoami    || '');
   setCredsVal('roles_authority_body', job.authority || '');
   setCredsVal('roles_enforce_body',   job.enforce   || '');
@@ -7229,34 +6595,24 @@ function showFullscreen(type) {
 // showFullscreen() is now a short dispatcher. Each _fs* function handles one view.
 
 function _fsShowId() {
-  var idFs = document.getElementById('id-fullscreen');
-  if (!idFs) { idFs = document.createElement('div'); idFs.id='id-fullscreen'; document.body.appendChild(idFs); }
-  var front  = localStorage.getItem('creds-id-front') || '';
-  var nm     = (typeof getInspectorId==='function'?getInspectorId():'')||'';
-  var tv     = (typeof getCredsVal==='function'?getCredsVal('title'):'')||'FIELD INSPECTOR';
-  var dv     = (typeof getCredsVal==='function'?getCredsVal('division'):'')||'';
-  var dp     = (typeof getCredsVal==='function'?getCredsVal('department'):'')||'';
-  var sc     = (typeof getCredsVal==='function'?getCredsVal('scope'):'')||'';
-  var em     = (typeof getCredsVal==='function'?getCredsVal('email'):'')||'';
-  var ph     = (typeof getCredsVal==='function'?getCredsVal('phone'):'')||'';
-  var sub    = [dv,dp,sc].filter(Boolean).join(' / ');
-  idFs.setAttribute('style','position:fixed;inset:0;z-index:9999;background:#0d2b6b;overflow-y:auto;padding:60px 16px 40px;display:block;');
-  var cb=document.createElement('button');
-  cb.textContent='X';
-  cb.setAttribute('style','position:fixed;top:14px;right:14px;z-index:10001;background:rgba(126,200,80,0.2);border:1px solid rgba(126,200,80,0.4);color:var(--lime);border-radius:50%;width:38px;height:38px;font-size:1rem;cursor:pointer;');
-  cb.onclick=function(){idFs.style.display='none';};
-  var w=document.createElement('div');
-  w.setAttribute('style','max-width:400px;margin:0 auto;');
-  if(front){var img=document.createElement('img');img.src=front;img.setAttribute('style','width:100%;max-height:50vh;object-fit:contain;border-radius:10px;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:block;');w.appendChild(img);}
-  var cd=document.createElement('div');
-  cd.setAttribute('style','background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.04));border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:18px 20px;');
-  var h='<div style="font-size:0.56rem;font-family:Syne,sans-serif;font-weight:800;color:var(--lime);letter-spacing:2px;margin-bottom:5px">CITY OF ST. LOUIS</div>';
-  h+='<div style="font-family:Syne,sans-serif;font-weight:800;font-size:1rem;color:white;margin-bottom:'+(nm?'3px':'8px')+'">' +escHtml(tv)+'</div>';
-  if(nm)  h+='<div style="font-size:0.68rem;color:rgba(200,230,201,0.8);font-family:Syne,sans-serif;font-weight:700;margin-bottom:8px">'+escHtml(nm)+'</div>';
-  if(sub) h+='<div style="height:1px;background:rgba(126,200,80,0.2);margin:8px 0"></div><div style="font-size:0.56rem;color:rgba(180,205,255,0.6);font-family:Space Mono,monospace;line-height:1.7;margin-bottom:8px">'+escHtml(sub)+'</div>';
-  if(em||ph){h+='<div style="height:1px;background:rgba(126,200,80,0.2);margin:8px 0"></div>';if(em)h+='<div style="font-size:0.58rem;color:rgba(200,230,201,0.75);font-family:Space Mono,monospace;margin-bottom:3px">Email: '+escHtml(em)+'</div>';if(ph)h+='<div style="font-size:0.58rem;color:rgba(200,230,201,0.75);font-family:Space Mono,monospace;">Phone: '+escHtml(ph)+'</div>';}
-  cd.innerHTML=h; w.appendChild(cd);
-  idFs.innerHTML=''; idFs.appendChild(cb); idFs.appendChild(w);
+let idFs = document.getElementById('id-fullscreen');
+    if (!idFs) { idFs = document.createElement('div'); idFs.id = 'id-fullscreen'; document.body.appendChild(idFs); }
+    const front = localStorage.getItem('creds-id-front') || '';
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const portrait = vw < vh;
+    const innerW = portrait ? vh : vw, innerH = portrait ? vw : vh;
+    const rotStyle = portrait ? 'transform:rotate(90deg);' : '';
+    const closePos = portrait ? 'top:10px;left:10px;' : 'top:14px;right:14px;';
+    const photoHtml = front
+      ? '<img src="' + front + '" style="max-width:100%;max-height:100%;object-fit:contain;">'
+      : '<div style="color:rgba(255,255,255,0.4);font-family:Syne,sans-serif;font-weight:700;font-size:0.8rem;text-align:center;padding:40px">🪪 No ID photo yet<br><span style="font-size:0.6rem;font-weight:400">Use Customize to upload</span></div>';
+    idFs.style.cssText = 'display:flex;position:fixed;inset:0;z-index:10000;background:#000;align-items:center;justify-content:center;';
+    idFs.innerHTML = '<div style="position:relative;width:'+innerW+'px;height:'+innerH+'px;'+rotStyle+'display:flex;align-items:center;justify-content:center;background:#000;">'
+      + photoHtml
+      + '<button onclick="closeIdFullscreen()" style="position:absolute;'+closePos+'background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10001;">✕</button>'
+      + '</div>';
+    document.body.style.overflow = 'hidden';
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
 }
 
 function _fsShowQuestions(content) {
@@ -7314,7 +6670,7 @@ const rolesBtn = 'fsSetView(\'auth\')';
             <button id="sector-btn-private" onclick="setSector('private')" style="flex:1;padding:5px;border-radius:7px;border:1.5px solid rgba(126,200,80,0.4);background:transparent;color:var(--lime);font-family:Syne,sans-serif;font-weight:800;font-size:0.58rem;cursor:pointer">🏢 PRIVATE</button>
           </div>
           <div style="font-size:0.55rem;color:rgba(200,230,201,0.6);font-family:Syne,sans-serif;font-weight:700;margin-bottom:5px;letter-spacing:0.5px" id="sector-position-label">SELECT YOUR POSITION</div>
-          <select id="job-role-select" onchange="applyJobRole(this.value)" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid rgba(126,200,80,0.4);background:#0d1a4a;color:#f5c518;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;appearance:none;-webkit-appearance:none">
+          <select id="job-role-select" onchange="applyJobRole(this.value)" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid rgba(126,200,80,0.4);background:#1a3320;color:var(--lime);font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;appearance:none;-webkit-appearance:none">
             <option value="">— Choose your position —</option>
           </select>
           <div style="font-size:0.46rem;color:rgba(180,205,255,0.45);font-family:Space Mono,monospace;margin-top:3px;text-align:center">👁 Previewing only — save your position in ⚙️ Settings</div>
@@ -8148,82 +7504,28 @@ function pushToGoogleSheets() {
     return;
   }
 
-  // Build comprehensive payload
-  const m   = computeMetrics(_dataRange || 'today');
-  const _id = getInspectorId() || '';
-  // Calculate transit times for stop-level detail
-  const completedSorted = (m.allStops||[]).filter(s=>s.done&&s.completedAt)
-    .sort((a,b)=>new Date(a.completedAt)-new Date(b.completedAt));
-  const transitMap = {};
-  for (let _ti=1; _ti<completedSorted.length; _ti++) {
-    const _p=completedSorted[_ti-1], _c=completedSorted[_ti];
-    const _tr=(new Date(_c.completedAt)-new Date(_p.completedAt))/60000;
-    const _dw=_c.arrivedAt&&_c.completedAt?(new Date(_c.completedAt)-new Date(_c.arrivedAt))/60000:null;
-    transitMap[_c.id]={transitMins:parseFloat(_tr.toFixed(1)),dwellMins:_dw!==null?parseFloat(_dw.toFixed(1)):null};
-  }
-  const addrCount={};
-  (m.allStops||[]).forEach(s=>{const a=(s.address||'').toLowerCase().trim();addrCount[a]=(addrCount[a]||0)+1;});
-
+  // Build payload
+  const m = computeMetrics(_dataRange || 'today');
   const payload = {
-    // ── Export metadata ──────────────────────────────────────
-    exportedAt:      new Date().toISOString(),
-    exportRange:     _dataRange || 'today',
-    appVersion:      '1.0.0',
-    // ── Inspector identity ──────────────────────────────────
-    inspector:       _id,
-    division:        (typeof getCredsVal==='function'?getCredsVal('division'):'')||'',
-    department:      (typeof getCredsVal==='function'?getCredsVal('department'):'')||'',
-    scope:           (typeof getCredsVal==='function'?getCredsVal('scope'):'')||'',
-    // ── Session summary ─────────────────────────────────────
-    totalStops:      m.totalStops,
-    completed:       m.completed,
-    pending:         m.pending,
-    completionRate:  m.completionRate,
-    stopsPerHour:    m.stopsPerHour,
-    avgMinsPerStop:  m.avgMinsPerStop,
-    sessionDate:     m.firstStopTime ? m.firstStopTime.toLocaleDateString('en-US') : new Date().toLocaleDateString('en-US'),
-    sessionStart:    m.firstStopTime ? m.firstStopTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '',
-    sessionEnd:      m.lastStopTime  ? m.lastStopTime.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})  : '',
-    shiftHrs:        m.avgShiftHrs,
-    // ── Geographic metrics ──────────────────────────────────
-    uniqueStreets:   m.uniqueStreets,
-    topStreets:      m.topStreets || [],
-    returnVisits:    m.returnVisits,
-    returnAddresses: m.returnAddresses || [],
-    // ── Quality metrics ─────────────────────────────────────
-    stopsWithNotes:  m.stopsWithNotes,
-    closeRateByDow:  m.closeRateByDow || {},
-    byType:          m.byType || {},
-    // ── Per-stop detail ─────────────────────────────────────
-    stops: (m.allStops||[]).map(s => {
-      const _add = s.addedAt    ? new Date(s.addedAt)    : null;
-      const _arr = s.arrivedAt  ? new Date(s.arrivedAt)  : null;
-      const _cls = s.completedAt? new Date(s.completedAt): null;
-      const _tr  = transitMap[s.id] || {};
-      return {
-        stopId:          s.id,
-        no:              (m.allStops||[]).indexOf(s)+1,
-        address:         s.address || '',
-        type:            (s.type||'other').replace(/_/g,' '),
-        status:          s.done ? 'Completed' : 'Pending',
-        inputTime:       _add ? _add.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '',
-        arriveTime:      _arr ? _arr.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '',
-        closeTime:       _cls ? _cls.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '',
-        totalMinutes:    _add&&_cls ? parseFloat(((_cls-_add)/60000).toFixed(1)) : null,
-        dwellMinutes:    _arr&&_cls ? parseFloat(((_cls-_arr)/60000).toFixed(1)) : null,
-        transitMinutes:  _tr.transitMins || null,
-        initialNotes:    s.initialNotes || '',
-        stopNotes:       s.notes || '',
-        closingNotes:    s.closingNotes || '',
-        lat:             s.lat || null,
-        lng:             s.lng || null,
-        geocodeOK:       !s._geocodeFailed,
-        returnVisit:     (addrCount[(s.address||'').toLowerCase().trim()]||0) > 1,
-        addedAt:         s.addedAt || null,
-        arrivedAt:       s.arrivedAt || null,
-        completedAt:     s.completedAt || null,
-      };
-    })
+    exportedAt: new Date().toISOString(),
+    inspector: getInspectorId() || '',
+    range: _dataRange || 'today',
+    completed: m.completed,
+    totalStops: m.totalStops,
+    completionRate: m.completionRate,
+    stopsPerHour: m.stopsPerHour,
+    avgMinsPerStop: m.avgMinsPerStop,
+    returnVisits: m.returnVisits,
+    uniqueStreets: m.uniqueStreets,
+    stopsWithNotes: m.stopsWithNotes,
+    avgShiftHrs: m.avgShiftHrs,
+    byType: m.byType,
+    topStreets: m.topStreets,
+    stops: (stops||[]).map(s => ({
+      address: s.address, type: s.type, done: s.done,
+      addedAt: s.addedAt, completedAt: s.completedAt||null,
+      notes: s.notes||'', lat: s.lat||null, lng: s.lng||null
+    }))
   };
 
   // Show sending indicator
@@ -8385,59 +7687,19 @@ function exportDataCSV() {
     var m = computeMetrics(_dataRange);
     var now = new Date();
     var _inspName = (typeof getInspectorId==='function'?getInspectorId():'')||'';
-    var _div   = (typeof getCredsVal==='function'?getCredsVal('division'):'')||'';
-    var _dept  = (typeof getCredsVal==='function'?getCredsVal('department'):'')||'';
-    var _scope = (typeof getCredsVal==='function'?getCredsVal('scope'):'')||'';
-    // Full per-stop CSV with all trackable fields
-    var rows = [
-      '#,Inspector,Division,Department,Scope,Date,Address,Type,Status,' +
-      'InputTime,ArriveTime,CloseTime,StopTimeMins,DwellTimeMins,TransitTimeMins,' +
-      'InitialNotes,StopNotes,ClosingNotes,Lat,Lng,ReturnVisit,GeocodeOK,StopID'
-    ];
-    // Calculate transit times (gap between consecutive completed stops)
-    var completedSorted = (m.allStops||[]).filter(function(s){return s.done&&s.completedAt;})
-      .sort(function(a,b){return new Date(a.completedAt)-new Date(b.completedAt);});
-    var transitMap = {};
-    for (var _ti=1; _ti<completedSorted.length; _ti++) {
-      var _prev = completedSorted[_ti-1], _cur = completedSorted[_ti];
-      var _transit = (new Date(_cur.completedAt)-new Date(_prev.completedAt))/60000;
-      var _dwell   = _cur.arrivedAt&&_cur.completedAt ? (new Date(_cur.completedAt)-new Date(_cur.arrivedAt))/60000 : null;
-      var _stop    = _dwell !== null ? _transit - _dwell : null;
-      transitMap[_cur.id] = { transit: _transit.toFixed(1), stopTime: _stop!==null?_stop.toFixed(1):'' };
-    }
-    // Detect return visits (address appears more than once)
-    var addrCount = {};
-    (m.allStops||[]).forEach(function(s){ var a=(s.address||'').toLowerCase().trim(); addrCount[a]=(addrCount[a]||0)+1; });
-
+    var rows = ['#,Inspector,Address,Type,Status,AddedAt,CompletedAt,DurationMins,Lat,Lng,Notes'];
     (m.allStops || []).forEach(function(s, _idx) {
-      var addedDt    = s.addedAt    ? new Date(s.addedAt)    : new Date(s.id||Date.now());
-      var arrivedDt  = s.arrivedAt  ? new Date(s.arrivedAt)  : null;
-      var closedDt   = s.completedAt? new Date(s.completedAt): null;
-      var _csv = function(v){ var _s=''+( v||''); return '"'+_s.replace(/"/g,"'").replace(/\n/g,' ')+'"'; };
-      var date      = addedDt.toLocaleDateString('en-US');
-      var inputTime = addedDt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      var arrTime   = arrivedDt ? arrivedDt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
-      var closeTime = closedDt  ? closedDt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})  : '';
-      var durMins   = closedDt&&addedDt ? ((closedDt-addedDt)/60000).toFixed(1) : '';
-      var dwellMins = arrivedDt&&closedDt ? ((closedDt-arrivedDt)/60000).toFixed(1) : '';
-      var transit   = transitMap[s.id] ? transitMap[s.id].transit : '';
-      var stopTime  = transitMap[s.id] ? transitMap[s.id].stopTime : '';
-      var isReturn  = addrCount[(s.address||'').toLowerCase().trim()] > 1 ? 'Yes' : 'No';
-      rows.push([
-        _idx+1,
-        _csv(_inspName), _csv(_div), _csv(_dept), _csv(_scope),
-        date,
-        _csv(s.address),
-        (s.type||'other').replace(/_/g,' '),
-        s.done ? 'Completed' : 'Pending',
-        inputTime, arrTime, closeTime,
-        durMins, dwellMins, transit,
-        _csv(s.initialNotes||''), _csv(s.notes||''), _csv(s.closingNotes||''),
-        s.lat||'', s.lng||'',
-        isReturn,
-        s._geocodeFailed ? 'No' : 'Yes',
-        s.id
-      ].join(','));
+      var addedDt  = s.addedAt ? new Date(s.addedAt) : new Date(s.id||Date.now());
+      var date = addedDt.toLocaleDateString('en-US');
+      var time = addedDt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      var addr = '"' + (s.address||'').replace(/"/g,"'") + '"';
+      var type = (s.type||'other').replace(/_/g,' ');
+      var status = s.done ? 'Completed' : 'Pending';
+      var notes = '"' + ((s.notes||'') + '').replace(/\n/g,' ').replace(/"/g,"'") + '"';
+      var completedAt = s.completedAt ? new Date(s.completedAt).toLocaleString('en-US') : '';
+      var lat = s.lat||''; var lng = s.lng||'';
+      var durMins = (s.completedAt && s.addedAt) ? ((new Date(s.completedAt).getTime()-new Date(s.addedAt).getTime())/60000).toFixed(1) : '';
+      rows.push([_idx+1, '"'+_inspName+'"', addr, type, status, addedDt.toLocaleString('en-US'), completedAt, durMins, lat, lng, notes].join(','));
     });
     rows.push('');
     rows.push('SUMMARY');
@@ -8613,12 +7875,6 @@ function closeSetupWizard() {
   document.getElementById('setup-wizard').style.display = 'none';
 }
 
-function wizardBack() {
-  if (_wizardStep <= 0) return;
-  _wizardStep--;
-  renderWizardStep();
-}
-
 function wizardNext() {
   // Save current step data before advancing
   if (WIZARD_STEPS[_wizardStep] === 'name') {
@@ -8721,13 +7977,8 @@ function renderWizardStep() {
     }, 50);
 
     footer.innerHTML =
-      '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-        '<button onclick="wizSaveRole();wizardNext();" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
-      '</div>' +
-      '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip setup — I just want route planning</button>' +
-      '</div>' +
-      '<div style="font-size:0.48rem;color:rgba(200,230,201,0.25);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">Setting your position unlocks Roles, Ordinances, Summary pages and auto-fills your ID card. Not required.</div>';
+      '<button onclick="wizSaveRole();wizardNext();" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
+      '<button onclick="wizardSkip()" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip</button>';
 
   } else if (step === 'name') {
     var savedName = localStorage.getItem('inspector-id') || localStorage.getItem('inspector-name') || '';
@@ -8748,13 +7999,8 @@ function renderWizardStep() {
       wizField('Department', 'wiz-dept-input', 'text', savedDept, 'e.g. Dept. of Parks, Recreation & Forestry') +
       wizField('Scope / Ordinance', 'wiz-scope-input', 'text', savedScope, 'e.g. Weed Control · Ord. 72059');
     footer.innerHTML =
-      '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(200,230,201,0.2);color:rgba(200,230,201,0.7);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
-        '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
-      '</div>' +
-      '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — fill in later via ⚙️ Settings</button>' +
-      '</div>';
+      '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
+      '<button onclick="wizardSkip()" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip</button>';
 
   } else if (step === 'apikey') {
     body.innerHTML =
@@ -8767,14 +8013,8 @@ function renderWizardStep() {
       wizField('Anthropic API Key', 'wiz-apikey-input', 'password', '', 'sk-ant-api03-...') +
       '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:rgba(200,230,201,0.3);margin-top:6px">Stored only on your device. Never uploaded.</div>';
     footer.innerHTML =
-      '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(200,230,201,0.2);color:rgba(200,230,201,0.7);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
-        '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Finish Setup →</button>' +
-      '</div>' +
-      '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — AI features are optional and never required</button>' +
-      '</div>' +
-      '<div style="font-size:0.48rem;color:rgba(200,230,201,0.25);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">The app works fully without an API key. You can add one anytime in ⚙️ Settings.</div>';
+      '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Finish Setup →</button>' +
+      '<button onclick="wizardSkip()" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip for now</button>';
 
   } else if (step === 'done') {
     closeSetupWizard();
@@ -8834,28 +8074,10 @@ function wizSaveRole() {
           <button onclick="document.getElementById('misc-links-modal').style.display='none'" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
         </div>
       </div>
-      <div style="font-size:0.7rem;color:#666;font-family:'Syne',sans-serif;margin-top:4px">Tap any link to open · Phone numbers dial directly</div>
-      <div style="font-size:0.68rem;color:#888;font-family:'Syne',sans-serif;margin-top:6px;line-height:1.5;padding:6px 0 2px;border-top:1px solid #f0f0f0">
+      <div style="font-size:0.54rem;color:#999;font-family:'Space Mono',monospace;margin-top:3px">Tap any link to open · Phone numbers dial directly</div>
+      <div style="font-size:0.5rem;color:#bbb;font-family:'Space Mono',monospace;margin-top:4px;line-height:1.5;padding:5px 0 2px;border-top:1px solid #f5f5f5">
         This app is funded by local government sponsorships and listings on this page — no pop-up ads or banners. Just the information you need, where you know to look.
       </div>
-      <div style="display:flex;gap:10px;margin-top:8px;padding-top:6px;border-top:1px solid #f0f0f0">
-        <span onclick="openAdvertiseModal()" style="font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:700;color:#1a4a9c;cursor:pointer;text-decoration:underline">📣 Advertise with us</span>
-        <span style="color:#ccc">·</span>
-        <span onclick="openAdvertiseModal()" style="font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:700;color:#1a4a9c;cursor:pointer;text-decoration:underline">🌱 Nonprofits list free</span>
-      </div>
-      <!-- Premiere Partners block -->
-      <div style="margin-top:10px;padding:12px;background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f5c518;border-radius:10px">
-        <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:800;color:#c47c00;letter-spacing:1.5px;margin-bottom:8px">⭐ PREMIERE PARTNERS</div>
-        <a href="https://stlpestcontrol.com/" target="_blank" rel="noopener" onclick="trackResourceClick('STL Pest Control','Premiere Partners','https://stlpestcontrol.com/')" style="display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--forest);text-decoration:none;margin-bottom:2px">STL Pest Control ↗</a>
-        <div style="font-size:0.75rem;color:#555;font-family:'Syne',sans-serif;margin-bottom:4px">Rodents · insects · vermin · wildlife. City & County</div>
-        <a href="tel:+13148336222" onclick="trackResourceClick('STL Pest Control (call)','Premiere Partners','tel:3148336222')" style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;color:#1a4a9c;text-decoration:none">📞 (314) 833-6222</a>
-        <div style="height:1px;background:#f0d060;margin:10px 0"></div>
-        <a href="https://hsmo.org/" target="_blank" rel="noopener" onclick="trackResourceClick('Humane Society of Missouri','Premiere Partners','https://hsmo.org/')" style="display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;color:var(--forest);text-decoration:none;margin-bottom:2px">Humane Society of Missouri ↗</a>
-        <div style="font-size:0.75rem;color:#555;font-family:'Syne',sans-serif;margin-bottom:4px">Adoption · cruelty task force · low-cost vet. 1201 Macklind Ave</div>
-        <a href="tel:+13149511588" onclick="trackResourceClick('Humane Society (call)','Premiere Partners','tel:3149511588')" style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;color:#1a4a9c;text-decoration:none">📞 (314) 951-1588</a>
-      </div>
-      <!-- Gov/Nonprofit label -->
-      <div style="margin-top:12px;padding:6px 10px;background:#e8f0fe;border-radius:6px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;color:#0d2b6b;letter-spacing:0.5px">🏛️ Government &amp; Nonprofit Resources</div>
     </div>
     <div id="misc-links-body" style="padding:12px 14px"></div>
   </div>
@@ -8983,40 +8205,4 @@ function wizSaveRole() {
   </div>
 </div>
 </body>
-</html><div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">💳 Payment App</div>
-      <div style="font-size:0.6rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Set your preferred payment app. A 💳 Pay button will appear on stop cards so you can jump straight to payment when you close a stop.</div>
-      <select id="settings-pos-platform" onchange="savePOSPlatform()" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Syne',sans-serif;font-size:0.75rem;color:#222;background:white;margin-bottom:8px">
-        <option value="">— No payment app —</option>
-        <option value="square">Square</option>
-        <option value="paypal">PayPal / Zettle</option>
-        <option value="venmo">Venmo</option>
-        <option value="cashapp">Cash App</option>
-        <option value="stripe">Stripe Dashboard</option>
-        <option value="quickbooks">QuickBooks GoPayment</option>
-        <option value="zelle">Zelle</option>
-        <option value="custom">Custom URL…</option>
-      </select>
-      <input id="settings-pos-custom" type="url" placeholder="Custom deep-link URL (e.g. myapp://pay)" style="display:none;width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Space Mono',monospace;font-size:0.72rem;color:#222;box-sizing:border-box" onchange="savePOSPlatform()">
-    </div>
-    <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">&#9855; Accessibility</div>
-      <div style="font-size:0.54rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Changes apply instantly and persist across sessions.</div>
-      <div style="margin-bottom:10px">
-        <div style="font-size:0.58rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:5px">Text Size</div>
-        <div style="display:flex;gap:6px">
-          <button onclick="setA11yScale('1')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">Normal</button>
-          <button onclick="setA11yScale('1.2')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">Large</button>
-          <button onclick="setA11yScale('1.45')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">X-Large</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
-        <div><div style="font-size:0.6rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">High Contrast</div><div style="font-size:0.48rem;color:#888;font-family:'Space Mono',monospace">Sharper colors, bolder borders</div></div>
-        <button id="a11y-contrast-btn" onclick="setA11yContrast(localStorage.getItem('a11y-contrast')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">OFF</button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
-        <div><div style="font-size:0.6rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">Reduced Motion</div><div style="font-size:0.48rem;color:#888;font-family:'Space Mono',monospace">Stop animations and transitions</div></div>
-        <button id="a11y-motion-btn" onclick="setA11yMotion(localStorage.getItem('a11y-reduced-motion')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">OFF</button>
-      </div>
-    </div>
-    
+</html>
