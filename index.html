@@ -6374,19 +6374,18 @@ function _stampImageBlob(blob, meta) {
           return;
         }
 
-        // Font sizing based on image width — tuned to be readable at THUMBNAIL size
-        // Address goes at ~5.5% of image width (previously ~3%). A 2048px photo
-        // now shows address at ~113px tall, which shrinks cleanly to ~14px in a
-        // 250px thumbnail — still legible.
-        var base = Math.max(18, Math.round(w * 0.045));
-        var sizeFor = { big: Math.round(base * 1.25), normal: Math.round(base * 0.80), small: Math.round(base * 0.68) };
-        var pad = Math.round(base * 0.75);
-        var lineGap = Math.round(base * 0.42);
+        // Font sizing based on image width. Tuned LARGE so address is
+        // genuinely dominant. On a 2048px photo the address lands around
+        // 190px tall — unmistakable at any thumbnail size.
+        var base = Math.max(28, Math.round(w * 0.075));
+        var sizeFor = { big: Math.round(base * 1.30), normal: Math.round(base * 0.78), small: Math.round(base * 0.65) };
+        var pad = Math.round(base * 0.70);
+        var lineGap = Math.round(base * 0.38);
 
         // Word-wrap helper: returns array of {text, size} lines that fit within maxW
         var maxTextW = w - pad*2;
         function wrap(text, size) {
-          ctx.font = (size === 'big' ? '800 ' : size === 'small' ? '600 ' : '700 ') + sizeFor[size] + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
+          ctx.font = (size === 'big' ? '900 ' : size === 'small' ? '600 ' : '700 ') + sizeFor[size] + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
           if (ctx.measureText(text).width <= maxTextW) return [{ text: text, size: size }];
           // Greedy word wrap
           var words = text.split(' ');
@@ -6411,25 +6410,27 @@ function _stampImageBlob(blob, meta) {
         var barH = totalTextH + pad*2;
         var barY = h - barH;
 
-        // Solid dark bar — higher opacity so white text punches cleanly against any background
-        ctx.fillStyle = 'rgba(0,0,0,0.82)';
+        // Dark bar at reduced opacity so the photo shows through behind the text
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.fillRect(0, barY, w, barH);
         // Thicker gold accent stripe at top of bar — visible even in thumbnails
         ctx.fillStyle = 'rgba(255,200,60,0.95)';
         ctx.fillRect(0, barY, w, Math.max(3, Math.round(base*0.14)));
 
-        // Draw text — white with subtle stroke for crisp edges at small sizes
+        // Draw text — white with heavier stroke for clean readability against
+        // the now more-transparent bar
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.shadowColor = 'rgba(0,0,0,0.9)';
-        ctx.shadowBlur = Math.round(base*0.3);
+        ctx.shadowColor = 'rgba(0,0,0,0.95)';
+        ctx.shadowBlur = Math.round(base*0.4);
         var y = barY + pad;
         wrapped.forEach(function(l) {
           var size = sizeFor[l.size];
-          ctx.font = (l.size === 'big' ? '800 ' : l.size === 'small' ? '600 ' : '700 ') + size + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
-          // Thin black stroke behind the white fill keeps edges crisp when downsampled
-          ctx.strokeStyle = 'rgba(0,0,0,0.75)';
-          ctx.lineWidth = Math.max(1, Math.round(size * 0.045));
+          ctx.font = (l.size === 'big' ? '900 ' : l.size === 'small' ? '600 ' : '700 ') + size + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
+          // Thicker black stroke so text holds up against image showing through
+          ctx.strokeStyle = 'rgba(0,0,0,0.88)';
+          ctx.lineWidth = Math.max(2, Math.round(size * 0.08));
+          ctx.lineJoin = 'round';
           ctx.strokeText(l.text, pad, y);
           ctx.fillStyle = l.size === 'big' ? '#fff' : (l.size === 'normal' ? '#fff8e0' : '#e8e8e0');
           ctx.fillText(l.text, pad, y);
