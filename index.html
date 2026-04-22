@@ -369,7 +369,7 @@ header{
 .pin-key:active{background:#e8f5e9;border-color:var(--leaf);transform:scale(0.94)}
 
 /* SWIPE TRANSITIONS */
-.content{transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.22s ease;will-change:transform}
+.content{transition:opacity 0.15s ease}
 .content.swipe-left{animation:swipeOutLeft 0.22s forwards}
 .content.swipe-right{animation:swipeOutRight 0.22s forwards}
 .content.swipe-in-left{animation:swipeInLeft 0.22s forwards}
@@ -768,7 +768,7 @@ header{
 <!-- ===== ROUTE SCREEN ===== -->
 <div class="screen" id="screen-route">
   <div style="background:rgba(126,200,80,0.06);border:1px solid rgba(126,200,80,0.18);border-radius:10px;padding:8px 12px;margin-bottom:9px;font-size:0.58rem;color:rgba(210,225,255,0.75);font-family:'Space Mono',monospace;line-height:1.7">
-    <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Pull over safely before using this app. Missouri hands-free law in effect.</div>
+    <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Missouri hands-free law — pull over before using.</div>
 <div id="location-gps-status" style="margin-bottom:2px">📡 GPS auto-detected on optimize</div>
   <div id="route-ai-narrative" style="display:none;font-size:0.6rem;color:#555;font-family:Space Mono,monospace;background:#f0f7ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;line-height:1.6"></div>
     📌 + ⚡ Optimize = route begins with the pinned stop.
@@ -795,7 +795,7 @@ header{
 </div>
 
 <!-- ===== MAP SCREEN ===== -->
-<div class="screen" id="screen-map" style="margin:-12px -14px;">
+<div class="screen" id="screen-map">
   <div class="section-header" style="margin-bottom:10px">
     <span class="section-title">Visual Route</span>
     <div style="display:flex;gap:5px">
@@ -3784,9 +3784,9 @@ function renderStops() {
           <button data-action="close" data-id="${s.id}" title="Mark complete"
                    style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">✓<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">CLOSE</span></button>`
           }
+          <button onclick="openPOSApp()" title="Payment" style="margin-left:auto;padding:5px 7px;border:none;border-radius:8px;background:${localStorage.getItem('pos-platform')?'#1a7a4a':'#aaa'};color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer;flex-shrink:0;height:30px;display:flex;align-items:center;justify-content:center;min-width:24px">$</button>
           <button data-action="nav" data-addr="${addr}" title="Navigate to stop"
-            style="margin-left:auto;padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
-          <button onclick="openPOSApp()" title="Payment" style="padding:5px 7px;border:none;border-radius:8px;background:${localStorage.getItem('pos-platform')?'#1a7a4a':'#aaa'};color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer;flex-shrink:0;height:30px;display:flex;align-items:center;justify-content:center;min-width:24px">$</button>
+            style="padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
         </div>
         <!-- RECON sub-menu (hidden until RECON tapped) -->
         <div id="recon-menu-${s.id}" style="display:none;flex-wrap:nowrap;gap:4px">
