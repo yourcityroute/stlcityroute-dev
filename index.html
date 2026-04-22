@@ -254,6 +254,7 @@ header{
 .arrive-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding:5px 0}
 .arrive-btn-big{flex:1;padding:9px 12px;border-radius:10px;background:linear-gradient(135deg,#1a4a8c,#2563eb);border:none;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(26,74,140,0.3)}
 .arrive-btn-big:active{transform:scale(0.98)}
+.arrive-btn-big.arrived{background:linear-gradient(135deg,#1b7a3a,#2e9648);box-shadow:0 2px 6px rgba(27,122,58,0.3);letter-spacing:0.8px;font-size:0.72rem}
 .arrived-chip{flex:1;padding:8px 11px;border-radius:10px;background:#e8f4fd;border:1.5px solid rgba(26,74,140,0.3);color:#1a4a8c;font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.3px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .action-row-new{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;margin-top:8px}
 .action-btn-new{background:white;border:1.5px solid rgba(0,0,0,0.1);flex-direction:column;gap:1px;padding:5px 7px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:44px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem}
@@ -3586,7 +3587,9 @@ function renderStops() {
     const fullAddr = escHtml(s.fullAddress || s.address + ', St. Louis, MO');
     const addr     = escHtml(s.address);
 
-    // ARRIVE row: before arrival = big ARRIVE button; after arrival = "Arrived Xm ago" chip (tap to untoggle)
+    // ARRIVE row: stays visible always (until stop is closed). After arrival,
+    // shows time + dwell + "tap to undo" hint in green but keeps the same
+    // prominent button shape so it's still obvious where to tap.
     let arriveRow = '';
     if (!s.done) {
       if (s.arrivedAt) {
@@ -3594,10 +3597,10 @@ function renderStops() {
         const arrivedStr = arrivedDate.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
         const mins = Math.round((Date.now() - arrivedDate.getTime()) / 60000);
         arriveRow = `<div class="arrive-row">
-          <div class="arrived-chip" data-action="arrive" data-id="${s.id}" title="Tap to undo arrival">
-            <span>📍 Arrived ${arrivedStr} · ${mins}m here</span>
-            <span style="font-size:0.55rem;opacity:0.6">↺ undo</span>
-          </div>
+          <button class="arrive-btn-big arrived" data-action="arrive" data-id="${s.id}" title="Tap to undo arrival">
+            ✓ <span style="margin-left:4px">ARRIVED ${arrivedStr}</span>
+            <span style="margin-left:8px;font-size:0.6rem;font-weight:600;opacity:0.85">· ${mins}m here · ↺ tap to undo</span>
+          </button>
         </div>`;
       } else {
         arriveRow = `<div class="arrive-row">
@@ -6371,16 +6374,19 @@ function _stampImageBlob(blob, meta) {
           return;
         }
 
-        // Font sizing based on image width
-        var base = Math.max(14, Math.round(w * 0.028));
-        var sizeFor = { big: Math.round(base * 1.10), normal: Math.round(base * 0.82), small: Math.round(base * 0.70) };
-        var pad = Math.round(base * 0.7);
-        var lineGap = Math.round(base * 0.38);
+        // Font sizing based on image width — tuned to be readable at THUMBNAIL size
+        // Address goes at ~5.5% of image width (previously ~3%). A 2048px photo
+        // now shows address at ~113px tall, which shrinks cleanly to ~14px in a
+        // 250px thumbnail — still legible.
+        var base = Math.max(18, Math.round(w * 0.045));
+        var sizeFor = { big: Math.round(base * 1.25), normal: Math.round(base * 0.80), small: Math.round(base * 0.68) };
+        var pad = Math.round(base * 0.75);
+        var lineGap = Math.round(base * 0.42);
 
         // Word-wrap helper: returns array of {text, size} lines that fit within maxW
         var maxTextW = w - pad*2;
         function wrap(text, size) {
-          ctx.font = (size === 'big' ? '700 ' : size === 'small' ? '500 ' : '600 ') + sizeFor[size] + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
+          ctx.font = (size === 'big' ? '800 ' : size === 'small' ? '600 ' : '700 ') + sizeFor[size] + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
           if (ctx.measureText(text).width <= maxTextW) return [{ text: text, size: size }];
           // Greedy word wrap
           var words = text.split(' ');
@@ -6405,23 +6411,27 @@ function _stampImageBlob(blob, meta) {
         var barH = totalTextH + pad*2;
         var barY = h - barH;
 
-        // Semi-transparent black bar
-        ctx.fillStyle = 'rgba(0,0,0,0.68)';
+        // Solid dark bar — higher opacity so white text punches cleanly against any background
+        ctx.fillStyle = 'rgba(0,0,0,0.82)';
         ctx.fillRect(0, barY, w, barH);
-        // Gold accent stripe at top of bar
-        ctx.fillStyle = 'rgba(255,200,80,0.88)';
-        ctx.fillRect(0, barY, w, Math.max(2, Math.round(base*0.08)));
+        // Thicker gold accent stripe at top of bar — visible even in thumbnails
+        ctx.fillStyle = 'rgba(255,200,60,0.95)';
+        ctx.fillRect(0, barY, w, Math.max(3, Math.round(base*0.14)));
 
-        // Draw text
+        // Draw text — white with subtle stroke for crisp edges at small sizes
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.fillStyle = '#fff';
-        ctx.shadowColor = 'rgba(0,0,0,0.85)';
-        ctx.shadowBlur = Math.round(base*0.25);
+        ctx.shadowColor = 'rgba(0,0,0,0.9)';
+        ctx.shadowBlur = Math.round(base*0.3);
         var y = barY + pad;
         wrapped.forEach(function(l) {
           var size = sizeFor[l.size];
-          ctx.font = (l.size === 'big' ? '700 ' : l.size === 'small' ? '500 ' : '600 ') + size + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
+          ctx.font = (l.size === 'big' ? '800 ' : l.size === 'small' ? '600 ' : '700 ') + size + "px -apple-system, 'Segoe UI', Roboto, sans-serif";
+          // Thin black stroke behind the white fill keeps edges crisp when downsampled
+          ctx.strokeStyle = 'rgba(0,0,0,0.75)';
+          ctx.lineWidth = Math.max(1, Math.round(size * 0.045));
+          ctx.strokeText(l.text, pad, y);
+          ctx.fillStyle = l.size === 'big' ? '#fff' : (l.size === 'normal' ? '#fff8e0' : '#e8e8e0');
           ctx.fillText(l.text, pad, y);
           y += size + lineGap;
         });
