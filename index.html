@@ -205,8 +205,8 @@ header{
 .badge-count{background:var(--lime);color:var(--forest);font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;padding:2px 8px;border-radius:20px}
 
 /* CARDS */
-.card{background:var(--card);border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--leaf)}
+.card{background:var(--card);border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow);position:relative}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--leaf);border-radius:var(--radius) 0 0 var(--radius)}
 .card.service_request::before{background:var(--danger)}
 .card.canvas::before{background:var(--warn)}
 .card.priority_list::before{background:#e8a020}
@@ -641,7 +641,7 @@ header{
     </div>
     <div id="spreadsheet-status" style="display:none;font-size:0.62rem;font-family:'Syne',sans-serif;font-weight:700;padding:8px 10px;border-radius:8px;margin-bottom:10px"></div>
     <div id="spreadsheet-preview" style="display:none">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.66rem;color:var(--forest);margin-bottom:7px;letter-spacing:0.5px">PREVIEW — addresses found:</div>
+      <div id="spreadsheet-preview-header" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:var(--forest);margin-bottom:8px;padding:7px 10px;background:#e8f5e9;border-radius:8px;letter-spacing:0.3px;text-align:center">PREVIEW — addresses found:</div>
       <div id="spreadsheet-preview-list" style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:8px;font-size:0.6rem;font-family:'Space Mono',monospace;color:#555"></div>
       <div style="display:flex;gap:7px;margin-top:10px">
         <select id="spreadsheet-type-select" class="select-field" style="flex:1">
@@ -808,7 +808,7 @@ header{
       <button class="btn-add" style="margin:0;padding:9px;font-size:0.73rem" onclick="parsePastedText()">🔍 EXTRACT ADDRESSES</button>
     </div>
     <div id="scan-results-panel" style="display:none;margin-bottom:9px">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:var(--forest);margin-bottom:5px;letter-spacing:0.5px">📋 FOUND — select to add:</div>
+      <div id="scan-results-header" style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:var(--forest);margin-bottom:5px;letter-spacing:0.5px">📋 FOUND — select to add:</div>
       <div class="route-card" id="scan-results-list"></div>
       <div style="display:flex;gap:7px;margin-top:7px">
         <button class="btn-sm btn-nav" style="flex:1;padding:8px;font-size:0.65rem" onclick="selectAllScanResults()">☑ ALL</button>
@@ -1690,7 +1690,7 @@ header{
       </div>
     </details>
 
-    <div style="background:#f5f9f5;border:1px solid #c8dbc8;border-radius:9px;padding:9px 12px;margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.55rem;color:#1a3320;line-height:1.5">
+    <div id="photo-save-explainer" style="background:#f5f9f5;border:1px solid #c8dbc8;border-radius:9px;padding:9px 12px;margin-bottom:10px;font-family:'Space Mono',monospace;font-size:0.55rem;color:#1a3320;line-height:1.5">
       <b>💾 Download</b> saves the stamped photo to your phone's Downloads. <b>📤 Share</b> opens the share sheet (email, Drive, Files, Photos, etc.).
     </div>
 
@@ -2926,6 +2926,10 @@ async function handleSpreadsheetUpload(event) {
 
     const preview = document.getElementById('spreadsheet-preview');
     const list = document.getElementById('spreadsheet-preview-list');
+    const header = document.getElementById('spreadsheet-preview-header');
+    if (header) {
+      header.innerHTML = '📊 <span style="color:#1b5e20;font-size:1rem">' + addresses.length + '</span> address' + (addresses.length === 1 ? '' : 'es') + ' ready to import';
+    }
     list.innerHTML = addresses.slice(0,20).map((a,i) =>
       `<div style="padding:5px 10px;border-bottom:1px solid #f0f0f0">${i+1}. ${escHtml(a)}</div>`
     ).join('') + (addresses.length > 20 ? `<div style="padding:5px 10px;color:#aaa">…and ${addresses.length-20} more</div>` : '');
@@ -5293,12 +5297,23 @@ async function handleScanImage(event) {
 
 function renderScanResults() {
   const list = document.getElementById('scan-results-list');
-  if (!scannedAddresses.length) { list.innerHTML='<div style="padding:10px;font-size:0.7rem;color:#999;text-align:center">No addresses found</div>'; return; }
+  const header = document.getElementById('scan-results-header');
+  if (!scannedAddresses.length) {
+    list.innerHTML='<div style="padding:10px;font-size:0.7rem;color:#999;text-align:center">No addresses found</div>';
+    if (header) header.innerHTML = '📋 FOUND — select to add:';
+    return;
+  }
+  const n = scannedAddresses.length;
+  const checkedCount = scannedAddresses.filter(x => x.checked).length;
+  if (header) {
+    header.innerHTML = '📋 FOUND <span style="color:#1a5276;font-weight:800">' + n + '</span> address' + (n === 1 ? '' : 'es') +
+      ' <span style="color:#aaa;font-weight:500;margin-left:4px">· ' + checkedCount + ' selected</span>';
+  }
   list.innerHTML = scannedAddresses.map((item,i) => {
     const c = findCase(item.address);
     const badge = c ? ` ${stagePill(c.stage)}` : '';
     return `<div class="scan-result-row">
-      <input type="checkbox" id="scan-chk-${i}" ${item.checked?'checked':''} onchange="scannedAddresses[${i}].checked=this.checked">
+      <input type="checkbox" id="scan-chk-${i}" ${item.checked?'checked':''} onchange="scannedAddresses[${i}].checked=this.checked;renderScanResults()">
       <label for="scan-chk-${i}" class="scan-result-addr">${escHtml(item.address)}${badge}</label>
     </div>`;
   }).join('');
@@ -6229,14 +6244,43 @@ async function onPhotoCaptured(evt) {
     var editNotes = document.getElementById('photo-edit-notes');
     if (editAddr)  editAddr.value  = _photoContext.address || '';
     if (editNotes) editNotes.value = _photoContext.notes || '';
-    // Share button label based on capability
+
+    // iOS: the <a download> pathway doesn't reliably save anywhere. Hide Download
+    // entirely on iOS and promote Share to full-width — iOS Share Sheet handles
+    // Save to Photos / Save to Files reliably.
+    var dlBtn    = document.getElementById('photo-download-btn');
     var shareBtn = document.getElementById('photo-share-btn');
-    if (shareBtn) shareBtn.textContent = _canShareFiles() ? '📤 Share' : '📤 Share (link)';
+    var explainer = document.getElementById('photo-save-explainer');
+    if (_isIOS()) {
+      if (dlBtn) dlBtn.style.display = 'none';
+      if (shareBtn) {
+        shareBtn.style.flex = '3';
+        shareBtn.textContent = '📤 Save / Share';
+      }
+      if (explainer) explainer.innerHTML = 'Tap <b>📤 Save / Share</b>, then pick <b>Save Image</b> (goes to Photos) or <b>Save to Files</b> (pick a folder).';
+    } else {
+      if (dlBtn) dlBtn.style.display = '';
+      if (shareBtn) {
+        shareBtn.style.flex = '1.5';
+        shareBtn.textContent = _canShareFiles() ? '📤 Share' : '📤 Share (link)';
+      }
+      if (explainer) explainer.innerHTML = '<b>💾 Download</b> saves the stamped photo to your phone\'s Downloads. <b>📤 Share</b> opens the share sheet (email, Drive, Files, Photos, etc.).';
+    }
     document.getElementById('photo-preview-modal').style.display = 'flex';
   } catch (err) {
     console.error('Photo stamp error', err);
     showToast('⚠ Photo stamp failed — ' + (err.message || 'unknown error'));
   }
+}
+
+// iOS detection — covers iPhone, iPod, classic iPad, and iPadOS 13+ (which
+// identifies as Mac but has touch). Safari-only behaviors hinge on this.
+function _isIOS() {
+  var ua = navigator.userAgent || '';
+  if (/iPad|iPhone|iPod/.test(ua)) return true;
+  // iPadOS 13+ pretends to be Mac; detect via touch support on Mac platform
+  if (/Macintosh/.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1) return true;
+  return false;
 }
 
 // Re-stamp the original photo with current _photoContext values, then update preview
