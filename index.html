@@ -771,7 +771,7 @@ header{
     <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Pull over safely before using this app. Missouri hands-free law in effect.</div>
 <div id="location-gps-status" style="margin-bottom:2px">📡 GPS auto-detected on optimize</div>
   <div id="route-ai-narrative" style="display:none;font-size:0.6rem;color:#555;font-family:Space Mono,monospace;background:#f0f7ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;line-height:1.6"></div>
-    💡 To start from a specific stop, tap the 📌 pin button on that stop before optimizing.
+    📌 + ⚡ Optimize = route begins with the pinned stop.
     <input type="text" id="manual-location-input" style="display:none">
   </div>
   <div style="display:flex;gap:6px;margin-bottom:0">
@@ -795,7 +795,7 @@ header{
 </div>
 
 <!-- ===== MAP SCREEN ===== -->
-<div class="screen" id="screen-map">
+<div class="screen" id="screen-map" style="margin:-12px -14px;">
   <div class="section-header" style="margin-bottom:10px">
     <span class="section-title">Visual Route</span>
     <div style="display:flex;gap:5px">
@@ -1972,6 +1972,15 @@ function switchTab(name) {
       }
     }
   }
+  // Restore content area if leaving map tab
+  const _prevTab = document.querySelector('.tab-btn.active');
+  if (_prevTab && _prevTab.id === 'tab-map' && name !== 'map') {
+    const _contentEl = document.getElementById('main-content');
+    if (_contentEl) {
+      _contentEl.style.overflow = '';
+      _contentEl.style.padding = '';
+    }
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
@@ -1991,11 +2000,16 @@ function switchTab(name) {
     setTimeout(function() { if (typeof _onDataTabOpen === 'function') _onDataTabOpen(); }, 80);
   }
   if (name === 'map') {
+    // Disable content scroll while map is active — required for Leaflet tile positioning
+    const contentEl = document.getElementById('main-content');
+    if (contentEl) {
+      contentEl.style.overflow = 'hidden';
+      contentEl.style.padding = '0';
+    }
     setTimeout(async () => {
       // Initialize map if first visit
       initRouteMap();
       // invalidateSize MUST be called after the screen becomes visible
-      // routeMap (not window._routeMap) is the correct variable
       if (routeMap) {
         routeMap.invalidateSize({ pan: false });
       }
