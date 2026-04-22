@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="permissions-policy" content="geolocation=(self), camera=(self), microphone=(self), payment=(), usb=(), bluetooth=()">
-<meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.anthropic.com https://nominatim.openstreetmap.org https://ipapi.co https://*.maps.arcgis.com https://script.google.com; frame-src 'none'; object-src 'none'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.anthropic.com https://nominatim.openstreetmap.org https://ipapi.co https://*.maps.arcgis.com; frame-src 'none'; object-src 'none';">
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,6 +67,54 @@ window._swState = {
   registered: false, scope: null, updateAvailable: false,
   registration: null, protocol: location.protocol
 };
+
+(function initServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    window._swState.error = 'SW not supported';
+    listenForInstallPrompt();
+    return;
+  }
+  if (location.protocol === 'file:') {
+    window._swState.error = 'file:// — needs HTTPS';
+    listenForInstallPrompt();
+    return;
+  }
+
+  // Register the external sw.js file.
+  // Pre-flight check: verify sw.js exists before registering to avoid
+  // console 404 errors in preview environments (Claude sandbox, CodePen, etc.)
+  fetch('./sw.js', { method: 'HEAD' })
+    .then(res => {
+      if (!res.ok) throw new Error('sw.js not found (HTTP ' + res.status + ')');
+      return navigator.serviceWorker.register('./sw.js');
+    })
+    .then(reg => {
+      window._swState.registered = true;
+      window._swState.scope = reg.scope;
+      window._swState.registration = reg;
+      if (reg.waiting) { window._swState.updateAvailable = true; notifyUpdateAvailable(reg.waiting); }
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            window._swState.updateAvailable = true;
+            notifyUpdateAvailable(nw);
+          }
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (window._swReloading) return;
+        window._swReloading = true;
+        window.location.reload();
+      });
+    })
+    .catch(err => {
+      window._swState.error = err.message;
+      console.warn('[SW] Registration failed:', err.message);
+    });
+
+  listenForInstallPrompt();
+})();
 
 function notifyUpdateAvailable(worker) {
   // Show a subtle update available toast after the app loads
@@ -207,7 +253,7 @@ header{
 .add-form{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
 .form-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;color:var(--forest);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 .input-row{display:flex;gap:7px;margin-bottom:7px;align-items:stretch}
-.input-field{flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:9px;font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--forest);background:#fafafa;outline:none;transition:border-color 0.2s}
+.input-field{flex:1;padding:9px 11px;border:1.5px solid #ddd;border-radius:9px;font-family:'Space Mono',monospace;font-size:0.76rem;color:var(--forest);background:#fafafa;outline:none;transition:border-color 0.2s}
 .input-field:focus{border-color:var(--leaf);background:white;box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .select-field{width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #ddd;border-radius:9px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:var(--forest);background:#fafafa;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;max-width:100%}
 .btn-add{width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;margin-top:4px}
@@ -325,11 +371,11 @@ header{
 #visual-route-map{
   height:calc(100dvh - 180px);
   border-radius:var(--radius);
-  /* overflow:hidden removed — clips Leaflet tile rendering causing partial map loads */
+  overflow:hidden;
+  /* Let Leaflet handle all touch - do NOT set touch-action:none here */
   -webkit-user-select:none;
   user-select:none;
   position:relative;
-  z-index:0;
 }
 /* Only block vertical scroll on the screen container, not the map itself */
 #screen-map{overflow:hidden;padding:0}
@@ -369,7 +415,7 @@ header{
 .pin-key:active{background:#e8f5e9;border-color:var(--leaf);transform:scale(0.94)}
 
 /* SWIPE TRANSITIONS */
-.content{transition:opacity 0.15s ease}
+.content{transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.22s ease;will-change:transform}
 .content.swipe-left{animation:swipeOutLeft 0.22s forwards}
 .content.swipe-right{animation:swipeOutRight 0.22s forwards}
 .content.swipe-in-left{animation:swipeInLeft 0.22s forwards}
@@ -403,13 +449,8 @@ header{
     <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-bottom:4px">📷 ANTHROPIC API KEY</div>
     <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:6px">Required for photo scanning — console.anthropic.com · Encrypted on device with your PIN</div>
     <div id="settings-key-display" style="font-size:0.62rem;font-family:'Space Mono',monospace;color:#555;background:#f5f5f5;border-radius:8px;padding:6px 10px;margin-bottom:7px;word-break:break-all">Not set — photo scan unavailable</div>
-    <input type="text" id="settings-key-input" class="input-field" placeholder="sk-ant-..." style="margin-bottom:6px;font-size:0.7rem;flex:1" autocomplete="new-password" type="password">
-    <div style="display:flex;gap:6px;margin-bottom:6px">
-      <button onclick="var i=document.getElementById('settings-key-input');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁 Show':'🙈 Hide'"
-        style="padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#f5f5f5;font-size:0.6rem;cursor:pointer;font-family:'Syne',sans-serif;color:#555">👁 Show</button>
-      <span style="font-size:0.55rem;color:#888;font-family:'Space Mono',monospace;align-self:center">Key is masked for security</span>
-    </div>
-    <input type="password" id="settings-key-pin" type="password" inputmode="numeric" class="input-field" placeholder="Set a 4+ digit PIN to encrypt your key" style="margin-bottom:6px;font-size:0.7rem" autocomplete="new-password" maxlength="20">
+    <input type="text" id="settings-key-input" class="input-field" placeholder="sk-ant-..." style="margin-bottom:6px;font-size:0.7rem" autocomplete="off">
+    <input type="password" id="settings-key-pin" class="input-field" placeholder="Set a 4+ digit PIN to encrypt your key" style="margin-bottom:6px;font-size:0.7rem" autocomplete="new-password" maxlength="20">
     <div style="font-size:0.54rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px">PIN protects your key — you'll need it each session. Don't lose it.</div>
     <div style="display:flex;gap:6px;margin-bottom:12px">
       <button class="btn-sm btn-nav" style="flex:1;padding:8px" onclick="saveSettingsKey()">💾 SAVE &amp; ENCRYPT</button>
@@ -520,7 +561,7 @@ header{
     <div class="modal-handle"></div>
     <div class="modal-title" id="close-stop-addr">Close Stop</div>
 
-    <textarea id="close-notes-field" class="note-input" maxlength="2000" style="height:72px;width:100%;margin-bottom:4px;font-size:0.62rem" placeholder="Add completion notes (optional)..."></textarea>
+    <textarea id="close-notes-field" class="note-input" style="height:72px;width:100%;margin-bottom:4px;font-size:0.62rem" placeholder="Add completion notes (optional)..."></textarea>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button onclick="closeStopComplete()" style="padding:14px 16px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;text-align:left">
         ✅ MARK COMPLETE
@@ -674,7 +715,6 @@ header{
     <div style="display:flex;align-items:center;gap:3px;flex:1;min-width:0;justify-content:center">
       <button onclick="window.open('https://www.courts.mo.gov/casenet/welcome.do','_blank','noopener')" style="background:rgba(142,68,173,0.12);border:1px solid rgba(142,68,173,0.3);border-radius:7px;padding:5px 6px;font-family:Syne,sans-serif;font-weight:800;font-size:0.5rem;color:#8e44ad;cursor:pointer;flex-shrink:0;white-space:nowrap" title="Case.net">⚖️ CASE</button>
       <button onclick="openCsbNav(null)" style="background:rgba(232,160,32,0.15);border:1px solid rgba(232,160,32,0.35);border-radius:7px;padding:5px 6px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.5rem;color:#e8a020;cursor:pointer;white-space:nowrap;flex-shrink:0" title="Citizens Service Bureau">📞 CSB</button>
-      <button onclick="openStandaloneCamera()" title="Photo — stamped with address & GPS" style="background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.3);border-radius:7px;padding:5px 7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.58rem;color:#1a7a4a;cursor:pointer;flex-shrink:0" aria-label="Photo stamp">📷</button>
       <button onclick="openPropertySearch(null)" style="background:#1a5276;border:none;border-radius:7px;padding:5px 8px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.5rem;color:#fff;cursor:pointer;flex-shrink:0;white-space:nowrap" title="Property Search">🔍 Search</button>
       <button onclick="openMiscLinks()" style="background:var(--forest);border:2px solid var(--lime);border-radius:7px;padding:5px 7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.48rem;color:var(--lime);cursor:pointer;flex-shrink:0;white-space:nowrap" title="Resources — city contacts, links &amp; local businesses">📋 RESOURCES</button>
     </div>
@@ -701,7 +741,7 @@ header{
     <div style="position:relative;margin-bottom:5px">
       <input type="text" class="input-field" id="addr-input"
         placeholder="e.g. 1415 north 13th street"
-        maxlength="200" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"
+        autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false"
         style="flex:1;font-size:0.78rem;width:100%"
         oninput="addrInputChanged()"
         onkeydown="addrKeyDown(event)"
@@ -729,7 +769,7 @@ header{
       <textarea id="paste-input" class="note-input" style="height:100px;width:100%;margin-bottom:7px" placeholder="4521 Olive St&#10;1138 N Grand Blvd&#10;722 Dr Martin Luther King Dr"></textarea>
       <button class="btn-add" style="margin:0;padding:9px;font-size:0.73rem" onclick="parsePastedText()">🔍 EXTRACT ADDRESSES</button>
     </div>
-    <div id="scan-results-panel" style="display:none;margin-bottom:9px;max-height:60dvh;overflow-y:auto;">
+    <div id="scan-results-panel" style="display:none;margin-bottom:9px">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:var(--forest);margin-bottom:5px;letter-spacing:0.5px">📋 FOUND — select to add:</div>
       <div class="route-card" id="scan-results-list"></div>
       <div style="display:flex;gap:7px;margin-top:7px">
@@ -768,10 +808,10 @@ header{
 <!-- ===== ROUTE SCREEN ===== -->
 <div class="screen" id="screen-route">
   <div style="background:rgba(126,200,80,0.06);border:1px solid rgba(126,200,80,0.18);border-radius:10px;padding:8px 12px;margin-bottom:9px;font-size:0.58rem;color:rgba(210,225,255,0.75);font-family:'Space Mono',monospace;line-height:1.7">
-    <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Missouri hands-free law — pull over before using.</div>
+    <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:0.72rem;font-family:Syne,sans-serif;font-weight:700;color:#7a5000;display:flex;align-items:center;gap:8px"><span style="font-size:1rem">⚠️</span>Pull over safely before using this app. Missouri hands-free law in effect.</div>
 <div id="location-gps-status" style="margin-bottom:2px">📡 GPS auto-detected on optimize</div>
   <div id="route-ai-narrative" style="display:none;font-size:0.6rem;color:#555;font-family:Space Mono,monospace;background:#f0f7ff;border-radius:8px;padding:8px 12px;margin-bottom:8px;line-height:1.6"></div>
-    📌 + ⚡ Optimize = route begins with the pinned stop.
+    💡 To start from a specific stop, tap the 📌 pin button on that stop before optimizing.
     <input type="text" id="manual-location-input" style="display:none">
   </div>
   <div style="display:flex;gap:6px;margin-bottom:0">
@@ -839,29 +879,29 @@ header{
   <!-- ── LANDSCAPE ID THUMBNAIL ── -->
   <div id="creds-id-card" onclick="showFullscreen('id')" style="background:linear-gradient(135deg,#0d2b6b,#1a4a9c);border-radius:14px;overflow:hidden;margin-bottom:6px;box-shadow:0 6px 28px rgba(26,51,32,0.4);position:relative;cursor:pointer">
     <!-- Photo strip — only visible when photo is set -->
-    <div id="creds-photo-wrap" style="width:100%;height:0;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:height 0.2s">
+    <div id="creds-photo-wrap" style="width:100%;height:0;background:rgba(126,200,80,0.07);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:height 0.2s">
       <img id="creds-photo" src="" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center;display:none">
     </div>
     <!-- Digital business card — always visible -->
     <div style="padding:14px 16px 12px">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
         <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.77rem;color:var(--lime);letter-spacing:1.5px;margin-bottom:2px">CITY OF ST. LOUIS</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.58rem;color:var(--lime);letter-spacing:1.5px;margin-bottom:2px">CITY OF ST. LOUIS</div>
           <div id="creds-title-display" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;color:white;line-height:1.2">FIELD INSPECTOR</div>
-          <div id="creds-name-display" style="font-size:0.78rem;color:rgba(255,255,255,0.92);font-family:'Syne',sans-serif;font-weight:700;margin-top:2px"></div>
+          <div id="creds-name-display" style="font-size:0.62rem;color:rgba(200,230,201,0.8);font-family:'Syne',sans-serif;font-weight:700;margin-top:2px"></div>
         </div>
         <div style="text-align:right">
           <div style="font-size:1.8rem;opacity:0.15">🏛️</div>
         </div>
       </div>
-      <div style="height:1px;background:rgba(255,255,255,0.2);margin-bottom:8px"></div>
-      <div id="creds-sub-display" style="font-size:0.80rem;color:rgba(255,255,255,0.85);font-family:'Space Mono',monospace;margin-bottom:6px;line-height:1.6">Department · Division · Scope</div>
+      <div style="height:1px;background:rgba(126,200,80,0.15);margin-bottom:8px"></div>
+      <div id="creds-sub-display" style="font-size:0.46rem;color:rgba(180,205,255,0.6);font-family:'Space Mono',monospace;margin-bottom:6px;line-height:1.6">Department · Division · Scope</div>
       <div id="creds-contact-display" style="display:none;gap:10px;flex-wrap:wrap">
-        <span id="creds-email-display" style="display:none;font-size:0.70rem;color:rgba(255,255,255,0.88);font-family:'Space Mono',monospace">📧</span>
-        <span id="creds-phone-display" style="display:none;font-size:0.70rem;color:rgba(255,255,255,0.88);font-family:'Space Mono',monospace">📞</span>
+        <span id="creds-email-display" style="display:none;font-size:0.48rem;color:rgba(200,230,201,0.7);font-family:'Space Mono',monospace">📧</span>
+        <span id="creds-phone-display" style="display:none;font-size:0.48rem;color:rgba(200,230,201,0.7);font-family:'Space Mono',monospace">📞</span>
       </div>
       <div style="margin-top:6px;text-align:right">
-        <span style="font-size:0.80rem;color:rgba(255,255,255,0.65);font-family:'Syne',sans-serif;font-weight:700">TAP TO EXPAND ›</span>
+        <span style="font-size:0.44rem;color:rgba(200,230,201,0.25);font-family:'Syne',sans-serif;font-weight:700">TAP TO EXPAND ›</span>
       </div>
     </div>
   </div>
@@ -869,20 +909,20 @@ header{
 
   <!-- ── ACTION BUTTONS ── -->
   <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-    <button onclick="showFullscreen('questions')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#7a5000,#e8a020);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">❓ QUESTIONS &amp; FOLLOW-UP <span style="font-weight:400;opacity:0.7;font-size:0.77rem">— Contacts &amp; QR codes</span></button>
-    <button onclick="showFullscreen('authority')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a4a8c,#2980b9);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">⚖️ ROLES &amp; AUTHORITY <span style="font-weight:400;opacity:0.7;font-size:0.77rem">— Toggle 3 views</span></button>
-    <button onclick="showFullscreen('docs')" style="padding:11px 14px;border:1px solid rgba(126,200,80,0.3);border-radius:10px;background:linear-gradient(135deg,#0f2e1a,#1a3320);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">📄 REFERENCE DOCUMENTS <span style="font-weight:400;opacity:0.7;font-size:0.77rem">— Saved images &amp; docs</span></button>
-    <button onclick="switchTab('data')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#0d2b6b,#2563eb);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">📊 DATA &amp; METRICS <span style="font-weight:400;opacity:0.7;font-size:0.77rem">— Exports, shift log, analytics</span></button>
-    <button onclick="switchTab('help')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#2d1b6b,#7c3aed);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">❓ HELP &amp; GUIDE <span style="font-weight:400;opacity:0.7;font-size:0.77rem">— How-to, setup, contact</span></button>
+    <button onclick="showFullscreen('questions')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#7a5000,#e8a020);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">❓ QUESTIONS &amp; FOLLOW-UP <span style="font-weight:400;opacity:0.7;font-size:0.58rem">— Contacts &amp; QR codes</span></button>
+    <button onclick="showFullscreen('authority')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a4a8c,#2980b9);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">⚖️ ROLES &amp; AUTHORITY <span style="font-weight:400;opacity:0.7;font-size:0.58rem">— Toggle 3 views</span></button>
+    <button onclick="showFullscreen('docs')" style="padding:11px 14px;border:1px solid rgba(126,200,80,0.3);border-radius:10px;background:linear-gradient(135deg,#0f2e1a,#1a3320);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">📄 REFERENCE DOCUMENTS <span style="font-weight:400;opacity:0.7;font-size:0.58rem">— Saved images &amp; docs</span></button>
+    <button onclick="switchTab('data')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#0d2b6b,#2563eb);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">📊 DATA &amp; METRICS <span style="font-weight:400;opacity:0.7;font-size:0.58rem">— Exports, shift log, analytics</span></button>
+    <button onclick="switchTab('help')" style="padding:11px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#2d1b6b,#7c3aed);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">❓ HELP &amp; GUIDE <span style="font-weight:400;opacity:0.7;font-size:0.58rem">— How-to, setup, contact</span></button>
   </div>
 
   <!-- ── SETTINGS BUTTON ── -->
-  <button onclick="openCredsCustomize()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;background:#f8f9fa;color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:center;letter-spacing:0.5px">⚙️ SETTINGS</button>
+  <button onclick="openCredsCustomize()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;background:rgba(126,200,80,0.08);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:center;letter-spacing:0.5px">⚙️ SETTINGS</button>
 </div>
 
 <!-- ── FULLSCREEN OVERLAY (shared for all views) ── -->
 <div id="fullscreen-overlay" style="display:none;position:fixed;inset:0;z-index:9000;background:#0d2b6b;overflow-y:auto;padding:20px">
-  <button onclick="closeFullscreen()" style="position:fixed;top:14px;right:14px;z-index:9001;background:#eef5ff;border:1px solid rgba(126,200,80,0.4);color:var(--lime);border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+  <button onclick="closeFullscreen()" style="position:fixed;top:14px;right:14px;z-index:9001;background:rgba(126,200,80,0.2);border:1px solid rgba(126,200,80,0.4);color:var(--lime);border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
   <div id="fullscreen-content" style="max-width:480px;margin:0 auto"></div>
 </div>
 
@@ -891,185 +931,102 @@ header{
   <div style="background:white;border-radius:16px;padding:20px;max-width:460px;margin:0 auto;box-shadow:0 8px 40px rgba(0,0,0,0.4)">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
       ⚙️ Settings
-      <button onclick="closeCredsCustomize()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#444">✕</button>
+      <button onclick="closeCredsCustomize()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888">✕</button>
     </div>
 
     <!-- ID PHOTO -->
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:var(--forest);letter-spacing:0.5px;margin-bottom:8px;padding-left:10px;border-left:3px solid var(--leaf)">ID PHOTO</div>
-    <div id="settings-id-thumb-wrap" style="margin-bottom:8px;text-align:center;display:none">
-      <img id="settings-id-thumb" style="max-width:100%;max-height:120px;border-radius:8px;border:2px solid #eee;object-fit:contain" alt="ID Preview">
-      <div style="font-size:0.78rem;color:#444;margin-top:4px;font-family:'Space Mono',monospace">Tap Upload or rotate to adjust orientation</div>
-    </div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-bottom:6px">ID PHOTO</div>
     <div style="display:flex;gap:6px;margin-bottom:4px;flex-wrap:wrap">
-      <button onclick="document.getElementById('creds-id-input').click()" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid var(--leaf);border-radius:9px;background:var(--sky);color:var(--moss);font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap">📷 Upload Photo</button>
+      <button onclick="document.getElementById('creds-id-input').click()" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid var(--leaf);border-radius:9px;background:var(--sky);color:var(--moss);font-family:'Syne',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;white-space:nowrap">📷 Upload Photo</button>
       <button onclick="rotateCredPhoto(-90)" style="padding:7px 10px;border:1.5px solid #ddd;border-radius:9px;background:#f5f5f5;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer" title="Rotate left">↺</button>
       <button onclick="rotateCredPhoto(90)" style="padding:7px 10px;border:1.5px solid #ddd;border-radius:9px;background:#f5f5f5;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer" title="Rotate right">↻</button>
-      <button onclick="if(confirm('Clear your ID photo? This cannot be undone.')) clearCredPhoto()" style="padding:7px 10px;border:1.5px solid #fde8e8;border-radius:9px;background:#fde8e8;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.77rem;cursor:pointer;white-space:nowrap">🗑 Clear Photo</button>
+      <button onclick="if(confirm('Clear your ID photo? This cannot be undone.')) clearCredPhoto()" style="padding:7px 10px;border:1.5px solid #fde8e8;border-radius:9px;background:#fde8e8;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer;white-space:nowrap">🗑 Clear Photo</button>
     </div>
-    <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;margin-bottom:14px">Upload your city ID card. Use rotation buttons to orient correctly.</div>
-    </div>
+    <div style="font-size:0.56rem;color:#999;font-family:'Space Mono',monospace;margin-bottom:14px">Upload your city ID card. Use rotation buttons to orient correctly.</div>
 
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
+    <div style="height:1px;background:#eee;margin-bottom:14px"></div>
 
     <!-- NAME / BADGE — always first -->
     <div style="margin-bottom:10px">
-      <div style="font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">YOUR NAME / BADGE ID</div>
-      <input type="text" id="creds-name-input" class="input-field" placeholder="e.g. Gilbert, B. · Badge 42" style="font-size:0.82rem;width:100%;box-sizing:border-box">
-      <div style="font-size:0.76rem;color:#333;font-family:'Space Mono',monospace;margin-top:2px">Used in CSB clipboard and completion logs.</div>
+      <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:3px">YOUR NAME / BADGE ID</div>
+      <input type="text" id="creds-name-input" class="input-field" placeholder="e.g. Gilbert, B. · Badge 42" style="font-size:0.72rem;width:100%;box-sizing:border-box">
+      <div style="font-size:0.52rem;color:#aaa;font-family:'Space Mono',monospace;margin-top:2px">Used in CSB clipboard and completion logs.</div>
       <div style="display:flex;gap:6px;margin-top:6px">
         <div style="flex:1">
-          <div style="font-size:0.77rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">WORK EMAIL</div>
-          <input type="email" id="creds-email-input" class="input-field" placeholder="e.g. g.brown@stlouis-mo.gov" style="font-size:0.80rem;width:100%;box-sizing:border-box">
+          <div style="font-size:0.58rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:2px">WORK EMAIL</div>
+          <input type="email" id="creds-email-input" class="input-field" placeholder="e.g. g.brown@stlouis-mo.gov" style="font-size:0.68rem;width:100%;box-sizing:border-box">
         </div>
         <div style="flex:1">
-          <div style="font-size:0.77rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">WORK PHONE</div>
-          <input type="tel" id="creds-phone-input" class="input-field" placeholder="e.g. (314) 613-7200" style="font-size:0.80rem;width:100%;box-sizing:border-box">
+          <div style="font-size:0.58rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:2px">WORK PHONE</div>
+          <input type="tel" id="creds-phone-input" class="input-field" placeholder="e.g. (314) 613-7200" style="font-size:0.68rem;width:100%;box-sizing:border-box">
         </div>
       </div>
     </div>
 
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
+    <div style="height:1px;background:#eee;margin-bottom:14px"></div>
 
     <!-- SELECT YOUR POSITION -->
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:var(--forest);letter-spacing:0.5px;padding-left:10px;border-left:3px solid var(--leaf);margin-bottom:4px">SELECT YOUR POSITION</div>
-    <div style="font-size:0.76rem;color:#333;font-family:'Space Mono',monospace;margin-bottom:8px">Choosing a position pre-fills your title, division, department, scope, and selects the matching contacts — and sets default content for your Roles, Summary &amp; Ordinance pages. All changes lock in when you tap Save.</div>
-    <select id="customize-position-select" class="select-field" onchange="prefillFromPosition(this.value)" style="margin-bottom:12px;font-size:0.80rem;width:100%;box-sizing:border-box">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;color:var(--forest);letter-spacing:1px;margin-bottom:4px">SELECT YOUR POSITION</div>
+    <div style="font-size:0.54rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px">Choosing a position pre-fills your title, division, department, scope, and selects the matching contacts — and sets default content for your Roles, Summary &amp; Ordinance pages. All changes lock in when you tap Save.</div>
+    <select id="customize-position-select" class="select-field" onchange="prefillFromPosition(this.value)" style="margin-bottom:12px;font-size:0.68rem;width:100%;box-sizing:border-box">
       <option value="">— Select your position —</option>
     </select>
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
+    <div style="height:1px;background:#eee;margin-bottom:14px"></div>
 
     <!-- ID CARD TEXT FIELDS (populated by position selector or manual entry) -->
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:var(--forest);letter-spacing:0.5px;padding-left:10px;border-left:3px solid var(--leaf);margin-bottom:8px">ID CARD TEXT</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-bottom:8px">ID CARD TEXT</div>
     <div style="margin-bottom:7px">
-      <div style="font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">TITLE / ROLE</div>
-      <input type="text" id="creds-title-input" class="input-field" placeholder="e.g. NUISANCE INSPECTOR" style="font-size:0.82rem;width:100%;box-sizing:border-box">
+      <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:3px">TITLE / ROLE</div>
+      <input type="text" id="creds-title-input" class="input-field" placeholder="e.g. NUISANCE INSPECTOR" style="font-size:0.72rem;width:100%;box-sizing:border-box">
     </div>
     <div style="margin-bottom:7px">
-      <div style="font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">DIVISION</div>
-      <input type="text" id="creds-division-input" class="input-field" placeholder="e.g. Forestry Division" style="font-size:0.82rem;width:100%;box-sizing:border-box">
+      <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:3px">DIVISION</div>
+      <input type="text" id="creds-division-input" class="input-field" placeholder="e.g. Forestry Division" style="font-size:0.72rem;width:100%;box-sizing:border-box">
     </div>
     <div style="margin-bottom:7px">
-      <div style="font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">DEPARTMENT</div>
-      <input type="text" id="creds-dept-input" class="input-field" placeholder="e.g. Dept. of Parks, Recreation & Forestry" style="font-size:0.82rem;width:100%;box-sizing:border-box">
+      <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:3px">DEPARTMENT</div>
+      <input type="text" id="creds-dept-input" class="input-field" placeholder="e.g. Dept. of Parks, Recreation & Forestry" style="font-size:0.72rem;width:100%;box-sizing:border-box">
     </div>
     <div style="margin-bottom:7px">
-      <div style="font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:4px">SCOPE / ORDINANCE</div>
-      <input type="text" id="creds-scope-input" class="input-field" placeholder="e.g. Weed Control · Ord. 72059" style="font-size:0.82rem;width:100%;box-sizing:border-box">
+      <div style="font-size:0.6rem;font-family:'Syne',sans-serif;font-weight:700;color:#555;margin-bottom:3px">SCOPE / ORDINANCE</div>
+      <input type="text" id="creds-scope-input" class="input-field" placeholder="e.g. Weed Control · Ord. 72059" style="font-size:0.72rem;width:100%;box-sizing:border-box">
     </div>
 
     <div style="height:1px;background:#eee;margin:14px 0"></div>
 
     <!-- DEPARTMENT CONTACTS -->
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:var(--forest);letter-spacing:0.5px;padding-left:10px;border-left:3px solid var(--leaf);margin-bottom:4px">QUESTIONS &amp; FOLLOW-UP CONTACTS
-      <button onclick="this.parentElement.nextElementSibling.style.display=this.parentElement.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('▶')?'▼ hide':'▶ show'" style="background:none;border:none;color:#444;font-size:0.78rem;cursor:pointer;margin-left:8px;font-family:'Syne',sans-serif">▶ show</button></div>
-    <div style="display:none">
-    <div style="font-size:0.76rem;color:#555;font-family:'Space Mono',monospace;margin-bottom:8px"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-bottom:4px">QUESTIONS &amp; FOLLOW-UP CONTACTS</div>
+    <div style="font-size:0.56rem;color:#999;font-family:'Space Mono',monospace;margin-bottom:8px">CSB is always shown first. Select additional departments to include.</div>
+
     <div style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:9px;padding:4px;margin-bottom:8px" id="dept-checklist"></div>
 
-    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.80rem;color:#333;margin-bottom:4px;margin-top:8px">+ ADD CUSTOM DEPARTMENT
-      <button onclick="this.parentElement.nextElementSibling.style.display=this.parentElement.nextElementSibling.style.display==='none'?'flex':'none';this.textContent=this.textContent.includes('▶')?'▼ hide':'▶ show'" style="background:none;border:none;color:#444;font-size:0.78rem;cursor:pointer;margin-left:8px;font-family:'Syne',sans-serif">▶ show</button></div>
-    <div style="display:none;flex-direction:column;gap:5px;padding:10px;background:#f8f8f6;border-radius:9px;margin-bottom:8px">
-      <input type="text" id="custom-dept-name" class="input-field" autocomplete="off" placeholder="Department name" style="font-size:0.82rem">
-      <input type="text" id="custom-dept-phone" class="input-field" autocomplete="off" placeholder="Phone (optional)" style="font-size:0.82rem">
-      <input type="text" id="custom-dept-address" class="input-field" autocomplete="off" placeholder="Address (optional)" style="font-size:0.82rem">
-      <input type="text" id="custom-dept-url" class="input-field" autocomplete="off" placeholder="Website URL (optional)" style="font-size:0.82rem">
-      <button onclick="addCustomDept()" style="width:100%;padding:8px;border:none;border-radius:8px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:700;font-size:0.80rem;cursor:pointer">➕ ADD DEPARTMENT</button>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.62rem;color:#555;margin-bottom:4px;margin-top:8px">+ ADD CUSTOM DEPARTMENT</div>
+    <div style="display:flex;flex-direction:column;gap:5px;padding:10px;background:#f8f8f6;border-radius:9px;margin-bottom:8px">
+      <input type="text" id="custom-dept-name" class="input-field" autocomplete="off" placeholder="Department name" style="font-size:0.7rem">
+      <input type="text" id="custom-dept-phone" class="input-field" autocomplete="off" placeholder="Phone (optional)" style="font-size:0.7rem">
+      <input type="text" id="custom-dept-address" class="input-field" autocomplete="off" placeholder="Address (optional)" style="font-size:0.7rem">
+      <input type="text" id="custom-dept-url" class="input-field" autocomplete="off" placeholder="Website URL (optional)" style="font-size:0.7rem">
+      <button onclick="addCustomDept()" style="width:100%;padding:8px;border:none;border-radius:8px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;cursor:pointer">➕ ADD DEPARTMENT</button>
     </div>
 
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
+    <div style="height:1px;background:#eee;margin-bottom:14px"></div>
 
     <!-- ── API KEY SECTION ── -->
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:var(--forest);letter-spacing:0.5px;padding-left:10px;border-left:3px solid var(--leaf);margin-bottom:4px">📷 ANTHROPIC API KEY</div>
-    <div style="font-size:0.76rem;color:#333;font-family:'Space Mono',monospace;margin-bottom:6px">Required for AI features (photo scan, address assist, route narrative). Get one free at console.anthropic.com. Encrypted on-device with your PIN.</div>
-    <div id="settings-key-display2" style="font-size:0.78rem;font-family:'Space Mono',monospace;color:#555;background:#f5f5f5;border-radius:8px;padding:6px 10px;margin-bottom:6px;word-break:break-all">Not set</div>
-    <input type="text" id="settings-key-input2" class="input-field" placeholder="sk-ant-..." style="margin-bottom:6px;font-size:0.82rem" autocomplete="new-password" type="password">
-    <input type="password" id="settings-key-pin2" class="input-field" placeholder="4+ digit PIN to encrypt key" inputmode="numeric" style="margin-bottom:6px;font-size:0.82rem" autocomplete="new-password" maxlength="20">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-bottom:4px">📷 ANTHROPIC API KEY</div>
+    <div style="font-size:0.54rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:6px">Required for AI features (photo scan, address assist, route narrative). Get one free at console.anthropic.com. Encrypted on-device with your PIN.</div>
+    <div id="settings-key-display2" style="font-size:0.6rem;font-family:'Space Mono',monospace;color:#555;background:#f5f5f5;border-radius:8px;padding:6px 10px;margin-bottom:6px;word-break:break-all">Not set</div>
+    <input type="text" id="settings-key-input2" class="input-field" placeholder="sk-ant-..." style="margin-bottom:6px;font-size:0.7rem" autocomplete="off">
+    <input type="password" id="settings-key-pin2" class="input-field" placeholder="4+ digit PIN to encrypt key" style="margin-bottom:6px;font-size:0.7rem" autocomplete="new-password" maxlength="20">
     <div style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="btn-sm btn-nav" style="flex:1;padding:8px;font-size:0.78rem" onclick="saveSettingsKeyFromCustomize()">💾 SAVE &amp; ENCRYPT</button>
-      <button class="btn-sm btn-del" style="flex:1;padding:8px;font-size:0.78rem" onclick="clearSettingsKey();refreshApiKeyDisplay()">🗑 CLEAR KEY</button>
+      <button class="btn-sm btn-nav" style="flex:1;padding:8px;font-size:0.62rem" onclick="saveSettingsKeyFromCustomize()">💾 SAVE &amp; ENCRYPT</button>
+      <button class="btn-sm btn-del" style="flex:1;padding:8px;font-size:0.62rem" onclick="clearSettingsKey();refreshApiKeyDisplay()">🗑 CLEAR KEY</button>
     </div>
 
-    <button onclick="shareAppUrl()" style="width:100%;padding:9px;border:1.5px solid #aaa;border-radius:9px;background:#f5f5f5;color:#555;font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:var(--sky);color:var(--moss);border:1.5px solid rgba(37,99,235,0.3)">🔗 Share App Link</button>
+    <button onclick="shareAppUrl()" style="width:100%;padding:9px;border:1.5px solid #aaa;border-radius:9px;background:#f5f5f5;color:#555;font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;cursor:pointer;margin-bottom:10px">🔗 SHARE APP LINK</button>
 
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
+    <div style="height:1px;background:#eee;margin-bottom:14px"></div>
 
-
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
-
-<div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e0e8f4">
-      
-    <div style="height:1px;background:#dde3ec;margin:16px 0"></div>
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:#0d2b6b;margin-bottom:8px;padding-left:10px;border-left:3px solid var(--leaf)">💳 Payment App</div>
-      <div style="font-size:0.78rem;color:#444;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Set your preferred payment app. A 💳 Pay button will appear on stop cards so you can jump straight to payment when you close a stop.</div>
-      <select id="settings-pos-platform" onchange="savePOSPlatform()" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Syne',sans-serif;font-size:0.75rem;color:#222;background:white;margin-bottom:8px">
-        <option value="">— No payment app —</option>
-        <option value="square">Square</option>
-        <option value="paypal">PayPal / Zettle</option>
-        <option value="venmo">Venmo</option>
-        <option value="cashapp">Cash App</option>
-        <option value="stripe">Stripe Dashboard</option>
-        <option value="quickbooks">QuickBooks GoPayment</option>
-        <option value="zelle">Zelle</option>
-        <option value="custom">Custom URL…</option>
-      </select>
-      <input id="settings-pos-custom" type="url" placeholder="Custom deep-link URL (e.g. myapp://pay)" style="display:none;width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Space Mono',monospace;font-size:0.72rem;color:#222;box-sizing:border-box" onchange="savePOSPlatform()">
-    </div>
-    <div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e0e8f4">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:#0d2b6b;margin-bottom:8px;padding-left:10px;border-left:3px solid var(--leaf)">🏷️ Custom Stop Types</div>
-      <div style="font-size:0.78rem;color:#444;font-family:'Space Mono',monospace;margin-bottom:8px;line-height:1.5">Add types that fit your work. Default type = last used.</div>
-      <div id="custom-type-list" style="margin-bottom:8px;min-height:20px"></div>
-      <div style="display:flex;gap:6px">
-        <input id="settings-custom-type-input" type="text" maxlength="30" placeholder="e.g. Delivery, Estimate…" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Syne',sans-serif;font-size:0.75rem" onkeydown="if(event.key==='Enter')addCustomStopType()">
-        <button onclick="addCustomStopType()" style="padding:8px 14px;background:#0d2b6b;color:white;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">Add</button>
-      </div>
-    </div>
-    <div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e0e8f4">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:#0d2b6b;margin-bottom:8px;padding-left:10px;border-left:3px solid var(--leaf)">&#9855; Accessibility</div>
-      <div style="font-size:0.80rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Changes apply instantly and persist across sessions.</div>
-      <div style="margin-bottom:10px">
-        <div style="font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:5px">Text Size</div>
-        <div style="display:flex;gap:6px">
-          <button onclick="setA11yScale('1')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer">Normal</button>
-          <button onclick="setA11yScale('1.2')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">Large</button>
-          <button onclick="setA11yScale('1.45')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">X-Large</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
-        <div><div style="font-size:0.78rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">High Contrast</div><div style="font-size:0.70rem;color:#444;font-family:'Space Mono',monospace">Sharper colors, bolder borders</div></div>
-        <button id="a11y-contrast-btn" onclick="setA11yContrast(localStorage.getItem('a11y-contrast')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer">OFF</button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
-        <div><div style="font-size:0.78rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">Reduced Motion</div><div style="font-size:0.70rem;color:#444;font-family:'Space Mono',monospace">Stop animations and transitions</div></div>
-        <button id="a11y-motion-btn" onclick="setA11yMotion(localStorage.getItem('a11y-reduced-motion')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer">OFF</button>
-      </div>
-    </div>
-
-    <!-- Privacy Toggle -->
-    <div style="background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:14px">
-      <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'"
-           style="display:flex;justify-content:space-between;align-items:center;cursor:pointer">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:#0d2b6b;padding-left:10px;border-left:3px solid var(--leaf)">🔒 Privacy</div>
-        <div style="font-size:0.78rem;color:#444;font-family:'Space Mono',monospace">▶ expand</div>
-      </div>
-      <div style="display:none;margin-top:10px">
-        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-          <input type="checkbox" id="privacy-beacon-toggle" checked onchange="toggleMetricsBeacon(this.checked)"
-                 style="width:18px;height:18px;margin-top:2px;flex-shrink:0;cursor:pointer">
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:#333;margin-bottom:3px">
-              Help improve YourCityRoute
-            </div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.77rem;color:#666;line-height:1.5">
-              Allow YourCityRoute to use anonymized metadata (feature usage counts, crash reports, 
-              session length) to improve product experience. No addresses, notes, or personal 
-              information is ever collected. 
-              <span onclick="event.stopPropagation()" style="color:#2563eb;text-decoration:underline;cursor:pointer">Learn more</span>
-            </div>
-          </div>
-        </label>
-      </div>
-    </div>
-    <button onclick="saveCredsCustomize()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;cursor:pointer;padding:14px">✅ SAVE CUSTOMIZATIONS</button>
+    <button onclick="saveCredsCustomize()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">✅ SAVE CUSTOMIZATIONS</button>
   </div>
 </div>
 
@@ -1077,12 +1034,12 @@ header{
 <div id="text-editor-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;overflow-y:auto;padding:16px">
   <div style="background:white;border-radius:16px;padding:20px;max-width:460px;margin:0 auto">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:var(--forest);margin-bottom:4px" id="text-editor-title">Edit Content</div>
-    <div style="font-size:0.77rem;color:#444;font-family:'Space Mono',monospace;margin-bottom:10px" id="text-editor-sub"></div>
+    <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:10px" id="text-editor-sub"></div>
     <input type="text" id="text-editor-heading" class="input-field" placeholder="Section heading" style="font-size:0.75rem;margin-bottom:7px">
-    <textarea id="text-editor-body" style="width:100%;height:220px;padding:10px 12px;border:1.5px solid #ddd;border-radius:9px;font-family:'Space Mono',monospace;font-size:0.80rem;color:var(--forest);background:#fafafa;outline:none;resize:vertical;line-height:1.7" placeholder="Enter content here…"></textarea>
+    <textarea id="text-editor-body" style="width:100%;height:220px;padding:10px 12px;border:1.5px solid #ddd;border-radius:9px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--forest);background:#fafafa;outline:none;resize:vertical;line-height:1.7" placeholder="Enter content here…"></textarea>
     <div style="display:flex;gap:7px;margin-top:10px">
       <button onclick="saveTextEdit()" style="flex:2;padding:10px;border:none;border-radius:9px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">💾 SAVE</button>
-      <button onclick="cancelTextEdit()" style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:9px;background:none;color:#444;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">CANCEL</button>
+      <button onclick="cancelTextEdit()" style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:9px;background:none;color:#888;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">CANCEL</button>
     </div>
   </div>
 </div>
@@ -1091,10 +1048,10 @@ header{
 <div id="docs-upload-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;padding:16px;overflow-y:auto">
   <div style="background:white;border-radius:16px;padding:20px;max-width:460px;margin:0 auto">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:var(--forest);margin-bottom:4px">📄 Reference Documents</div>
-    <div style="font-size:0.76rem;color:#444;font-family:'Space Mono',monospace;margin-bottom:12px">Upload images to keep as scrollable reference thumbnails.</div>
+    <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:12px">Upload images to keep as scrollable reference thumbnails.</div>
     <div style="display:flex;gap:7px;margin-bottom:10px">
       <button onclick="document.getElementById('docs-file-input').click()" style="flex:1;padding:9px;border:1.5px solid var(--leaf);border-radius:9px;background:var(--sky);color:var(--moss);font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">📷 ADD IMAGE</button>
-      <button onclick="closeDocsModal()" style="padding:9px 14px;border:1.5px solid #ddd;border-radius:9px;background:none;color:#444;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">DONE</button>
+      <button onclick="closeDocsModal()" style="padding:9px 14px;border:1.5px solid #ddd;border-radius:9px;background:none;color:#888;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">DONE</button>
     </div>
     <input type="file" id="docs-file-input" accept="image/*" multiple style="display:none" onchange="handleDocsUpload(event)">
     <div id="docs-thumb-list" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -1111,14 +1068,14 @@ header{
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 6px 6px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:white">📊 Field Data & Metrics</div>
       <div style="display:flex;gap:6px">
-        <button onclick="exportDataCSV()" style="background:#2563eb;border:none;border-radius:8px;padding:5px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.77rem;color:white;cursor:pointer">📥 CSV</button>
-        <button onclick="openDataExportModal()" style="background:#16a34a;border:none;border-radius:8px;padding:5px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.77rem;color:white;cursor:pointer">📤 EXPORT</button>
+        <button onclick="exportDataCSV()" style="background:#2563eb;border:none;border-radius:8px;padding:5px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.58rem;color:white;cursor:pointer">📥 CSV</button>
+        <button onclick="openDataExportModal()" style="background:#16a34a;border:none;border-radius:8px;padding:5px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.58rem;color:white;cursor:pointer">📤 EXPORT</button>
       </div>
     </div>
 
     <!-- Date range selector -->
     <div style="background:white;border-radius:10px;padding:10px 12px;margin:0 2px 10px;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:var(--forest)">RANGE</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;color:var(--forest)">RANGE</div>
       <div style="display:flex;gap:4px;flex-wrap:wrap">
         <button onclick="setDataRange('today')" id="data-range-today" class="data-range-btn active-range">Today</button>
         <button onclick="setDataRange('week')" id="data-range-week" class="data-range-btn">7 Days</button>
@@ -1128,13 +1085,13 @@ header{
       </div>
       <div id="data-custom-range" style="display:none;margin-top:8px;display:none">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.76rem;color:white;white-space:nowrap">From</div>
-          <input type="date" id="data-custom-start" onchange="applyCustomRange()" style="font-family:monospace;font-size:0.78rem;border:1.5px solid #ddd;border-radius:6px;padding:3px 6px;color:#333;flex:1;min-width:100px">
-          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.76rem;color:white;white-space:nowrap">To</div>
-          <input type="date" id="data-custom-end" onchange="applyCustomRange()" style="font-family:monospace;font-size:0.78rem;border:1.5px solid #ddd;border-radius:6px;padding:3px 6px;color:#333;flex:1;min-width:100px">
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.56rem;color:white;white-space:nowrap">From</div>
+          <input type="date" id="data-custom-start" onchange="applyCustomRange()" style="font-family:monospace;font-size:0.6rem;border:1.5px solid #ddd;border-radius:6px;padding:3px 6px;color:#333;flex:1;min-width:100px">
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.56rem;color:white;white-space:nowrap">To</div>
+          <input type="date" id="data-custom-end" onchange="applyCustomRange()" style="font-family:monospace;font-size:0.6rem;border:1.5px solid #ddd;border-radius:6px;padding:3px 6px;color:#333;flex:1;min-width:100px">
         </div>
       </div>
-      <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:0.76rem;color:#555" id="data-range-label">Today</div>
+      <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:0.56rem;color:#999" id="data-range-label">Today</div>
     </div>
 
     <!-- Stat cards row 1 -->
@@ -1145,7 +1102,7 @@ header{
     <!-- Today's activity timeline -->
     <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)" id="data-timeline-wrap">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest);margin-bottom:8px">📍 Stop Activity</div>
-      <div id="data-timeline" style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#666;line-height:1.8">
+      <div id="data-timeline" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#666;line-height:1.8">
         <!-- Filled by renderDataTab() -->
       </div>
     </div>
@@ -1153,7 +1110,7 @@ header{
     <!-- Stop type breakdown -->
     <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest);margin-bottom:8px">📋 By Stop Type</div>
-      <div id="data-by-type" style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#555">
+      <div id="data-by-type" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#555">
         <!-- Filled by renderDataTab() -->
       </div>
     </div>
@@ -1163,14 +1120,14 @@ header{
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest)">🕐 Session Log</div>
         <div style="display:flex;gap:6px;align-items:center">
-          <label style="font-family:'Space Mono',monospace;font-size:0.76rem;color:#555;display:flex;align-items:center;gap:4px">
+          <label style="font-family:'Space Mono',monospace;font-size:0.56rem;color:#999;display:flex;align-items:center;gap:4px">
             <input type="checkbox" id="data-logging-enabled" onchange="toggleDataLogging(this.checked)" style="width:14px;height:14px">
             Store history
           </label>
-          <button onclick="clearDataHistory()" style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:5px;padding:3px 8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;color:#c0392b;cursor:pointer">🗑 CLEAR</button>
+          <button onclick="clearDataHistory()" style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:5px;padding:3px 8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.5rem;color:#c0392b;cursor:pointer">🗑 CLEAR</button>
         </div>
       </div>
-      <div id="data-session-log" style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#555;max-height:160px;overflow-y:auto;line-height:1.7">
+      <div id="data-session-log" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#555;max-height:160px;overflow-y:auto;line-height:1.7">
         <!-- Filled by renderDataTab() -->
       </div>
     </div>
@@ -1179,22 +1136,22 @@ header{
     <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest);margin-bottom:10px">📧 Auto-Send Daily Summary</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
-        <label style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#555;display:flex;align-items:center;gap:5px">
+        <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#555;display:flex;align-items:center;gap:5px">
           <input type="checkbox" id="data-autosend-enabled" onchange="updateAutoSendSettings()" style="width:14px;height:14px">
           Enable daily auto-send
         </label>
         <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-          <label style="font-family:'Space Mono',monospace;font-size:0.77rem;color:#555">Time:</label>
-          <input type="time" id="data-autosend-time" value="00:00" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.78rem;border:1px solid #ddd;border-radius:6px;padding:3px 6px;color:#333">
+          <label style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#999">Time:</label>
+          <input type="time" id="data-autosend-time" value="00:00" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.62rem;border:1px solid #ddd;border-radius:6px;padding:3px 6px;color:#333">
         </div>
       </div>
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:white;margin-bottom:5px">Recipients</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:white;margin-bottom:5px">Recipients</div>
       <div id="data-recipients-list" style="margin-bottom:6px"></div>
       <div style="display:flex;gap:6px">
-        <input type="email" id="data-recipient-input" placeholder="email@example.com" style="flex:1;font-family:'Space Mono',monospace;font-size:0.78rem;border:1.5px solid #ddd;border-radius:7px;padding:6px 10px;min-width:0">
-        <button onclick="addDataRecipient()" style="background:var(--forest);color:var(--lime);border:none;border-radius:7px;padding:6px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;white-space:nowrap">+ ADD</button>
+        <input type="email" id="data-recipient-input" placeholder="email@example.com" style="flex:1;font-family:'Space Mono',monospace;font-size:0.62rem;border:1.5px solid #ddd;border-radius:7px;padding:6px 10px;min-width:0">
+        <button onclick="addDataRecipient()" style="background:var(--forest);color:var(--lime);border:none;border-radius:7px;padding:6px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer;white-space:nowrap">+ ADD</button>
       </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:#555;margin-top:5px">Opens your email app with a pre-filled CSV summary. Recipients receive a copy of your daily field data.</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.54rem;color:#aaa;margin-top:5px">Opens your email app with a pre-filled CSV summary. Recipients receive a copy of your daily field data.</div>
     </div>
 
     <!-- Storage usage -->
@@ -1203,7 +1160,7 @@ header{
         <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest)">💾 Stored History</div>
 
       </div>
-      <div id="data-storage-info" style="font-family:'Space Mono',monospace;font-size:0.78rem;color:#666;line-height:1.7">
+      <div id="data-storage-info" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#666;line-height:1.7">
         <!-- Filled by renderDataTab() -->
       </div>
     </div>
@@ -1219,13 +1176,13 @@ header{
     <div style="text-align:center;padding:16px 0 20px">
       <div style="font-size:2.2rem;margin-bottom:6px">🗺️</div>
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:white;letter-spacing:-0.5px">YourCityRoute</div>
-      <div style="font-size:0.73rem;color:rgba(255,255,255,0.8);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-top:2px">FIELD WORKER GUIDE</div>
+      <div style="font-size:0.52rem;color:rgba(200,230,201,0.4);font-family:'Space Mono',monospace;letter-spacing:1.5px;margin-top:2px">FIELD WORKER GUIDE</div>
     </div>
 
     <!-- ── WHAT IS THIS APP ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🧭 What is YourCityRoute?</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.85">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.85">
         YourCityRoute is a mobile route planner built for field workers who visit multiple addresses in a single shift — city inspectors, code enforcement officers, pest control techs, utility workers, property managers, and anyone else working a stop list.<br><br>
         <b>No login. No server. All data stays on your device.</b> Works offline once loaded. Install it to your home screen for the best experience.
       </div>
@@ -1234,7 +1191,7 @@ header{
     <!-- ── GETTING STARTED ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🚀 Getting Started (5 minutes)</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         <b>1. Set up your profile</b> — Tap ⚙️ (top right) → enter your name, title, division, department, and contact info. This appears on your ID card and in all exports.<br><br>
         <b>2. Select your position</b> — In the same Settings screen, choose your role from the "Select Your Position" dropdown. This auto-fills your profile and pre-loads your Roles, Ordinances, and Summary pages.<br><br>
         <b>3. Add your first stop</b> — Go to the STOPS tab, type an address, and tap ADD. The app will geocode it and add it to your list.<br><br>
@@ -1246,7 +1203,7 @@ header{
     <!-- ── STOPS TAB ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">📋 STOPS Tab</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         <b>Adding stops:</b><br>
         · Type an address in the input field and tap ADD (or press Enter)<br>
         · 🎤 Voice — speak addresses one at a time; pause between each<br>
@@ -1269,7 +1226,7 @@ header{
     <!-- ── ROUTE TAB ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🛣️ ROUTE Tab</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         <b>⚡ Optimize Route Order</b> — Sorts your pending stops using your current GPS location + nearest-neighbor + 2-opt improvement. A drive time estimate appears after.<br><br>
         <b>📌 Pin a start</b> — Tap 📌 on any stop to lock it as your first stop regardless of optimization.<br><br>
         <b>↺ Reset Order</b> — Returns stops to the order they were added.<br><br>
@@ -1282,7 +1239,7 @@ header{
     <!-- ── MAP TAB ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🗺️ MAP Tab</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         Shows all pending stops as numbered pins on an interactive map. Tap a pin to see the address and access Navigate, Property Search, and Close from the map popup.<br><br>
         The map auto-fits to your stops when it first loads. Pinch to zoom, drag to pan. Completed stops are hidden; active stops show in route order.<br><br>
         If your stops are geocoded (most are), they appear immediately. Stops added by address alone may take a moment to place while the app looks up coordinates.
@@ -1292,7 +1249,7 @@ header{
     <!-- ── INFO TAB ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🪪 INFO Tab</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         <b>ID Card</b> — Your digital business card. Shows your name, title, division, department, scope, email, and phone. Tap it to show a fullscreen version. Upload an ID photo via ⚙️ Settings.<br><br>
         <b>❓ Questions &amp; Follow-Up</b> — Contact information for departments you selected in Settings. CSB is always first. One-tap dialing.<br><br>
         <b>⚖️ Roles &amp; Authority</b> — Three panels (Roles, Summary, Ordinance) loaded from your saved position. Use the position selector to preview any other role without changing your profile. Navigate away and your saved default restores automatically.<br><br>
@@ -1306,7 +1263,7 @@ header{
     <!-- ── CLOCK & METRICS ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">⏱ Clock &amp; Shift Metrics</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         <b>Clock In/Out</b> — Tap ⏱ IN at the start of your shift. The elapsed work time appears below the button. Tap ⏱ OUT to end the shift.<br><br>
         <b>☕ Break</b> — While clocked in, a BREAK button appears. Tap it to pause the work timer. Your break time is tracked separately. Tap RESUME to continue.<br><br>
         <b>Metrics tracked per shift:</b><br>
@@ -1324,7 +1281,7 @@ header{
     <!-- ── DATA & EXPORTS ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">📊 Data &amp; Exports</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         Open the DATA tab from the INFO screen to see today's metrics and your shift history.<br><br>
         <b>Date ranges:</b> Today · 7 Days · 30 Days · All Time · Custom.<br><br>
         <b>Export formats:</b><br>
@@ -1338,7 +1295,7 @@ header{
     <!-- ── GOOGLE SHEETS SETUP ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">📈 Google Sheets Setup</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         One-time setup — takes about 5 minutes:<br><br>
         1. Open a new Google Sheet at sheets.google.com<br>
         2. Click <b>Extensions → Apps Script</b><br>
@@ -1350,15 +1307,27 @@ header{
         After setup, every time you tap "Push to Sheets" your latest stops and metrics are appended to your sheet automatically.
       </div>
       <div style="position:relative;margin-top:10px">
-        <pre id="sheets-script-pre" style="background:#f4f4f4;border-radius:8px;padding:10px 12px;font-size:0.72rem;color:#333;overflow-x:auto;line-height:1.7;white-space:pre-wrap"></pre>
-        <button onclick="navigator.clipboard?.writeText(document.getElementById('sheets-script-pre').textContent).then(()=>showToast('Script copied ✓')).catch(()=>showToast('Copy failed'))" style="position:absolute;top:18px;right:8px;padding:4px 8px;border:none;border-radius:5px;background:#3794ff;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:0.73rem;cursor:pointer">📋 COPY</button>
+        <pre id="sheets-script-pre" style="background:#f4f4f4;border-radius:8px;padding:10px 12px;font-size:0.5rem;color:#333;overflow-x:auto;line-height:1.7;white-space:pre-wrap">function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName('Stops') || ss.insertSheet('Stops');
+  if (sh.getLastRow() === 0)
+    sh.appendRow(['Date','Address','Type','Notes','Done','DurationMins','Lat','Lng','Inspector']);
+  (data.stops || []).forEach(s => sh.appendRow([
+    data.exportedAt, s.address, s.type,
+    s.notes||'', s.done, s.durationMins||'',
+    s.lat||'', s.lng||'', data.inspector
+  ]));
+  return ContentService.createTextOutput('ok');
+}</pre>
+        <button onclick="navigator.clipboard?.writeText(document.getElementById('sheets-script-pre').textContent).then(()=>showToast('Script copied ✓')).catch(()=>showToast('Copy failed'))" style="position:absolute;top:18px;right:8px;padding:4px 8px;border:none;border-radius:5px;background:#3794ff;color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:0.52rem;cursor:pointer">📋 COPY</button>
       </div>
     </div>
 
     <!-- ── TOOLBAR BUTTONS ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🔧 Toolbar Buttons</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         These appear at the top of every screen:<br><br>
         · <b>⚖️ CASE</b> — Opens Missouri Case.net (22nd Judicial Circuit) for municipal court case lookups<br>
         · <b>📞 CSB</b> — Opens the Citizens Service Bureau. Copies the current stop's address to clipboard first if one is active<br>
@@ -1371,7 +1340,7 @@ header{
     <!-- ── API KEY / AI FEATURES ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🤖 AI Features (Optional)</div>
-      <div style="font-size:0.78rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
         Three features unlock when you add a free Anthropic API key in Settings:<br><br>
         · <b>📷 Photo scan</b> — Photograph a printed route sheet, dispatch list, or whiteboard. AI reads the addresses and adds them to your stop list.<br>
         · <b>Address assist</b> — Fuzzy address completion when typing stops manually.<br>
@@ -1383,7 +1352,7 @@ header{
     <!-- ── TIPS ── -->
     <div style="background:#fff8e1;border:1.5px solid rgba(245,197,24,0.35);border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#7a5000;margin-bottom:8px">💡 Tips &amp; Best Practices</div>
-      <div style="font-size:0.78rem;color:#555;font-family:'Space Mono',monospace;line-height:1.9">
+      <div style="font-size:0.62rem;color:#555;font-family:'Space Mono',monospace;line-height:1.9">
         · <b>Clock in before adding stops</b> so your shift metrics are accurate from the first address.<br>
         · <b>Tap 📍 ARRIVE</b> when you pull up to a stop — this starts a dwell timer so you know how long each visit took.<br>
         · <b>Add notes at close</b> — the CLOSE dialog has a notes field. Use it for condition observations, owner contact attempts, or case numbers.<br>
@@ -1397,12 +1366,12 @@ header{
     <!-- ── CONTACT ── -->
     <div style="background:#ffffff;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:6px">📬 Contact &amp; Support</div>
-      <div style="font-size:0.78rem;color:#555;font-family:'Space Mono',monospace;margin-bottom:12px;line-height:1.7">Questions, feedback, bug reports, or partnership inquiries — reach us directly.</div>
+      <div style="font-size:0.6rem;color:#555;font-family:'Space Mono',monospace;margin-bottom:12px;line-height:1.7">Questions, feedback, bug reports, or partnership inquiries — reach us directly.</div>
       <a href="mailto:support@yourcityroute.com?subject=YourCityRoute%20Support" style="display:inline-block;padding:11px 22px;background:linear-gradient(135deg,#0d2b6b,#2563eb);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;border-radius:10px;text-decoration:none;letter-spacing:0.5px">✉️ Email Support</a>
-      <div style="margin-top:8px;font-size:0.72rem;color:#555;font-family:'Space Mono',monospace">support@yourcityroute.com</div>
+      <div style="margin-top:8px;font-size:0.5rem;color:#aaa;font-family:'Space Mono',monospace">support@yourcityroute.com</div>
     </div>
 
-    <div style="text-align:center;padding:16px 0 4px;font-size:0.73rem;color:rgba(255,255,255,0.75);font-family:'Space Mono',monospace">YourCityRoute · v${APP_VERSION}</div>
+    <div style="text-align:center;padding:16px 0 4px;font-size:0.52rem;color:rgba(200,230,201,0.3);font-family:'Space Mono',monospace">YourCityRoute · v${APP_VERSION}</div>
   </div>
 </div>
 
@@ -1411,26 +1380,16 @@ header{
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div class="modal-title" id="stop-notes-addr">Notes</div>
-    <div style="font-size:0.77rem;color:#444;font-family:'Space Mono',monospace;margin-bottom:10px">Notes are saved to this stop and included in exports.</div>
-    <textarea id="stop-notes-textarea" class="note-input" maxlength="2000" style="height:120px;width:100%;margin-bottom:10px" placeholder="Enter notes about this stop..."></textarea>
-    <!-- Photo stamp section -->
-    <div id="stop-photo-preview-wrap" style="display:none;margin-bottom:10px">
-      <img id="stop-photo-preview" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:2px solid #dde3ec" alt="Stop photo">
-      <div style="display:flex;gap:6px;margin-top:6px">
-        <button onclick="retakeStopPhoto()" style="flex:1;padding:7px;border:1.5px solid var(--leaf);border-radius:8px;background:var(--sky);color:var(--moss);font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">📷 Retake</button>
-        <button onclick="clearStopPhoto()" style="padding:7px 10px;border:1.5px solid rgba(192,57,43,0.3);border-radius:8px;background:#fff0f0;color:#c0392b;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">✕</button>
-      </div>
-    </div>
-    <button id="stop-photo-btn" onclick="takeStopPhoto()" style="width:100%;padding:10px;border:1.5px dashed #aaa;border-radius:10px;background:#fafafa;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px">📷 Add Photo — GPS &amp; Address Stamped</button>
-    <input type="file" id="stop-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleStopPhotoSelected(this)">
+    <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:10px">Notes are saved to this stop and included in exports.</div>
+    <textarea id="stop-notes-textarea" class="note-input" style="height:120px;width:100%;margin-bottom:12px" placeholder="Enter notes about this stop..."></textarea>
     <button onclick="saveStopNotes()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--moss),var(--leaf));border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer;margin-bottom:8px">💾 SAVE NOTES</button>
     <button class="btn-modal-cancel" onclick="closeNotesModal()">Cancel</button>
   </div>
 </div>
 
 <!-- DATA EXPORT MODAL -->
-<div id="data-export-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'" style="display:none;align-items:flex-start;padding-top:10px">
-  <div class="modal-sheet" style="padding-bottom:28px;border-radius:20px;margin:0 12px;width:calc(100% - 24px);max-width:456px">
+<div id="data-export-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'" style="display:none">
+  <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div class="modal-title">📤 Export Data</div>
     <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:16px">Choose format and delivery method</div>
@@ -1675,20 +1634,18 @@ const PROFILE_KEYS = [
   'inspector-id','creds-title','creds-division','creds-department',
   'creds-scope','creds-sub','creds-email','creds-phone',
   'selected-job-role','selected-sector','pos-platform','pos-custom-url',
-  'creds-id-front','anthropic-api-key-enc','sheets-webhook-url',
+  'creds-id-front','anthropic-api-key','sheets-webhook-url',
   'creds-roles_whoami_body','creds-roles_authority_body',
   'creds-roles_enforce_body','creds-roles_exempt_body',
   'creds-ord_header','creds-ord_body',
   'custom-stop-types','last-stop-type',
-  // NOTE: 'anthropic-api-key' (plaintext) intentionally excluded from profiles
-  // Only the encrypted blob travels between profiles
 ];
 
 function _getProfiles() {
   return safeParseLS('profiles', []);
 }
 function _saveProfiles(arr) {
-  try { safeSetLS('profiles', JSON.stringify(arr)); } catch(e) {}
+  try { localStorage.setItem('profiles', JSON.stringify(arr)); } catch(e) {}
 }
 function _getActiveProfileId() {
   return localStorage.getItem('active-profile-id') || '';
@@ -1722,6 +1679,18 @@ function _profileDisplayName(profile) {
 function closeProfileModal() {
   var m = document.getElementById('profile-modal');
   if (m) m.style.display = 'none';
+}
+
+function openProfileModal() {
+  var modal = document.getElementById('profile-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'profile-modal';
+    modal.setAttribute('style','position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9600;display:flex;align-items:flex-end;justify-content:center');
+    document.body.appendChild(modal);
+  }
+  _renderProfileModal(modal);
+  modal.style.display = 'flex';
 }
 
 function _renderProfileModal(modal) {
@@ -1972,15 +1941,6 @@ function switchTab(name) {
       }
     }
   }
-  // Restore content area if leaving map tab
-  const _prevTab = document.querySelector('.tab-btn.active');
-  if (_prevTab && _prevTab.id === 'tab-map' && name !== 'map') {
-    const _contentEl = document.getElementById('main-content');
-    if (_contentEl) {
-      _contentEl.style.overflow = '';
-      _contentEl.style.padding = '';
-    }
-  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
@@ -2000,19 +1960,8 @@ function switchTab(name) {
     setTimeout(function() { if (typeof _onDataTabOpen === 'function') _onDataTabOpen(); }, 80);
   }
   if (name === 'map') {
-    // Disable content scroll while map is active — required for Leaflet tile positioning
-    const contentEl = document.getElementById('main-content');
-    if (contentEl) {
-      contentEl.style.overflow = 'hidden';
-      contentEl.style.padding = '0';
-    }
     setTimeout(async () => {
-      // Initialize map if first visit
-      initRouteMap();
-      // invalidateSize MUST be called after the screen becomes visible
-      if (routeMap) {
-        routeMap.invalidateSize({ pan: false });
-      }
+      if (window._routeMap) window._routeMap.invalidateSize();
       if (_mapNeedsRefresh && !_mapRefreshInProgress) {
         _mapNeedsRefresh = false;
         await refreshRouteMap();
@@ -2093,9 +2042,15 @@ function testGPSNow() {
 }
 
 
+
 // ============================================================
 // CORE UTILITIES (recovered)
 // ============================================================
+
+
+
+
+
 
 
 // ============================================================
@@ -2128,9 +2083,12 @@ function normalizeAddr(a) {
 function todayISO() {
   const d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}// ── Caseload stubs (feature removed — kept so old data refs don't throw) ──
+}function todayKey() { return todayISO(); }
+
+// ── Caseload stubs (feature removed — kept so old data refs don't throw) ──
 
 function findCase() { return null; }
+
 
 
 function applyCaseloadFlagsToStop() {}
@@ -2228,7 +2186,6 @@ function _attachStopsListListener() {
     if (action === 'arrive')          markStopArrived(numId);
     if (action === 'close')          openCloseModal(numId);
     if (action === 'notes')         openNotesModal(numId);
-    if (action === 'photo')         { _stampTargetStopId = numId; document.getElementById('stop-photo-input').click(); }
     if (action === 'restore')        undoComplete(numId);
     if (action === 'del')            deleteCompletedStop(numId);
     if (action === 'clear-completed') clearCompletedStops();
@@ -2357,7 +2314,7 @@ let _pendingDupeExisting = null;
 function showDupeModal(addr, existing, newStop) {
   document.getElementById('dupe-stop-addr').textContent = addr;
   const typeLabel = t => t==='service_request'?'Service Request':t==='inspection'?'Inspection':t==='work_order'?'Work Order':'Other';
-  var _dei = document.getElementById('dupe-existing-info'); if(_dei) _dei.innerHTML =
+  document.getElementById('dupe-existing-info').innerHTML =
     `<strong>Existing stop:</strong><br>` +
     `Type: ${typeLabel(existing.type)}<br>` +
     (existing.notes ? `Notes: ${escHtml(existing.notes)}<br>` : '') +
@@ -2848,25 +2805,11 @@ function openNotesModal(id) {
   const s = stops.find(x => x.id === id);
   if (!s) return;
   _notesStopId = id;
-  _stampTargetStopId = id; // set photo stamp context
   document.getElementById('stop-notes-addr').textContent = s.address;
   document.getElementById('stop-notes-textarea').value = s.notes || '';
-  // Restore existing photo preview if this stop has one
-  const prevWrap = document.getElementById('stop-photo-preview-wrap');
-  const prevBtn  = document.getElementById('stop-photo-btn');
-  const prevImg  = document.getElementById('stop-photo-preview');
-  if (s.photo && prevImg && prevWrap && prevBtn) {
-    prevImg.src = s.photo;
-    prevWrap.style.display = 'block';
-    prevBtn.style.display  = 'none';
-  } else if (prevWrap && prevBtn) {
-    prevWrap.style.display = 'none';
-    prevBtn.style.display  = 'flex';
-  }
   document.getElementById('stop-notes-modal').style.display = 'flex';
 }
 function closeNotesModal() {
-  _stampTargetStopId = null;
   document.getElementById('stop-notes-modal').style.display = 'none';
   _notesStopId = null;
 }
@@ -3731,7 +3674,6 @@ function renderAll() { renderStops(); renderRoute(); }
 
 function renderStops() {
   const list = document.getElementById('stops-list');
-  if (!list) return; // not yet mounted
 
   // Compute pending/done once — used multiple times below
   const pending = stops.filter(s => !s.done);
@@ -3772,21 +3714,20 @@ function renderStops() {
             style="background:#1a3c6e;color:#7ec8ff;border:1.5px solid rgba(91,164,207,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🔭<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">RECON</span></button>
           <button data-action="notes" data-id="${s.id}" title="Notes"
             style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📝<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">NOTES</span></button>
-          <button data-action="photo" data-id="${s.id}" title="Photo stamp — GPS & address stamped"
-            style="background:#f0fff4;color:#1a7a4a;border:1.5px solid rgba(39,174,96,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📷<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">PHOTO</span></button>
           ${s.done
             ? `<button data-action="restore" data-id="${s.id}" title="Restore stop"
                  style="background:#e8f5e9;color:var(--moss);border:1.5px solid rgba(39,174,96,0.3);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">↩<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">RESTORE</span></button>
                <button data-action="del" data-id="${s.id}" title="Delete stop"
                  style="background:#fff0f0;color:var(--danger);border:1.5px solid rgba(192,57,43,0.2);flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">🗑<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">DEL</span></button>`
-            : `${s.arrivedAt ? '' : `<button data-action="arrive" data-id="${s.id}" title="Mark arrived"
-                   style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📍<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">ARRIVE</span></button>`}
-          <button data-action="close" data-id="${s.id}" title="Mark complete"
+            : s.arrivedAt
+              ? `<button data-action="close" data-id="${s.id}" title="Mark complete"
                    style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">✓<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">CLOSE</span></button>`
+              : `<button data-action="arrive" data-id="${s.id}" title="Mark arrived"
+                   style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;border:none;flex-direction:column;gap:1px;padding:5px 8px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:38px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem">📍<span style="font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1">ARRIVE</span></button>`
           }
-          <button onclick="openPOSApp()" title="Payment" style="margin-left:auto;padding:5px 7px;border:none;border-radius:8px;background:${localStorage.getItem('pos-platform')?'#1a7a4a':'#aaa'};color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer;flex-shrink:0;height:30px;display:flex;align-items:center;justify-content:center;min-width:24px">$</button>
           <button data-action="nav" data-addr="${addr}" title="Navigate to stop"
-            style="padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
+            style="margin-left:auto;padding:5px 10px;border:none;border-radius:20px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer;flex-shrink:0;white-space:nowrap;height:30px;display:flex;align-items:center;gap:3px">🧭 Nav</button>
+          <button onclick="openPOSApp()" title="${localStorage.getItem('pos-platform') ? 'Open payment app' : 'Set up a payment app in Settings'}" style="padding:5px 8px;border:none;border-radius:8px;background:${localStorage.getItem('pos-platform') ? '#1a7a4a' : '#ccc'};color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer;flex-shrink:0;height:30px;display:flex;align-items:center;gap:3px;white-space:nowrap">💳 Pay</button>
         </div>
         <!-- RECON sub-menu (hidden until RECON tapped) -->
         <div id="recon-menu-${s.id}" style="display:none;flex-wrap:nowrap;gap:4px">
@@ -3859,20 +3800,6 @@ function updateLocationStatus(loc) {
 function safeParseLS(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
   catch(e) { return fallback; }
-}
-
-function safeSetLS(key, value) {
-  // Wraps localStorage.setItem — catches QuotaExceededError gracefully
-  try {
-    localStorage.setItem(key, value);
-    return true;
-  } catch(e) {
-    if (e.name === 'QuotaExceededError' || e.code === 22) {
-      console.warn('[Storage] Quota exceeded saving', key, '— size:', String(value).length);
-      showToast('⚠️ Storage full — some data could not be saved. Consider exporting and clearing old history.');
-    }
-    return false;
-  }
 }
 
 // ── Single helper for persisting manualOrigin — used in 5+ places ──────────
@@ -4221,7 +4148,6 @@ async function _optimizeRouteInner() {
 
 function renderRoute() {
   const list = document.getElementById('route-list');
-  if (!list) return;
   const pending = getPendingStops();
   const done = stops.filter(s => s.done);
   const total = stops.length, doneCount = done.length;
@@ -4392,8 +4318,7 @@ function routeReorder(fromIdx, toIdx) {
 // ============================================================
 // GPS with multi-tier fallback:
 // Tier 1: Native geolocation (works on HTTPS / PWA / Android file://)
-// Tier 2: IP geolocation via ipapi.co (free, ~city block accuracy, used only when GPS unavailable)
-//   Privacy: ipapi.co receives your IP address to estimate location. No data stored by this app.
+// Tier 2: IP geolocation via ipapi.co (free, ~city block accuracy)
 // Tier 3: Last known location cache
 // ============================================================
 
@@ -4670,7 +4595,14 @@ function mapMoveDn() {
 function mapNavToActive() {
   const s = stops.find(x=>x.id===activeMapStopId);
   if (s) navToStop(s.fullAddress||s.address+', St. Louis, MO');
-}function mapGISActive() {
+}function mapDeleteActive() {
+  if (activeMapStopId) {
+    document.getElementById('map-stop-popup').style.display='none';
+    deleteStop(activeMapStopId);
+    activeMapStopId = null;
+  }
+}
+function mapGISActive() {
   if (!activeMapStopId) return;
   const s = stops.find(x => x.id === activeMapStopId);
   if (s) openGISMap(s.lat || null, s.lng || null);
@@ -4735,24 +4667,8 @@ function _getDeviceId() {
 
 // Fire-and-forget analytics beacon. URL stored in localStorage['analytics-beacon-url']
 // Never sends PII — only event name, metadata, timestamp, anonymous deviceId
-
-function toggleMetricsBeacon(enabled) {
-  localStorage.setItem('metrics-beacon-enabled', enabled ? 'true' : 'false');
-  showToast(enabled ? 'Usage data sharing enabled ✓' : 'Usage data sharing disabled');
-}
-
-function _initPrivacyToggle() {
-  var chk = document.getElementById('privacy-beacon-toggle');
-  if (!chk) return;
-  var stored = localStorage.getItem('metrics-beacon-enabled');
-  // Default to ON (null = not set = enabled)
-  chk.checked = (stored !== 'false');
-}
-
 function _beacon(event, meta) {
   // Wrapped entirely — never throws, never blocks UI
-  // Respect privacy opt-out
-  if (localStorage.getItem('metrics-beacon-enabled') === 'false') return;
   try {
     const deviceId = _getDeviceId();
     const ts = new Date().toISOString();
@@ -5337,6 +5253,15 @@ function showScanGuide() {
   modal.style.display = 'flex';
 }
 
+function scanChooseGallery() {
+  document.getElementById('scan-source-modal').style.display = 'none';
+  document.getElementById('scan-file-input').click();
+}
+function scanChooseCamera() {
+  document.getElementById('scan-source-modal').style.display = 'none';
+  document.getElementById('scan-camera-input').click();
+}
+
 function navToStop(addr) {
   const encoded = encodeURIComponent(addr);
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -5358,9 +5283,38 @@ function navToStop(addr) {
   }
 }
 
+function launchGoogleMaps() {
+  const pending = routeOrder.length > 0
+    ? routeOrder.map(id => stops.find(s => s.id === id)).filter(s => s && !s.done)
+    : stops.filter(s => !s.done);
+  if (!pending.length) { showToast('No stops to navigate'); return; }
+
+  // Build full multi-waypoint route URL — works on desktop AND mobile browser
+  // Google Maps web URL supports up to 10 waypoints via /dir/ syntax
+  const addrs = pending.map(s => encodeURIComponent(s.fullAddress || s.address + ', St. Louis, MO'));
+
+  // Origin: use GPS/manual if set, else omit (Maps uses current location)
+  const origin = manualOrigin ? encodeURIComponent(manualOrigin.label || `${manualOrigin.lat},${manualOrigin.lng}`) : '';
+
+  if (addrs.length === 1) {
+    // Single stop — simplest URL
+    const url = `https://www.google.com/maps/dir/?api=1${origin?'&origin='+origin:''}&destination=${addrs[0]}&travelmode=driving`;
+    window.open(url, '_blank');
+    return;
+  }
+
+  // Multiple stops — use /maps/dir/origin/wp1/wp2/.../dest URL format
+  // This format works on mobile browsers AND opens in Google Maps app
+  const allAddrs = origin ? [origin, ...addrs] : addrs;
+  const routeUrl = 'https://www.google.com/maps/dir/' + allAddrs.join('/');
+  window.open(routeUrl, '_blank');
+}
 // ============================================================
 // PHOTO SCAN — Anthropic vision API (primary) or on-device TextDetector (fallback)
 // ============================================================
+
+
+
 
 
 // Known St. Louis street suffixes
@@ -5499,6 +5453,7 @@ async function _scanWithTextDetector(file) {
 }
 
 
+
 // ── Orchestrator: choose pipeline, manage UI state ────────────────────────
 async function handleScanImage(event) {
   const file = event.target.files[0];
@@ -5561,238 +5516,6 @@ async function handleScanImage(event) {
   btn.classList.remove('scanning'); btn.textContent = '📷';
   event.target.value = '';
 }
-
-// ══════════════════════════════════════════════════════════════
-// PHOTO STAMP — GPS + address overlay on stop photos
-// ══════════════════════════════════════════════════════════════
-
-var _stampTargetStopId = null; // stop context for notes-modal photo
-var _standaloneStampAddr = null; // address typed for toolbar photo
-
-// Called from notes modal photo button
-function takeStopPhoto() {
-  var inp = document.getElementById('stop-photo-input');
-  if (inp) inp.click();
-}
-
-function retakeStopPhoto() {
-  takeStopPhoto();
-}
-
-function clearStopPhoto() {
-  if (!_stampTargetStopId) return;
-  var s = stops.find(function(x){ return x.id === _stampTargetStopId; });
-  if (s) { delete s.photo; delete s.photoTs; saveStops(); }
-  var wrap = document.getElementById('stop-photo-preview-wrap');
-  var btn  = document.getElementById('stop-photo-btn');
-  if (wrap) wrap.style.display = 'none';
-  if (btn)  btn.style.display  = 'flex';
-}
-
-// Called when user selects/takes a photo via notes modal
-async function handleStopPhotoSelected(input) {
-  var file = input.files && input.files[0];
-  if (!file) return;
-  input.value = '';
-  var s = _stampTargetStopId ? stops.find(function(x){ return x.id === _stampTargetStopId; }) : null;
-  var addr = (s && s.fullAddress) || (s && s.address) || _standaloneStampAddr || '';
-  var stamped = await _stampImage(file, addr);
-  if (!stamped) return;
-  if (s) {
-    s.photo = stamped;
-    s.photoTs = new Date().toISOString();
-    saveStops();
-    // Show preview in notes modal
-    var img = document.getElementById('stop-photo-preview');
-    var wrap = document.getElementById('stop-photo-preview-wrap');
-    var btn  = document.getElementById('stop-photo-btn');
-    if (img)  img.src = stamped;
-    if (wrap) wrap.style.display = 'block';
-    if (btn)  btn.style.display  = 'none';
-    showToast('📷 Photo stamped and saved to stop');
-  } else {
-    // Standalone: just download
-    _downloadStampedPhoto(stamped, addr);
-    showToast('📷 Photo saved');
-  }
-}
-
-// Toolbar camera — prompts for address if none provided
-function openStandaloneCamera() {
-  var now = new Date();
-  var ts  = now.toLocaleDateString('en-US') + ' ' + now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-  var gps = window._lastGPS ? (_lastGPS.lat.toFixed(5) + ', ' + _lastGPS.lng.toFixed(5)) : 'GPS not captured';
-  var insp = localStorage.getItem('inspector-id') || '';
-  var pendingStops = getPendingStops();
-  var defaultAddr = pendingStops.length === 1 ? (pendingStops[0].address || '') : '';
-  var defaultStopId = pendingStops.length === 1 ? pendingStops[0].id : null;
-
-  var existing = document.getElementById('_stamp-cam-modal');
-  if (existing) existing.remove();
-
-  var modal = document.createElement('div');
-  modal.id = '_stamp-cam-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:10000;display:flex;align-items:flex-end;justify-content:center';
-
-  var inner = document.createElement('div');
-  inner.style.cssText = 'background:white;border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;box-shadow:0 -8px 40px rgba(0,0,0,0.4)';
-
-  // Handle bar
-  var handle = document.createElement('div');
-  handle.style.cssText = 'width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 18px';
-  inner.appendChild(handle);
-
-  // Title
-  var title = document.createElement('div');
-  title.style.cssText = 'font-family:Syne,sans-serif;font-weight:800;font-size:1rem;color:#0d2b6b;margin-bottom:4px';
-  title.textContent = '📷 Photo Stamp';
-  inner.appendChild(title);
-
-  var sub = document.createElement('div');
-  sub.style.cssText = 'font-family:monospace;font-size:0.72rem;color:#555;margin-bottom:16px';
-  sub.textContent = 'Stamp will appear on the bottom of your photo';
-  inner.appendChild(sub);
-
-  // Stamp preview box
-  var preview = document.createElement('div');
-  preview.style.cssText = 'background:#111;border-radius:10px;padding:12px 14px;margin-bottom:16px';
-  var addrLine = document.createElement('div');
-  addrLine.id = '_stamp-addr-preview';
-  addrLine.style.cssText = 'font-family:monospace;font-size:0.78rem;font-weight:700;color:#fff;margin-bottom:4px';
-  addrLine.textContent = defaultAddr || '—';
-  preview.appendChild(addrLine);
-  var tsLine = document.createElement('div');
-  tsLine.style.cssText = 'font-family:monospace;font-size:0.72rem;color:#ccc';
-  tsLine.textContent = ts;
-  preview.appendChild(tsLine);
-  var gpsLine = document.createElement('div');
-  gpsLine.style.cssText = 'font-family:monospace;font-size:0.72rem;color:#aaa';
-  gpsLine.textContent = gps;
-  preview.appendChild(gpsLine);
-  if (insp) {
-    var inspLine = document.createElement('div');
-    inspLine.style.cssText = 'font-family:monospace;font-size:0.72rem;color:#aaa';
-    inspLine.textContent = insp;
-    preview.appendChild(inspLine);
-  }
-  inner.appendChild(preview);
-
-  // Address label
-  var addrLabel = document.createElement('div');
-  addrLabel.style.cssText = 'font-family:Syne,sans-serif;font-weight:700;font-size:0.82rem;color:#333;margin-bottom:6px';
-  addrLabel.textContent = 'Address to stamp';
-  inner.appendChild(addrLabel);
-
-  // Address input
-  var addrInput = document.createElement('input');
-  addrInput.type = 'text';
-  addrInput.id = '_stamp-addr-input';
-  addrInput.value = defaultAddr;
-  addrInput.placeholder = 'e.g. 2801 Dalton Ave';
-  addrInput.style.cssText = 'width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:10px;font-family:monospace;font-size:0.85rem;color:#222;box-sizing:border-box;margin-bottom:16px';
-  addrInput.addEventListener('input', function() {
-    var p = document.getElementById('_stamp-addr-preview');
-    if (p) p.textContent = this.value || '—';
-  });
-  inner.appendChild(addrInput);
-
-  // Button row
-  var btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:10px';
-
-  var cancelBtn = document.createElement('button');
-  cancelBtn.style.cssText = 'flex:1;padding:12px;border:1.5px solid #ddd;border-radius:12px;background:white;font-family:Syne,sans-serif;font-weight:700;font-size:0.82rem;color:#555;cursor:pointer';
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.onclick = function() { modal.remove(); };
-  btnRow.appendChild(cancelBtn);
-
-  var shootBtn = document.createElement('button');
-  shootBtn.style.cssText = 'flex:2;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#1a4a9c,#2563eb);color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.85rem;cursor:pointer';
-  shootBtn.textContent = '📷 Take Photo';
-  shootBtn.onclick = function() { _confirmStampAndShoot(defaultStopId); };
-  btnRow.appendChild(shootBtn);
-
-  inner.appendChild(btnRow);
-  modal.appendChild(inner);
-  document.body.appendChild(modal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
-  setTimeout(function() { addrInput.focus(); }, 80);
-}
-
-function _confirmStampAndShoot(stopId) {
-  var addrEl = document.getElementById('_stamp-addr-input');
-  var addr = addrEl ? addrEl.value.trim() : '';
-  var modal = document.getElementById('_stamp-cam-modal');
-  if (modal) modal.remove();
-  _stampTargetStopId = stopId || null;
-  _standaloneStampAddr = addr || null;
-  var inp = document.getElementById('stop-photo-input');
-  if (inp) inp.click();
-}
-
-// Core: draws GPS/address stamp overlay on the image using Canvas
-async function _stampImage(file, address) {
-  return new Promise(function(resolve) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var MAX = 1600;
-        var scale = Math.min(1, MAX / Math.max(img.width, img.height));
-        canvas.width  = Math.round(img.width  * scale);
-        canvas.height = Math.round(img.height * scale);
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Build stamp text
-        var now = new Date();
-        var ts  = now.toLocaleDateString('en-US') + ' ' + now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
-        var gps = window._lastGPS ? (_lastGPS.lat.toFixed(5) + ', ' + _lastGPS.lng.toFixed(5)) : '';
-        var insp = localStorage.getItem('inspector-id') || '';
-        var lines = [];
-        if (address)  lines.push(address.split(',')[0]);
-        if (ts)       lines.push(ts);
-        if (gps)      lines.push(gps);
-        if (insp)     lines.push(insp);
-
-        // Stamp bar at bottom
-        var barH = Math.max(72, Math.round(canvas.height * 0.11));
-        var y0   = canvas.height - barH;
-        ctx.fillStyle = 'rgba(0,0,0,0.62)';
-        ctx.fillRect(0, y0, canvas.width, barH);
-
-        // Text
-        var fontSize = Math.max(14, Math.round(barH / (lines.length + 0.8)));
-        ctx.font = 'bold ' + fontSize + 'px monospace';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur  = 4;
-        var pad = Math.round(fontSize * 0.6);
-        var lineH = Math.round(barH / lines.length);
-        lines.forEach(function(line, i) {
-          ctx.fillText(line, pad, y0 + pad + (i + 0.75) * lineH, canvas.width - pad * 2);
-        });
-
-        resolve(canvas.toDataURL('image/jpeg', 0.88));
-      };
-      img.onerror = function() { resolve(null); };
-      img.src = e.target.result;
-    };
-    reader.onerror = function() { resolve(null); };
-    reader.readAsDataURL(file);
-  });
-}
-
-function _downloadStampedPhoto(dataUrl, addr) {
-  var a = document.createElement('a');
-  var slug = (addr || 'photo').replace(/[^a-z0-9]/gi, '_').slice(0, 30);
-  a.download = 'stop_' + slug + '_' + Date.now() + '.jpg';
-  a.href = dataUrl;
-  a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
-}
-
 
 
 function renderScanResults() {
@@ -6070,20 +5793,21 @@ const STL_CENTER = STL_CITY_CENTER;
 function initRouteMap() {
   if (routeMap) {
     // Already initialized — just invalidate size in case container was hidden
-    setTimeout(() => { if (routeMap) routeMap.invalidateSize({ pan: false }); }, 150);
+    setTimeout(() => routeMap.invalidateSize(), 50);
     return;
   }
 
   const mapEl = document.getElementById('visual-route-map');
-  if (!mapEl || mapEl.offsetHeight < 10) return; // container not visible yet — will be called again from switchTab
+  if (!mapEl || mapEl.offsetHeight < 10) return; // container not visible yet
 
   routeMap = L.map('visual-route-map', {
     tap: false,
     bounceAtZoomLimits: false,
-    zoomSnap: 1,
-    zoomDelta: 1,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
     keyboard: false,
-    preferCanvas: true
+    maxBounds: L.latLngBounds([[38.45, -90.40], [38.85, -89.90]]),
+    maxBoundsViscosity: 0.9
   }).setView(STL_CENTER, 13);
 
   // Primary: CartoDB Positron — lightweight, reliable, no token needed
@@ -6192,26 +5916,12 @@ function _checkAIRateLimit() {
 async function getApiKey() {
   // Check session cache first (PIN entered this session)
   const session = sessionStorage.getItem('api-key-session');
-  const sessionTs = parseInt(sessionStorage.getItem('api-key-session-ts') || '0', 10);
-  const SESSION_MAX_MS = 8 * 60 * 60 * 1000; // 8 hours
-  if (session && (Date.now() - sessionTs) < SESSION_MAX_MS) return session;
-  if (session) { // expired
-    sessionStorage.removeItem('api-key-session');
-    sessionStorage.removeItem('api-key-session-ts');
-  }
+  if (session) return session;
 
   const blob = localStorage.getItem('anthropic-api-key-enc');
   if (!blob) {
-    const plain = localStorage.getItem('anthropic-api-key');
-    if (plain) {
-      // Legacy unencrypted key detected — show migration warning once per session
-      if (!sessionStorage.getItem('legacy-key-warned')) {
-        sessionStorage.setItem('legacy-key-warned', '1');
-        setTimeout(() => showToast('⚠️ API key stored unencrypted — re-save with a PIN in Settings to secure it', 5000), 500);
-      }
-      return plain;
-    }
-    return null;
+    // Legacy plain-text fallback (migrate on next save)
+    return localStorage.getItem('anthropic-api-key') || null;
   }
 
   // Need PIN to decrypt
@@ -6220,44 +5930,13 @@ async function getApiKey() {
   const decrypted = await _decryptKey(blob, pin);
   if (!decrypted) { showToast('❌ Wrong PIN — key not unlocked'); return null; }
   sessionStorage.setItem('api-key-session', decrypted);
-      sessionStorage.setItem('api-key-session-ts', Date.now());
   return decrypted;
 }
 
 function _promptForPin() {
   return new Promise(resolve => {
-    // Use in-app PIN modal instead of window.prompt (blocked on file://)
-    const existing = document.getElementById('_pin-unlock-modal');
-    if (existing) existing.remove();
-
-    const modal = document.createElement('div');
-    modal.id = '_pin-unlock-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px';
-    modal.innerHTML = `
-      <div style="background:white;border-radius:16px;padding:24px;width:100%;max-width:320px;box-shadow:0 8px 40px rgba(0,0,0,0.4)">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:#0d2b6b;margin-bottom:6px">🔒 Enter your PIN</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#666;margin-bottom:14px">Required to decrypt your API key</div>
-        <input id="_pin-unlock-input" type="password" inputmode="numeric" placeholder="PIN"
-          style="width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:10px;font-size:1rem;font-family:'Space Mono',monospace;box-sizing:border-box;margin-bottom:12px"
-          autocomplete="current-password">
-        <div style="display:flex;gap:8px">
-          <button id="_pin-unlock-cancel" style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:10px;background:white;font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;color:#666">Cancel</button>
-          <button id="_pin-unlock-ok" style="flex:2;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a4a9c,#2563eb);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">Unlock</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(modal);
-    const inp = modal.querySelector('#_pin-unlock-input');
-    const ok = modal.querySelector('#_pin-unlock-ok');
-    const cancel = modal.querySelector('#_pin-unlock-cancel');
-
-    const finish = (val) => { modal.remove(); resolve(val); };
-
-    setTimeout(() => inp && inp.focus(), 80);
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') finish(inp.value || null); });
-    ok.addEventListener('click', () => finish(inp.value || null));
-    cancel.addEventListener('click', () => finish(null));
-    modal.addEventListener('click', e => { if (e.target === modal) finish(null); });
+    const pin = prompt('Enter your API key PIN to unlock photo scanning:');
+    resolve(pin || null);
   });
 }
 
@@ -6293,8 +5972,7 @@ async function saveSettingsKey() {
     const blob = await _encryptKey(val, pin);
     localStorage.setItem('anthropic-api-key-enc', blob);
     localStorage.removeItem('anthropic-api-key'); // remove legacy plain-text
-    sessionStorage.setItem('api-key-session', val);
-    sessionStorage.setItem('api-key-session-ts', Date.now()); // cache for this session
+    sessionStorage.setItem('api-key-session', val); // cache for this session
     _openSettingsPanel();
     showToast('🔒 API key encrypted and saved ✓');
   } catch(e) {
@@ -7212,9 +6890,8 @@ function initCreds() {
 
 // ── Customize Modal ───────────────────────────────────────────
 function openCredsCustomize() {
-  _initPrivacyToggle();
-  var _cni = document.getElementById('creds-name-input'); if(_cni) _cni.value = getInspectorId();
-  var _cti = document.getElementById('creds-title-input'); if(_cti) _cti.value = getCredsVal('title');
+  document.getElementById('creds-name-input').value = getInspectorId();
+  document.getElementById('creds-title-input').value = getCredsVal('title');
   const sub   = getCredsVal('sub');
   const parts = sub.split(' · ');
   const divEl   = document.getElementById('creds-division-input');
@@ -7230,15 +6907,8 @@ function openCredsCustomize() {
   buildDeptChecklist();
   _populateCustomizePositionSelect();
   refreshApiKeyDisplay();
-  var _ccm = document.getElementById('creds-customize-modal'); if (_ccm) _ccm.style.display = 'block';
-  // Show existing photo thumbnail
-  const existingPhoto = localStorage.getItem('creds-id-front');
-  const thumb = document.getElementById('settings-id-thumb');
-  const thumbWrap = document.getElementById('settings-id-thumb-wrap');
-  if (thumb && existingPhoto) { thumb.src = existingPhoto; thumbWrap.style.display = 'block'; }
-  else if (thumbWrap) thumbWrap.style.display = 'none';
+  document.getElementById('creds-customize-modal').style.display = 'block';
 }
-
 
 function closeCredsCustomize() {
   document.getElementById('creds-customize-modal').style.display = 'none';
@@ -7253,14 +6923,11 @@ function prefillFromPosition(jobId) {
   // Derive display values from job data
   const _title = (job.label || '').split(' — ')[0].trim();
   const _whoami = job.whoami || '';
-  const _divM  = _whoami.match(/City of St\.?\s*Louis\s+([A-Za-z ,&\/]+?(?:Division|Bureau|Section|Unit)[A-Za-z ,&\/]*?)(?:,|\.|\bDepartment\b|\bI am\b|$)/i);
-  const _deptM = _whoami.match(/(?:Dept(?:artment)?\. of|Department of)\s+([A-Za-z ,&\-]+?)(?:\.|,|\bI am\b|$)/i);
-  const _div   = _divM  ? _divM[1].trim()  : '';
-  const _dept  = _deptM ? _deptM[1].trim() : '';
-  // Derive scope from job label: "Nuisance Inspector — Weed Control (Forestry)" → "Weed Control"
-  const _labelParts = (job.label || '').split(' — ');
-  const _scopeFromLabel = _labelParts.length > 1 ? _labelParts.slice(1).join(' — ').replace(/\(.*?\)/g,'').trim() : '';
-  const _scope = _scopeFromLabel || job.ord_header || '';
+  const _divM  = _whoami.match(/City of St\.\s*Louis\s+([A-Za-z ,&\/]+?(?:Division|Bureau|Section|Unit)[A-Za-z ,&\/]*?)(?:,|\.|\bDepartment\b|$)/i);
+  const _deptM = _whoami.match(/Department of ([A-Za-z ,&]+?)(?:\.|,|\bI am\b|$)/i);
+  const _div   = _divM  ? _divM[1].trim()                  : '';
+  const _dept  = _deptM ? ('Dept. of ' + _deptM[1].trim()) : '';
+  const _scope = job.ord_header || '';
 
   // WRITE TO LOCALSTORAGE FIRST so wizard step 2 reads pre-filled values via getCredsVal()
   // This is the critical fix: without this, the wizard reads empty values on next render
@@ -7292,10 +6959,7 @@ function prefillFromPosition(jobId) {
     setCredsVal('sum_p' + (_i+1) + '_body',    _p ? (_p.body    || '') : '');
   }
 
-  // Only show toast when not in wizard flow
-  if (!document.getElementById('setup-wizard') || document.getElementById('setup-wizard').style.display === 'none') {
-    showToast('Position loaded — review fields then tap Save ✓');
-  }
+  showToast('Position loaded — review fields then tap Save \u2713');
 }
 
 function saveSettingsKeyFromCustomize() {
@@ -7305,11 +6969,11 @@ function saveSettingsKeyFromCustomize() {
   if (!rawKey) { showToast('Enter an API key first'); return; }
   if (!pin || pin.length < 4) { showToast('PIN must be 4+ characters'); return; }
   // Reuse existing encrypt logic
-  var _ski = document.getElementById('settings-key-input'); if(_ski) _ski.value = rawKey;
-  var _skp2=document.getElementById('settings-key-pin'); if(_skp2) _skp2.value = pin;
+  document.getElementById('settings-key-input').value = rawKey;
+  document.getElementById('settings-key-pin').value   = pin;
   saveSettingsKey();
   refreshApiKeyDisplay();
-  var _settings_key_input2=document.getElementById('settings-key-input2'); if(_settings_key_input2) _settings_key_input2.value = '';
+  document.getElementById('settings-key-input2').value = '';
   document.getElementById('settings-key-pin2').value   = '';
   showToast('API key saved & encrypted ✓');
 }
@@ -7546,11 +7210,11 @@ function handleCredsUpload(event) {
         c2.height = Math.round(canvas.height*scale);
         c2.getContext('2d').drawImage(canvas, 0, 0, c2.width, c2.height);
         const data = c2.toDataURL('image/jpeg', 0.88);
-        try { safeSetLS('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — ID photo could not be saved. Clear ref docs to free space.'); return; }
+        try { localStorage.setItem('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — ID photo could not be saved. Clear ref docs to free space.'); return; }
         applyCredsFrontPhoto(data);
       } else {
         const data = canvas.toDataURL('image/jpeg', 0.88);
-        try { safeSetLS('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — ID photo could not be saved. Clear ref docs to free space.'); return; }
+        try { localStorage.setItem('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — ID photo could not be saved. Clear ref docs to free space.'); return; }
         applyCredsFrontPhoto(data);
       }
     };
@@ -7562,17 +7226,11 @@ function handleCredsUpload(event) {
 
 function applyCredsFrontPhoto(data) {
   const img = document.getElementById('creds-photo');
-  if (img) {
-    img.src = data;
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block';
-  }
+  if (!img) return;
+  img.src = data;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block';
   const ph = document.getElementById('creds-photo-placeholder');
   if (ph) ph.style.display = 'none';
-  // Update settings thumbnail
-  const thumb = document.getElementById('settings-id-thumb');
-  const thumbWrap = document.getElementById('settings-id-thumb-wrap');
-  if (thumb && data) { thumb.src = data; thumbWrap.style.display = 'block'; }
-  else if (thumbWrap) thumbWrap.style.display = 'none';
   showToast('ID photo saved ✓');
 }
 
@@ -7605,7 +7263,7 @@ function rotateCredPhoto(degrees) {
     ctx.rotate(rad);
     ctx.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
     const data = canvas.toDataURL('image/jpeg', 0.88);
-    try { safeSetLS('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — rotation could not be saved.'); return; }
+    try { localStorage.setItem('creds-id-front', data); } catch(e) { showToast('⚠ Storage full — rotation could not be saved.'); return; }
     applyCredsFrontPhoto(data);
     showToast('Photo rotated ✓');
   };
@@ -7901,6 +7559,15 @@ function closeFullscreen() {
   document.body.style.overflow = '';
 }
 
+function closeIdFullscreen() {
+  const el = document.getElementById('id-fullscreen');
+  if (el) el.remove();
+  document.body.style.overflow = '';
+  if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch(e) {} }
+}
+
+
+
 function buildSwipeDots() {
   const container = document.getElementById('swipe-indicator');
   if (!container) return;
@@ -8069,7 +7736,7 @@ function logDaySession() {
   var settings = loadDataSettings();
   if (settings.loggingEnabled === false) return; // only log if NOT explicitly disabled
 
-  var today = new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  var today = new Date().toISOString().slice(0, 10);
   var metrics = computeMetrics('today');
   var log = loadDataLog();
 
@@ -8271,7 +7938,6 @@ function computeMetrics(range) {
 
 // ── Render data tab ───────────────────────────────────────────────────────────
 function renderDataTab() {
-  try {
   var m = computeMetrics(_dataRange);
   var settings = loadDataSettings();
 
@@ -8385,7 +8051,6 @@ function renderDataTab() {
     custom: (_dataCustomStart && _dataCustomEnd) ? (_dataCustomStart + ' to ' + _dataCustomEnd) : 'Custom range'};
     rangeLabel.textContent = labels[_dataRange] || '';
   }
-  } catch(e) { console.warn('renderDataTab:', e); }
 }
 
 function statCard(num, label, sub) {
@@ -8635,11 +8300,6 @@ function pushToGoogleSheets() {
 
   // Note: no-cors mode means the response is opaque — we can't check status.
   // A successful delivery is assumed if no network error is thrown.
-  // Security: validate URL is a Google Apps Script endpoint
-  if (!webhookUrl.startsWith('https://script.google.com/macros/')) {
-    showToast('Invalid webhook URL — must be a Google Apps Script URL');
-    return;
-  }
   fetch(webhookUrl, {
     method: 'POST',
     mode: 'no-cors',
@@ -9090,7 +8750,7 @@ function renderWizardStep() {
       '<div style="text-align:center;margin-bottom:12px"><div style="font-size:2rem">🗺️</div></div>' +
       '<div style="background:rgba(245,197,24,0.12);border:1.5px solid rgba(245,197,24,0.35);border-radius:12px;padding:14px 16px;margin-bottom:12px">' +
         '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.88rem;color:var(--lime);margin-bottom:8px">👋 You don\'t need to set anything up.</div>' +
-        '<div style="font-family:\'Space Mono\',monospace;font-size:0.75rem;color:rgba(255,255,255,0.95);line-height:1.85">' +
+        '<div style="font-family:\'Space Mono\',monospace;font-size:0.62rem;color:rgba(200,230,201,0.85);line-height:1.85">' +
           'This app works right now, today, as a simple powerful route planner — no account, no sign-in, nothing required.' +
           '<br><br>' +
           '<b style=\"color:var(--lime)\">Just want to plan a route and follow it?</b><br>' +
@@ -9104,19 +8764,19 @@ function renderWizardStep() {
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:5px">' +
         '<div style="background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:8px;padding:8px 12px">' +
-          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.78rem;color:var(--lime)">Step 1 — Role</span>' +
-          '<span style="font-size:0.7rem;color:rgba(255,255,255,0.7);margin-left:6px">optional</span>' +
-          '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:rgba(255,255,255,0.75);margin-top:2px">Unlocks: authority reference, ordinances, auto-fills ID card</div>' +
+          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.65rem;color:var(--lime)">Step 1 — Role</span>' +
+          '<span style="font-size:0.5rem;color:rgba(200,230,201,0.4);margin-left:6px">optional</span>' +
+          '<div style="font-family:\'Space Mono\',monospace;font-size:0.54rem;color:rgba(200,230,201,0.45);margin-top:2px">Unlocks: authority reference, ordinances, auto-fills ID card</div>' +
         '</div>' +
         '<div style="background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:8px;padding:8px 12px">' +
-          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.78rem;color:var(--lime)">Step 2 — Your Info</span>' +
-          '<span style="font-size:0.7rem;color:rgba(255,255,255,0.7);margin-left:6px">optional</span>' +
-          '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:rgba(255,255,255,0.75);margin-top:2px">Unlocks: digital ID card, named exports, shift metrics</div>' +
+          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.65rem;color:var(--lime)">Step 2 — Your Info</span>' +
+          '<span style="font-size:0.5rem;color:rgba(200,230,201,0.4);margin-left:6px">optional</span>' +
+          '<div style="font-family:\'Space Mono\',monospace;font-size:0.54rem;color:rgba(200,230,201,0.45);margin-top:2px">Unlocks: digital ID card, named exports, shift metrics</div>' +
         '</div>' +
         '<div style="background:rgba(126,200,80,0.08);border:1px solid rgba(126,200,80,0.2);border-radius:8px;padding:8px 12px">' +
-          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.78rem;color:var(--lime)">Step 3 — AI Photo Scan</span>' +
-          '<span style="font-size:0.7rem;color:rgba(255,255,255,0.7);margin-left:6px">truly optional</span>' +
-          '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:rgba(255,255,255,0.75);margin-top:2px">Unlocks: scan any address list photo and import it</div>' +
+          '<span style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.65rem;color:var(--lime)">Step 3 — AI Photo Scan</span>' +
+          '<span style="font-size:0.5rem;color:rgba(200,230,201,0.4);margin-left:6px">truly optional</span>' +
+          '<div style="font-family:\'Space Mono\',monospace;font-size:0.54rem;color:rgba(200,230,201,0.45);margin-top:2px">Unlocks: scan any address list photo and import it</div>' +
         '</div>' +
       '</div>' +
       '</div>';
@@ -9126,9 +8786,9 @@ function renderWizardStep() {
         '<button onclick="wizSaveRole();wizardNext();" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
       '</div>' +
       '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(255,255,255,0.65);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip setup — I just want route planning</button>' +
+        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip setup — I just want route planning</button>' +
       '</div>' +
-      '<div style="font-size:0.68rem;color:rgba(255,255,255,0.55);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">Setting your position unlocks Roles, Ordinances, Summary pages and auto-fills your ID card. Not required.</div>';
+      '<div style="font-size:0.48rem;color:rgba(200,230,201,0.25);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">Setting your position unlocks Roles, Ordinances, Summary pages and auto-fills your ID card. Not required.</div>';
 
   } else if (step === 'name') {
     var savedName = localStorage.getItem('inspector-id') || localStorage.getItem('inspector-name') || '';
@@ -9142,7 +8802,7 @@ function renderWizardStep() {
     var savedSub = subParts.join(' · ') || (typeof getCredsVal === 'function' ? getCredsVal('sub') : '') || '';
     body.innerHTML =
       '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;color:var(--lime);margin-bottom:12px">Step 2 of 3 — Your Info</div>' +
-      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(255,255,255,0.82);margin-bottom:14px">Confirm your details below — pre-filled from your selected position. Update anything before continuing.</div>' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(200,230,201,0.55);margin-bottom:14px">Confirm your details below — pre-filled from your selected position. Update anything before continuing.</div>' +
       wizField('Full Name / Badge ID', 'wiz-name-input', 'text', savedName, 'e.g. Smith, J. · Badge 42') +
       wizField('Title / Position', 'wiz-title-input', 'text', savedTitle, 'e.g. Nuisance Inspector') +
       wizField('Division', 'wiz-div-input', 'text', savedDiv, 'e.g. Forestry Division') +
@@ -9150,32 +8810,32 @@ function renderWizardStep() {
       wizField('Scope / Ordinance', 'wiz-scope-input', 'text', savedScope, 'e.g. Weed Control · Ord. 72059');
     footer.innerHTML =
       '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.5);color:rgba(255,255,255,0.9);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
+        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(200,230,201,0.2);color:rgba(200,230,201,0.7);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
         '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
       '</div>' +
       '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(255,255,255,0.65);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — fill in later via ⚙️ Settings</button>' +
+        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — fill in later via ⚙️ Settings</button>' +
       '</div>';
 
   } else if (step === 'apikey') {
     body.innerHTML =
       '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;color:var(--lime);margin-bottom:12px">Step 3 of 3 — Photo Scan (Optional)</div>' +
-      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(255,255,255,0.82);margin-bottom:12px">The 📷 photo scan feature uses AI to read address lists from photos. It requires a free Anthropic API key. You can skip this and add it later in Settings.</div>' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(200,230,201,0.55);margin-bottom:12px">The 📷 photo scan feature uses AI to read address lists from photos. It requires a free Anthropic API key. You can skip this and add it later in Settings.</div>' +
       '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;margin-bottom:12px">' +
-      '<div style="font-family:\'Space Mono\',monospace;font-size:0.74rem;color:rgba(255,255,255,0.85);line-height:1.7">' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(200,230,201,0.6);line-height:1.7">' +
       '1. Go to console.anthropic.com<br>2. Sign up (free)<br>3. Create an API key<br>4. Paste it below' +
       '</div></div>' +
       wizField('Anthropic API Key', 'wiz-apikey-input', 'password', '', 'sk-ant-api03-...') +
-      '<div style="font-family:\'Space Mono\',monospace;font-size:0.73rem;color:rgba(255,255,255,0.6);margin-top:6px">Stored only on your device. Never uploaded.</div>';
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:rgba(200,230,201,0.3);margin-top:6px">Stored only on your device. Never uploaded.</div>';
     footer.innerHTML =
       '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.5);color:rgba(255,255,255,0.9);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
+        '<button onclick="wizardBack()" style="padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(200,230,201,0.2);color:rgba(200,230,201,0.7);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;border-radius:10px">← Back</button>' +
         '<button onclick="wizardNext()" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Finish Setup →</button>' +
       '</div>' +
       '<div style="text-align:center">' +
-        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(255,255,255,0.65);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — AI features are optional and never required</button>' +
+        '<button onclick="wizardSkip()" style="padding:8px 14px;background:none;border:none;color:rgba(200,230,201,0.35);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer;text-decoration:underline">Skip — AI features are optional and never required</button>' +
       '</div>' +
-      '<div style="font-size:0.68rem;color:rgba(255,255,255,0.55);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">The app works fully without an API key. You can add one anytime in ⚙️ Settings.</div>';
+      '<div style="font-size:0.48rem;color:rgba(200,230,201,0.25);font-family:\'Space Mono\',monospace;text-align:center;margin-top:4px;line-height:1.5">The app works fully without an API key. You can add one anytime in ⚙️ Settings.</div>';
 
   } else if (step === 'done') {
     closeSetupWizard();
@@ -9188,6 +8848,23 @@ function wizField(label, id, type, value, placeholder) {
     '<input id="' + id + '" type="' + type + '" value="' + (value||'').replace(/"/g,'&quot;') + '" placeholder="' + placeholder + '" ' +
     'style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid rgba(126,200,80,0.3);background:rgba(255,255,255,0.06);color:var(--lime);font-family:\'Space Mono\',monospace;font-size:0.65rem;box-sizing:border-box;outline:none" />' +
     '</div>';
+}
+
+function wizSetSector(sector) {
+  localStorage.setItem('selected-sector', sector);
+  var pub = document.getElementById('wiz-sector-pub');
+  var prv = document.getElementById('wiz-sector-prv');
+  if (pub) { pub.style.background = sector==='public'?'var(--lime)':'transparent'; pub.style.color = sector==='public'?'var(--forest)':'var(--lime)'; }
+  if (prv) { prv.style.background = sector==='private'?'var(--lime)':'transparent'; prv.style.color = sector==='private'?'var(--forest)':'var(--lime)'; }
+  var sel = document.getElementById('wiz-job-select');
+  if (sel && typeof getCityJobs === 'function') {
+    sel.innerHTML = '<option value="">— Choose your role —</option>';
+    getCityJobs().filter(function(j){ return (j.sector||'public') === sector; }).sort(function(a,b){return a.label.localeCompare(b.label);}).forEach(function(j) {
+      var opt = document.createElement('option');
+      opt.value = j.id; opt.textContent = j.label;
+      sel.appendChild(opt);
+    });
+  }
 }
 
 function wizSaveRole() {
@@ -9357,7 +9034,7 @@ function wizSaveRole() {
   <div style="background:linear-gradient(135deg,var(--moss),var(--leaf));border-radius:24px 24px 0 0;padding:0 0 40px;width:100%;max-width:480px;box-shadow:0 -8px 60px rgba(0,0,0,0.5)">
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0">
-      <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(255,255,255,0.8);letter-spacing:1px">YOUR CITY ROUTE</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(200,230,201,0.45);letter-spacing:1px">YOUR CITY ROUTE</div>
       <div id="wiz-progress" style="display:flex;gap:6px;align-items:center"></div>
     </div>
     <!-- Body -->
@@ -9367,4 +9044,49 @@ function wizSaveRole() {
   </div>
 </div>
 </body>
-</html>
+</html><div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">💳 Payment App</div>
+      <div style="font-size:0.6rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Set your preferred payment app. A 💳 Pay button will appear on stop cards so you can jump straight to payment when you close a stop.</div>
+      <select id="settings-pos-platform" onchange="savePOSPlatform()" style="width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Syne',sans-serif;font-size:0.75rem;color:#222;background:white;margin-bottom:8px">
+        <option value="">— No payment app —</option>
+        <option value="square">Square</option>
+        <option value="paypal">PayPal / Zettle</option>
+        <option value="venmo">Venmo</option>
+        <option value="cashapp">Cash App</option>
+        <option value="stripe">Stripe Dashboard</option>
+        <option value="quickbooks">QuickBooks GoPayment</option>
+        <option value="zelle">Zelle</option>
+        <option value="custom">Custom URL…</option>
+      </select>
+      <input id="settings-pos-custom" type="url" placeholder="Custom deep-link URL (e.g. myapp://pay)" style="display:none;width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Space Mono',monospace;font-size:0.72rem;color:#222;box-sizing:border-box" onchange="savePOSPlatform()">
+    </div>
+    <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🏷️ Custom Stop Types</div>
+      <div style="font-size:0.6rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:8px;line-height:1.5">Add types that fit your work. Default type = last used.</div>
+      <div id="custom-type-list" style="margin-bottom:8px;min-height:20px"></div>
+      <div style="display:flex;gap:6px">
+        <input id="settings-custom-type-input" type="text" maxlength="30" placeholder="e.g. Delivery, Estimate…" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-family:'Syne',sans-serif;font-size:0.75rem" onkeydown="if(event.key==='Enter')addCustomStopType()">
+        <button onclick="addCustomStopType()" style="padding:8px 14px;background:#0d2b6b;color:white;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">Add</button>
+      </div>
+    </div>
+    <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">&#9855; Accessibility</div>
+      <div style="font-size:0.54rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.5">Changes apply instantly and persist across sessions.</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:0.58rem;font-family:'Syne',sans-serif;font-weight:700;color:#333;margin-bottom:5px">Text Size</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="setA11yScale('1')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">Normal</button>
+          <button onclick="setA11yScale('1.2')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer">Large</button>
+          <button onclick="setA11yScale('1.45')" style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">X-Large</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
+        <div><div style="font-size:0.6rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">High Contrast</div><div style="font-size:0.48rem;color:#888;font-family:'Space Mono',monospace">Sharper colors, bolder borders</div></div>
+        <button id="a11y-contrast-btn" onclick="setA11yContrast(localStorage.getItem('a11y-contrast')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">OFF</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #eee">
+        <div><div style="font-size:0.6rem;font-weight:700;color:#0d2b6b;font-family:'Syne',sans-serif">Reduced Motion</div><div style="font-size:0.48rem;color:#888;font-family:'Space Mono',monospace">Stop animations and transitions</div></div>
+        <button id="a11y-motion-btn" onclick="setA11yMotion(localStorage.getItem('a11y-reduced-motion')!=='1')" style="padding:6px 12px;border-radius:8px;border:1.5px solid #1a4a9c;background:#e8f0fe;color:#0d2b6b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">OFF</button>
+      </div>
+    </div>
+    
