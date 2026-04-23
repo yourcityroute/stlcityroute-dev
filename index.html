@@ -246,18 +246,21 @@ header{
 /* New stop card layout — left column (body) + right column (NAV circle) */
 .card-body-row{display:flex;gap:10px;align-items:stretch}
 .card-body-col{flex:1;min-width:0;display:flex;flex-direction:column}
-.card-nav-col{flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.card-nav-col{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px}
 .nav-circle{width:64px;height:64px;border-radius:50%;background:var(--forest);color:var(--lime);border:none;font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.15s}
 .nav-circle:active{transform:scale(0.92);box-shadow:0 1px 4px rgba(0,0,0,0.2)}
 .nav-circle .nav-icon{font-size:1.1rem;line-height:1}
 .nav-circle .nav-text{font-size:0.62rem;letter-spacing:1.2px;line-height:1}
+.photo-circle{width:64px;height:64px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;flex-shrink:0}
+.photo-circle:active{transform:scale(0.92)}
+.photo-circle-img{width:64px;height:64px;display:block;border-radius:50%}
 .arrive-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding:5px 0}
 .arrive-btn-big{flex:1;padding:9px 12px;border-radius:10px;background:linear-gradient(135deg,#1a4a8c,#2563eb);border:none;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(26,74,140,0.3)}
 .arrive-btn-big:active{transform:scale(0.98)}
 .arrive-btn-big.arrived{background:linear-gradient(135deg,#1b7a3a,#2e9648);box-shadow:0 2px 6px rgba(27,122,58,0.3);letter-spacing:0.8px;font-size:0.72rem}
 .arrived-chip{flex:1;padding:8px 11px;border-radius:10px;background:#e8f4fd;border:1.5px solid rgba(26,74,140,0.3);color:#1a4a8c;font-family:'Space Mono',monospace;font-size:0.6rem;letter-spacing:0.3px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .action-row-new{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;margin-top:8px}
-.action-btn-new{background:white;border:1.5px solid rgba(0,0,0,0.1);flex-direction:column;gap:1px;padding:5px 7px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:44px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem}
+.action-btn-new{background:white;border:1.5px solid rgba(0,0,0,0.1);flex-direction:column;gap:1px;padding:5px 6px;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0;min-width:48px;height:40px;display:flex;align-items:center;justify-content:center;font-size:0.58rem}
 .action-btn-label{font-size:0.38rem;letter-spacing:0.3px;margin-top:1px;line-height:1}
 
 /* CASELOAD HISTORY INLINE */
@@ -448,7 +451,7 @@ header{
 </style>
 </head>
 <body>
-<div id="safety-banner" style="background:linear-gradient(90deg,#f5b301,#ffc940,#f5b301);color:#1a1a1a;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;text-align:center;padding:5px 8px;letter-spacing:0.4px;border-bottom:1.5px solid #b87d00;position:sticky;top:0;z-index:800;line-height:1.35">⚠ Missouri no hands laws — pull over to use</div>
+<div id="safety-banner" style="background:linear-gradient(90deg,#f5b301,#ffc940,#f5b301);color:#1a1a1a;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;text-align:center;padding:5px 8px;letter-spacing:0.4px;border-bottom:1.5px solid #b87d00;line-height:1.35">⚠ Missouri no hands laws — pull over to use</div>
 <div id="app">
 
 <!-- PIN MODAL -->
@@ -549,6 +552,13 @@ header{
       <!-- Filled by renderSettingsPhotoStamp() -->
     </div>
 
+    <!-- CUSTOM STOP TYPES SECTION -->
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--forest);letter-spacing:1px;margin-top:14px;margin-bottom:4px">🏷️ CUSTOM STOP TYPES</div>
+    <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px">Added from the stop type dropdown on the add-stop panel. Max 10. Deleting reverts stops to "Other".</div>
+    <div id="settings-custom-types-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+      <!-- Filled by renderSettingsCustomTypes() -->
+    </div>
+
     <button class="btn-add" style="margin:0;padding:10px" onclick="closeSettings()">✓ DONE</button>
   </div>
 </div>
@@ -644,7 +654,7 @@ header{
       <div id="spreadsheet-preview-header" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:var(--forest);margin-bottom:8px;padding:7px 10px;background:#e8f5e9;border-radius:8px;letter-spacing:0.3px;text-align:center">PREVIEW — addresses found:</div>
       <div id="spreadsheet-preview-list" style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:8px;font-size:0.6rem;font-family:'Space Mono',monospace;color:#555"></div>
       <div style="display:flex;gap:7px;margin-top:10px">
-        <select id="spreadsheet-type-select" class="select-field" style="flex:1">
+        <select id="spreadsheet-type-select" class="select-field" style="flex:1" onchange="onSpreadsheetTypeSelectChange(event)">
           <option value="inspection">🔍 Inspection</option>
           <option value="service_request">📋 Service Request</option>
           <option value="work_order">🔧 Work Order</option>
@@ -745,10 +755,11 @@ header{
       </div>
       <button onclick="openMiscLinks()" style="background:var(--forest);border:2px solid var(--lime);border-radius:7px;padding:5px 7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.48rem;color:var(--lime);cursor:pointer;flex-shrink:0;white-space:nowrap" title="Resources — city contacts, links &amp; local businesses">📋 RESOURCES</button>
       <div style="position:relative">
-        <button onclick="toggleToolbarUtil(event)" style="background:#4a2d5a;color:#d9b3ea;border:1.5px solid rgba(217,179,234,0.35);border-radius:7px;padding:5px 9px;font-family:Syne,sans-serif;font-weight:800;font-size:0.55rem;cursor:pointer;flex-shrink:0;white-space:nowrap" title="Utility — Payment, Photo, Settings">⚙ UTIL ▾</button>
+        <button onclick="toggleToolbarUtil(event)" style="background:#4a2d5a;color:#d9b3ea;border:1.5px solid rgba(217,179,234,0.35);border-radius:7px;padding:5px 9px;font-family:Syne,sans-serif;font-weight:800;font-size:0.55rem;cursor:pointer;flex-shrink:0;white-space:nowrap" title="Utility — Payment, Photo, Settings">⚙ UTILITY ▾</button>
         <div id="toolbar-util-menu" style="display:none;position:absolute;top:32px;right:0;background:white;border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);z-index:100;min-width:180px;overflow:hidden">
           <button onclick="document.getElementById('toolbar-util-menu').style.display='none';openPaymentModal(null)" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#1b5e20;cursor:pointer;border-bottom:1px solid #eee">💰 Record Payment</button>
-          <button onclick="document.getElementById('toolbar-util-menu').style.display='none';openStampedCameraForStop(null)" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#6b3410;cursor:pointer;border-bottom:1px solid #eee">📷 Take Photo</button>
+          <button onclick="document.getElementById('toolbar-util-menu').style.display='none';openStampedCameraForStop(null)" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#6b3410;cursor:pointer;border-bottom:1px solid #eee"><span class="photostamp-inline"></span>Take Photo</button>
+          <button onclick="document.getElementById('toolbar-util-menu').style.display='none';openStampLibraryPhoto()" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#4a2d5a;cursor:pointer;border-bottom:1px solid #eee">🖼 Stamp Existing Photo</button>
           <button onclick="document.getElementById('toolbar-util-menu').style.display='none';openSettings()" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#374151;cursor:pointer">⚙️ Settings</button>
         </div>
       </div>
@@ -816,7 +827,7 @@ header{
       </div>
     </div>
     <div class="input-row">
-      <select class="select-field" id="type-select">
+      <select class="select-field" id="type-select" onchange="onTypeSelectChange(event)">
         <option value="inspection">🔍 Inspection</option>
         <option value="service_request">📋 Service Request</option>
         <option value="work_order">🔧 Work Order</option>
@@ -1431,12 +1442,12 @@ header{
 </div>
 
 <!-- STOP NOTES MODAL -->
-<div id="stop-notes-modal" class="modal-overlay" onclick="if(event.target===this)closeNotesModal()">
-  <div class="modal-sheet" style="padding-bottom:28px">
+<div id="stop-notes-modal" class="modal-overlay" style="z-index:9996" onclick="if(event.target===this)closeNotesModal()">
+  <div class="modal-sheet" style="padding-bottom:28px;background:white;min-height:200px">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="stop-notes-addr">Notes</div>
+    <div class="modal-title" id="stop-notes-addr" style="color:#0d2b6b">Notes</div>
     <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:10px">Notes are saved to this stop and included in exports.</div>
-    <textarea id="stop-notes-textarea" class="note-input" style="height:120px;width:100%;margin-bottom:12px" placeholder="Enter notes about this stop..."></textarea>
+    <textarea id="stop-notes-textarea" class="note-input" style="height:120px;width:100%;margin-bottom:12px;background:white;color:#0d2b6b;border:1.5px solid #bbb" maxlength="2000" placeholder="Enter notes about this stop..."></textarea>
     <button onclick="saveStopNotes()" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--moss),var(--leaf));border:none;border-radius:10px;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer;margin-bottom:8px">💾 SAVE NOTES</button>
     <button class="btn-modal-cancel" onclick="closeNotesModal()">Cancel</button>
   </div>
@@ -1640,6 +1651,8 @@ header{
 
 <!-- Hidden file input for native camera handoff -->
 <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCaptured(event)">
+<!-- Hidden file input for picking an existing photo from the device library (no capture attr) -->
+<input type="file" id="photo-library-input" accept="image/*" style="display:none" onchange="onPhotoCaptured(event)">
 
 <!-- PHOTO SETUP MODAL — pre-capture address + notes -->
 <div id="photo-setup-modal" class="modal-overlay" style="display:none;z-index:9998" onclick="if(event.target===this)closePhotoSetup()">
@@ -1660,9 +1673,10 @@ header{
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Notes on this photo (optional)</label>
     <textarea id="photo-setup-notes" placeholder="e.g. front of property, hail damage north side" rows="2" style="width:100%;padding:9px 10px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.66rem;color:#222;background:#fff;resize:vertical;margin-bottom:12px"></textarea>
 
-    <div style="display:flex;gap:8px">
-      <button onclick="closePhotoSetup()" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
-      <button onclick="photoSetupContinue()" style="flex:2;padding:11px;background:linear-gradient(135deg,#8c4a00,#b56a10);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">📷 Open Camera →</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="closePhotoSetup()" style="flex:1 1 70px;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
+      <button onclick="photoSetupContinue('library')" style="flex:1.3 1 120px;padding:11px;background:linear-gradient(135deg,#4a2d5a,#6b3a7a);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">🖼 Pick Existing →</button>
+      <button onclick="photoSetupContinue('camera')" style="flex:1.4 1 120px;padding:11px;background:linear-gradient(135deg,#8c4a00,#b56a10);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">📷 Open Camera →</button>
     </div>
   </div>
 </div>
@@ -1717,6 +1731,35 @@ header{
   </div>
 </div>
 
+<!-- CUSTOM STOP TYPE CREATOR MODAL -->
+<div id="custom-type-modal" class="modal-overlay" style="display:none;z-index:10002" onclick="if(event.target===this)closeCustomTypeModal()">
+  <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:90dvh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:4px">＋ Create Custom Stop Type</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Add a custom category to the stop type dropdown. Delete or edit any time from Settings.</div>
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Label (full name)</label>
+    <input type="text" id="custom-type-label" placeholder="e.g. Follow-up · Re-inspection · Collection" maxlength="32" style="width:100%;padding:9px 10px;border:1.5px solid #c5d8c8;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.72rem;color:#1a3320;background:#fff;margin-bottom:10px" oninput="autoFillTypeCode()">
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Short code (3–5 chars, shown as pill on stop card)</label>
+    <input type="text" id="custom-type-code" placeholder="e.g. FOL, REINS, COLL" maxlength="5" style="width:100%;padding:9px 10px;border:1.5px solid #c5d8c8;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.72rem;color:#1a3320;background:#fff;margin-bottom:10px;text-transform:uppercase">
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Emoji (optional)</label>
+    <input type="text" id="custom-type-emoji" placeholder="e.g. 📬 🔁 💵" maxlength="4" style="width:100%;padding:9px 10px;border:1.5px solid #c5d8c8;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.9rem;color:#1a3320;background:#fff;margin-bottom:10px">
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Color (stripe + pill)</label>
+    <div id="custom-type-color-swatches" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <!-- Filled by renderCustomTypeColors() -->
+    </div>
+    <input type="hidden" id="custom-type-color" value="#2980b9">
+
+    <div style="display:flex;gap:8px">
+      <button onclick="closeCustomTypeModal()" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
+      <button onclick="saveCustomType()" style="flex:2;padding:11px;background:linear-gradient(135deg,#1a3320,#2e7d32);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">＋ Create Type</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -1724,6 +1767,7 @@ header{
 // ============================================================
 // APP CONSTANTS — all in one place
 // ============================================================
+const PHOTO_ICON_URI = 'data:image/png;base64,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';
 const APP_VERSION        = '${APP_VERSION}'; // stamped by GitHub Actions on every deploy
 const SCHEMA_VERSION     = '3';          // bump when stop object shape changes
 // Delegated click action identifiers — single source of truth
@@ -1775,7 +1819,226 @@ function saveStops(){
   }
 }
 
-// Stage pill for caseload display
+// ── Custom Stop Types ────────────────────────────────────────────────────────
+// Stored as array of { id, label, code, color, emoji }
+// Built-ins have id prefixed with 'builtin_' and cannot be deleted.
+const BUILTIN_STOP_TYPES = [
+  { id:'inspection',      label:'Inspection',       code:'INSP', color:'#2980b9', emoji:'🔍' },
+  { id:'service_request', label:'Service Request',  code:'SR',   color:'#c0392b', emoji:'📋' },
+  { id:'work_order',      label:'Work Order',       code:'WO',   color:'#8e44ad', emoji:'🔧' },
+  { id:'other',           label:'Other',            code:'OTH',  color:'#7f8c8d', emoji:'📌' }
+];
+
+function loadCustomStopTypes() {
+  try {
+    var raw = localStorage.getItem('custom-stop-types');
+    if (!raw) return [];
+    var a = JSON.parse(raw);
+    return Array.isArray(a) ? a : [];
+  } catch(_e) { return []; }
+}
+function saveCustomStopTypes(list) { try { localStorage.setItem('custom-stop-types', JSON.stringify(list)); } catch(_e) {} }
+function getAllStopTypes() { return BUILTIN_STOP_TYPES.concat(loadCustomStopTypes()); }
+function getStopType(id) {
+  if (!id) return BUILTIN_STOP_TYPES[0];
+  var all = getAllStopTypes();
+  for (var i=0;i<all.length;i++) if (all[i].id === id) return all[i];
+  return BUILTIN_STOP_TYPES[3]; // fall back to 'other' if not found (e.g. deleted custom)
+}
+function typeLabelFor(t)     { return getStopType(t).label; }
+function typeCodeFor(t)      { return getStopType(t).code; }
+function typeColorFor(t)     { return getStopType(t).color; }
+function typeEmojiFor(t)     { return getStopType(t).emoji; }
+
+// Populate the add-stop type-select with built-ins + custom types + "+ Create" option
+function populateTypeSelect() {
+  var sel = document.getElementById('type-select');
+  if (!sel) return;
+  var prev = sel.value;
+  var all = getAllStopTypes();
+  sel.innerHTML = all.map(function(t) {
+    return '<option value="' + escHtml(t.id) + '">' + (t.emoji || '•') + ' ' + escHtml(t.label) + '</option>';
+  }).join('') + '<option value="__create__">＋ Create custom type…</option>';
+  // Restore previous selection (may be invalid if a custom was deleted)
+  if (prev && prev !== '__create__') {
+    var match = Array.prototype.slice.call(sel.options).some(function(o){ return o.value === prev; });
+    sel.value = match ? prev : 'inspection';
+  } else {
+    var last = localStorage.getItem('last-stop-type') || 'inspection';
+    var lastMatch = Array.prototype.slice.call(sel.options).some(function(o){ return o.value === last; });
+    sel.value = lastMatch ? last : 'inspection';
+  }
+}
+
+// Wire selection of "__create__" to open the custom-type builder modal
+function onTypeSelectChange(evt) {
+  var sel = evt && evt.target ? evt.target : document.getElementById('type-select');
+  if (!sel) return;
+  if (sel.value === '__create__') {
+    sel.value = localStorage.getItem('last-stop-type') || 'inspection';
+    openCustomTypeModal('type-select');
+  }
+}
+function onSpreadsheetTypeSelectChange(evt) {
+  var sel = evt && evt.target ? evt.target : document.getElementById('spreadsheet-type-select');
+  if (!sel) return;
+  if (sel.value === '__create__') {
+    sel.value = localStorage.getItem('last-stop-type') || 'inspection';
+    openCustomTypeModal('spreadsheet-type-select');
+  }
+}
+
+// Populate the spreadsheet-type-select with full type list + create option
+function populateSpreadsheetTypeSelect() {
+  var sel = document.getElementById('spreadsheet-type-select');
+  if (!sel) return;
+  var prev = sel.value;
+  var all = getAllStopTypes();
+  sel.innerHTML = all.map(function(t) {
+    return '<option value="' + escHtml(t.id) + '">' + (t.emoji || '•') + ' ' + escHtml(t.label) + '</option>';
+  }).join('') + '<option value="__create__">＋ Create custom type…</option>';
+  var last = localStorage.getItem('last-stop-type') || 'inspection';
+  var target = (prev && prev !== '__create__') ? prev : last;
+  var match = Array.prototype.slice.call(sel.options).some(function(o){ return o.value === target; });
+  sel.value = match ? target : 'inspection';
+}
+
+// ── Custom Type Creator Modal ──────────────────────────────────────────────
+var _customTypeReturnSelect = null; // which <select> to refresh after save
+var CUSTOM_TYPE_COLORS = [
+  '#2980b9','#c0392b','#8e44ad','#e8a020','#27ae60',
+  '#16a085','#d35400','#2c3e50','#e74c3c','#f39c12',
+  '#6c3483','#1a5276','#1b5e20','#9b2335','#5d6d7e'
+];
+
+function openCustomTypeModal(returnSelectId) {
+  _customTypeReturnSelect = returnSelectId || 'type-select';
+  var labelEl = document.getElementById('custom-type-label');
+  var codeEl  = document.getElementById('custom-type-code');
+  var emEl    = document.getElementById('custom-type-emoji');
+  var colorEl = document.getElementById('custom-type-color');
+  if (labelEl) labelEl.value = '';
+  if (codeEl)  codeEl.value  = '';
+  if (emEl)    emEl.value    = '';
+  if (colorEl) colorEl.value = CUSTOM_TYPE_COLORS[0];
+  renderCustomTypeColors();
+  document.getElementById('custom-type-modal').style.display = 'flex';
+  setTimeout(function(){ if (labelEl) labelEl.focus(); }, 120);
+}
+function closeCustomTypeModal() {
+  document.getElementById('custom-type-modal').style.display = 'none';
+}
+function renderCustomTypeColors() {
+  var wrap = document.getElementById('custom-type-color-swatches');
+  if (!wrap) return;
+  var selected = document.getElementById('custom-type-color').value || CUSTOM_TYPE_COLORS[0];
+  wrap.innerHTML = CUSTOM_TYPE_COLORS.map(function(c) {
+    var isSelected = c.toLowerCase() === selected.toLowerCase();
+    return '<button onclick="pickCustomTypeColor(\'' + c + '\')" style="width:32px;height:32px;border-radius:50%;background:' + c + ';border:' + (isSelected ? '3px solid #1a3320' : '2px solid rgba(0,0,0,0.1)') + ';cursor:pointer;padding:0;box-shadow:0 1px 3px rgba(0,0,0,0.15)" title="' + c + '"></button>';
+  }).join('');
+}
+function pickCustomTypeColor(hex) {
+  var h = document.getElementById('custom-type-color');
+  if (h) h.value = hex;
+  renderCustomTypeColors();
+}
+// Auto-suggest a 3-letter code from the label
+function autoFillTypeCode() {
+  var label = (document.getElementById('custom-type-label').value || '').trim();
+  var codeEl = document.getElementById('custom-type-code');
+  if (!codeEl || codeEl.value) return; // don't overwrite user-typed code
+  if (!label) { codeEl.value = ''; return; }
+  var words = label.split(/\s+/);
+  var code = '';
+  if (words.length >= 2) code = (words[0][0] + words[1][0] + (words[2] ? words[2][0] : '')).toUpperCase();
+  else                   code = label.slice(0,4).toUpperCase();
+  codeEl.value = code;
+}
+function saveCustomType() {
+  var label = (document.getElementById('custom-type-label').value || '').trim();
+  var code  = (document.getElementById('custom-type-code').value  || '').trim().toUpperCase();
+  var emoji = (document.getElementById('custom-type-emoji').value || '').trim();
+  var color = (document.getElementById('custom-type-color').value || '#2980b9');
+  if (!label) { showToast('⚠ Label is required'); return; }
+  if (!code)  { showToast('⚠ Short code is required'); return; }
+  var existing = loadCustomStopTypes();
+  if (existing.length >= 10) { showToast('⚠ Max 10 custom types — delete one first'); return; }
+  // ID: stable slug of label + timestamp so it's unique
+  var id = 'custom_' + label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') + '_' + Date.now().toString(36);
+  existing.push({ id:id, label:label, code:code, color:color, emoji:emoji || '🏷️' });
+  saveCustomStopTypes(existing);
+  closeCustomTypeModal();
+  populateTypeSelect();
+  populateSpreadsheetTypeSelect();
+  renderCustomTypeStyles(); // inject CSS for the new type
+  // Select it in whichever dropdown we came from
+  var sel = document.getElementById(_customTypeReturnSelect || 'type-select');
+  if (sel) sel.value = id;
+  showToast('✓ Added type: ' + label);
+  try { renderSettingsCustomTypes(); } catch(_e) {}
+}
+
+// Delete a custom type. Stops using that type fall back to 'other'.
+function deleteCustomType(id) {
+  if (!confirm('Delete this custom type? Stops using it will revert to "Other".')) return;
+  var existing = loadCustomStopTypes();
+  existing = existing.filter(function(t){ return t.id !== id; });
+  saveCustomStopTypes(existing);
+  // Orphan fallback
+  if (typeof stops !== 'undefined' && Array.isArray(stops)) {
+    var changed = false;
+    stops.forEach(function(s) {
+      if (s.type === id) { s.type = 'other'; changed = true; }
+    });
+    if (changed) { try { saveStops(); } catch(_e) {} try { renderAll(); } catch(_e) {} }
+  }
+  populateTypeSelect();
+  populateSpreadsheetTypeSelect();
+  renderCustomTypeStyles();
+  showToast('Type deleted');
+  try { renderSettingsCustomTypes(); } catch(_e) {}
+}
+
+// Inject <style> with pill background for each custom type so they render
+// with their chosen color on every card.
+function renderCustomTypeStyles() {
+  var existing = document.getElementById('custom-type-styles');
+  if (existing) existing.remove();
+  var customs = loadCustomStopTypes();
+  if (!customs.length) return;
+  var css = customs.map(function(t) {
+    var c = t.color || '#7f8c8d';
+    var tint = c + '20'; // hex alpha 0x20 = ~12%
+    return '.card.' + t.id + '::before{background:' + c + '}' +
+           '.card.' + t.id + ' .stop-num{background:' + c + ';color:#fff}' +
+           '.pill-' + t.id + '{background:' + tint + ';color:' + c + '}';
+  }).join('\n');
+  var style = document.createElement('style');
+  style.id = 'custom-type-styles';
+  style.textContent = css;
+  document.head.appendChild(style);
+}
+
+// Settings panel rendering — list custom types with delete buttons
+function renderSettingsCustomTypes() {
+  var list = document.getElementById('settings-custom-types-list');
+  if (!list) return;
+  var customs = loadCustomStopTypes();
+  if (!customs.length) {
+    list.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.56rem;color:#999;padding:8px 4px">No custom types yet. Use the stop type dropdown to create one.</div>';
+    return;
+  }
+  list.innerHTML = customs.map(function(t) {
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px">' +
+      '<span style="width:18px;height:18px;border-radius:50%;background:' + t.color + ';flex-shrink:0"></span>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.68rem;color:#1a3320">' + (t.emoji || '🏷️') + ' ' + escHtml(t.label) + '</div>' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.5rem;color:#888">code: ' + escHtml(t.code) + '</div>' +
+      '</div>' +
+      '<button onclick="deleteCustomType(\'' + escHtml(t.id) + '\')" style="background:#fde8e8;border:1px solid rgba(192,57,43,0.3);border-radius:7px;padding:5px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.55rem;color:#c0392b;cursor:pointer">🗑 Delete</button>' +
+      '</div>';
+  }).join('');
+}
 const STAGES = {
   initial:      { label:'Initial',     color:'#888' },
   reinspect:    { label:'Reinspect',   color:'#8e44ad' },
@@ -2109,6 +2372,19 @@ function _initBody() {
 
   renderAll();
   _initClock();
+  // Inject CSS for any saved custom stop types, then rebuild the type dropdowns
+  try { renderCustomTypeStyles(); } catch(_e) {}
+  // Inject a CSS rule so the photostamp icon can be used inline in menus via class name
+  try {
+    if (!document.getElementById('photostamp-inline-style')) {
+      var _pss = document.createElement('style');
+      _pss.id = 'photostamp-inline-style';
+      _pss.textContent = '.photostamp-inline{display:inline-block;width:18px;height:18px;vertical-align:-4px;margin-right:6px;background-image:url(' + PHOTO_ICON_URI + ');background-size:contain;background-repeat:no-repeat;background-position:center}';
+      document.head.appendChild(_pss);
+    }
+  } catch(_e) {}
+  try { populateTypeSelect(); } catch(_e) {}
+  try { populateSpreadsheetTypeSelect(); } catch(_e) {}
   // Restore last-used stop type on the selector
   const lastType = localStorage.getItem('last-stop-type');
   if (lastType) { const sel = document.getElementById('type-select'); if (sel) sel.value = lastType; }
@@ -3584,41 +3860,18 @@ function renderStops() {
     return;
   }
 
-  const typeLabel = t => t==='service_request'?'SR':t==='work_order'?'WO':t==='inspection'?'INSP':'OTH';
+  const typeLabel = t => typeCodeFor(t);
   const typePillClass = t => `pill-${t||'inspection'}`;
 
   const renderStop = (s, i) => {
     const fullAddr = escHtml(s.fullAddress || s.address + ', St. Louis, MO');
     const addr     = escHtml(s.address);
 
-    // ARRIVE row: stays visible always (until stop is closed). After arrival,
-    // shows time + dwell + "tap to undo" hint in green but keeps the same
-    // prominent button shape so it's still obvious where to tap.
-    let arriveRow = '';
-    if (!s.done) {
-      if (s.arrivedAt) {
-        const arrivedDate = new Date(s.arrivedAt);
-        const arrivedStr = arrivedDate.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
-        const mins = Math.round((Date.now() - arrivedDate.getTime()) / 60000);
-        arriveRow = `<div class="arrive-row">
-          <button class="arrive-btn-big arrived" data-action="arrive" data-id="${s.id}" title="Tap to undo arrival">
-            ✓ <span style="margin-left:4px">ARRIVED ${arrivedStr}</span>
-            <span style="margin-left:8px;font-size:0.6rem;font-weight:600;opacity:0.85">· ${mins}m here · ↺ tap to undo</span>
-          </button>
-        </div>`;
-      } else {
-        arriveRow = `<div class="arrive-row">
-          <button class="arrive-btn-big" data-action="arrive" data-id="${s.id}" title="Mark arrived — starts timer">
-            📍 <span style="margin-left:3px">ARRIVE</span>
-          </button>
-        </div>`;
-      }
-    }
-
-    // ACTION ROW — Utility dropdown, Recon dropdown, Photo, Close/Restore+Delete
+    // ACTION ROW — UTIL · RECON · PHOTO (prominent) · ARRIVE · CLOSE
+    // Completed cards: UTIL · RECON · PHOTO · EMAIL · RESTORE · DELETE
     const utilDropdown = `<div style="position:relative;flex-shrink:0">
       <button data-action="util" data-id="${s.id}" title="Utility — Pay, Notes"
-        style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.25)" class="action-btn-new">⚙<span class="action-btn-label">UTIL</span></button>
+        style="background:#f3f0ff;color:#6b21a8;border:1.5px solid rgba(107,33,168,0.25)" class="action-btn-new">⚙<span class="action-btn-label">UTILITY</span></button>
       <div id="util-menu-${s.id}" style="display:none;position:absolute;top:42px;left:0;background:white;border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);z-index:90;min-width:170px;overflow:hidden">
         <button data-action="pay" data-id="${s.id}" data-addr="${addr}" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#1b5e20;cursor:pointer;border-bottom:1px solid #eee">💰 Record Payment</button>
         <button data-action="notes" data-id="${s.id}" style="display:block;width:100%;background:none;border:none;padding:10px 12px;text-align:left;font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:#6b21a8;cursor:pointer">📝 Notes</button>
@@ -3636,12 +3889,29 @@ function renderStops() {
       </div>
     </div>`;
 
-    const photoBtn = `<button data-action="photo" data-id="${s.id}" title="Take photo — stamps address, date, GPS"
-      style="background:#fff4e0;color:#8c4a00;border:1.5px solid rgba(140,74,0,0.25)" class="action-btn-new">📷<span class="action-btn-label">PHOTO</span></button>`;
+    // PHOTO button — circular, no background, just the icon image. Sits next
+    // to NAV on the right side of the card at the same size/shape.
+    const photoBtn = `<button data-action="photo" data-id="${s.id}" title="Take photo — stamps address, date, GPS" class="photo-circle">
+      <img src="${PHOTO_ICON_URI}" alt="Photo" class="photo-circle-img">
+    </button>`;
+
+    // ARRIVE button inline — pin emoji + "ARRIVE" label (or "✓ Xm" after arrival)
+    let arriveBtn = '';
+    if (!s.done) {
+      if (s.arrivedAt) {
+        const arrivedDate = new Date(s.arrivedAt);
+        const mins = Math.round((Date.now() - arrivedDate.getTime()) / 60000);
+        arriveBtn = `<button data-action="arrive" data-id="${s.id}" title="Arrived — tap to undo"
+          style="background:linear-gradient(135deg,#1b7a3a,#2e9648);color:white;border:none" class="action-btn-new">✓<span class="action-btn-label">${mins}m</span></button>`;
+      } else {
+        arriveBtn = `<button data-action="arrive" data-id="${s.id}" title="Mark arrived — starts timer"
+          style="background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;border:none" class="action-btn-new">📍<span class="action-btn-label">ARRIVE</span></button>`;
+      }
+    }
 
     let stateBtns = '';
     if (s.done) {
-      // Completed: RESTORE + DELETE
+      // Completed: RESTORE + DELETE + EMAIL
       stateBtns = `<button data-action="summary" data-id="${s.id}" title="Email stop summary"
         style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.25)" class="action-btn-new">📧<span class="action-btn-label">EMAIL</span></button>
       <button data-action="restore" data-id="${s.id}" title="Restore stop (no confirm)"
@@ -3653,10 +3923,12 @@ function renderStops() {
         style="background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;border:none" class="action-btn-new">✓<span class="action-btn-label">CLOSE</span></button>`;
     }
 
-    const actionRow = `<div class="action-row-new">${utilDropdown}${reconDropdown}${photoBtn}${stateBtns}</div>`;
+    // Action row — PHOTO moved out, now in right column beside NAV
+    const actionRow = `<div class="action-row-new">${utilDropdown}${reconDropdown}${arriveBtn}${stateBtns}</div>`;
 
-    // NAV circle (right column, full-ish height)
+    // Right column: PHOTO + NAV circles, side by side, same size/shape
     const navCircle = `<div class="card-nav-col">
+      ${photoBtn}
       <button data-action="nav" data-addr="${fullAddr}" title="Navigate to ${addr}" class="nav-circle">
         <span class="nav-icon">🧭</span>
         <span class="nav-text">NAV</span>
@@ -3682,7 +3954,6 @@ function renderStops() {
             <span class="type-pill ${typePillClass(s.type)}" style="cursor:pointer"
               data-action="type" data-id="${s.id}" title="Tap to change type">${typeLabel(s.type)}</span>
           </div>
-          ${arriveRow}
           ${actionRow}
         </div>
         ${navCircle}
@@ -6166,6 +6437,15 @@ function openStampedCameraForStop(stopId) {
   document.getElementById('photo-setup-modal').style.display = 'flex';
 }
 
+// Stamp an existing photo from the device library (toolbar UTILITY menu entry).
+// Opens the setup modal first so the user can set the address/notes, then on
+// continue the user picks "🖼 Pick Existing".
+function openStampLibraryPhoto() {
+  openStampedCameraForStop(null);
+  // Focus the hint / nudge toward Pick Existing — achieved just by having that
+  // button live in the same modal. No extra logic needed.
+}
+
 function closePhotoSetup() {
   document.getElementById('photo-setup-modal').style.display = 'none';
 }
@@ -6205,15 +6485,16 @@ async function photoReverseLookup() {
 }
 
 // Continue from setup → open camera
-function photoSetupContinue() {
+function photoSetupContinue(source) {
   var addrField = document.getElementById('photo-setup-addr');
   var notesField = document.getElementById('photo-setup-notes');
   _photoContext.address = addrField ? addrField.value.trim() : '';
   _photoContext.notes   = notesField ? notesField.value.trim() : '';
   closePhotoSetup();
-  // Trigger hidden camera input
-  var input = document.getElementById('photo-camera-input');
-  if (!input) { showToast('⚠ Camera input unavailable'); return; }
+  // Trigger the appropriate hidden file input
+  var inputId = (source === 'library') ? 'photo-library-input' : 'photo-camera-input';
+  var input = document.getElementById(inputId);
+  if (!input) { showToast('⚠ ' + (source === 'library' ? 'Library picker' : 'Camera input') + ' unavailable'); return; }
   input.value = '';
   input.click();
 }
@@ -6734,6 +7015,7 @@ function _openSettingsPanel() {
   if (pinInput)  pinInput.value  = '';
   updateSettingsInstallStatus();
   try { renderSettingsPhotoStamp(); } catch(_e) {}
+  try { renderSettingsCustomTypes(); } catch(_e) {}
 }
 
 async function saveSettingsKey() {
