@@ -1690,18 +1690,25 @@ header{
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#8c4a00">📷 Stamped Photo</div>
       <button onclick="openPhotoSettings()" style="background:#fff4e0;border:1px solid #ead3b0;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#8c4a00;cursor:pointer">⚙ Stamp</button>
     </div>
+
+    <!-- Session strip — shows shot count + locked address -->
+    <div id="photo-session-strip" style="display:none;background:#e8f4fd;border:1px solid #b3d9f5;border-radius:8px;padding:7px 10px;margin-bottom:8px"></div>
+
     <div style="background:#000;border-radius:10px;overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center;min-height:160px;max-height:50vh">
       <img id="photo-preview-img" style="max-width:100%;max-height:50vh;display:block" alt="">
     </div>
 
+    <!-- Quick mode toggle (only visible during a session) -->
+    <button id="photo-quick-toggle" onclick="_toggleQuickMode()" style="width:100%;padding:7px 10px;background:#f0f0f0;border:1px solid #ccc;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;color:#666;cursor:pointer;margin-bottom:8px;text-align:center">⏸ Quick mode: <b>OFF</b></button>
+
     <details style="background:#fff8ee;border:1px solid #ead3b0;border-radius:9px;padding:8px 12px;margin-bottom:10px" id="photo-edit-details">
-      <summary style="font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;color:#8c4a00;cursor:pointer;outline:none">✎ Edit stamp (optional)</summary>
+      <summary style="font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;color:#8c4a00;cursor:pointer;outline:none">✎ Edit stamp (this shot only)</summary>
       <div style="margin-top:10px">
         <label style="display:block;font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:3px">Address</label>
         <input type="text" id="photo-edit-addr" style="width:100%;padding:7px 9px;border:1px solid #ead3b0;border-radius:7px;font-family:'Space Mono',monospace;font-size:0.62rem;color:#222;background:white;margin-bottom:8px">
         <label style="display:block;font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:3px">Notes</label>
         <input type="text" id="photo-edit-notes" style="width:100%;padding:7px 9px;border:1px solid #ead3b0;border-radius:7px;font-family:'Space Mono',monospace;font-size:0.62rem;color:#222;background:white;margin-bottom:8px">
-        <button onclick="rebuildStampedPreview()" style="width:100%;padding:8px;background:#fff4e0;border:1.5px solid #ead3b0;border-radius:8px;color:#8c4a00;font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;cursor:pointer">🔄 Re-stamp with edits</button>
+        <button onclick="rebuildStampedPreview()" style="width:100%;padding:8px;background:#fff4e0;border:1.5px solid #ead3b0;border-radius:8px;color:#8c4a00;font-family:Syne,sans-serif;font-weight:800;font-size:0.65rem;cursor:pointer">🔄 Re-stamp this shot only</button>
       </div>
     </details>
 
@@ -1709,8 +1716,11 @@ header{
       <b>💾 Download</b> saves the stamped photo to your phone's Downloads. <b>📤 Share</b> opens the share sheet (email, Drive, Files, Photos, etc.).
     </div>
 
+    <!-- Take Another button — primary during sessions -->
+    <button id="photo-take-another-btn" onclick="takeAnotherPhoto()" style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#1a5aab,#2563eb);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;margin-bottom:8px;align-items:center;justify-content:center;gap:6px">📷 Take Another</button>
+
     <div style="display:flex;gap:8px">
-      <button onclick="closePhotoPreview()" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Done</button>
+      <button id="photo-done-btn" onclick="handlePreviewDone()" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Done</button>
       <button id="photo-download-btn" onclick="downloadStampedPhoto()" style="flex:1.5;padding:11px;background:linear-gradient(135deg,#1b5e20,#2e7d32);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">💾 Download</button>
       <button id="photo-share-btn" onclick="shareStampedPhoto()" style="flex:1.5;padding:11px;background:linear-gradient(135deg,#8c4a00,#b56a10);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">📤 Share</button>
     </div>
@@ -6537,6 +6547,9 @@ function renderSettingsPhotoStamp() {
 }
 
 // Context preserved across the pre-capture → camera → preview flow
+// _photoContext is the working buffer for the LATEST shot — gets re-stamped if
+// user edits the address/notes in the preview. It's part of a wider _photoSession
+// which holds every shot in the current session.
 var _photoContext = {
   stopId: null,
   stampedBlob: null, stampedDataUrl: null, filename: 'photo.jpg',
@@ -6545,6 +6558,92 @@ var _photoContext = {
   // User-supplied fields at setup time — may be edited later in preview
   address: '', notes: '', gps: null, capturedAt: null
 };
+
+// _photoSession holds the burst of stamped shots taken under a single setup
+// (one address + notes pair). On iOS these batch-share at session end. On
+// Android each shot can auto-download. Idle for 5min → auto-end.
+var _photoSession = {
+  active: false,
+  startedAt: null,
+  stopId: null,
+  address: '',
+  notes: '',
+  shots: [],          // array of { blob, filename, dataUrl, capturedAt, gps }
+  quickMode: false,   // when true, preview auto-dismisses after 1.5s and re-opens camera
+  idleTimer: null,
+  IDLE_MS: 5 * 60 * 1000
+};
+
+function _resetIdleTimer() {
+  if (_photoSession.idleTimer) clearTimeout(_photoSession.idleTimer);
+  if (!_photoSession.active) return;
+  _photoSession.idleTimer = setTimeout(function() {
+    if (!_photoSession.active) return;
+    showToast('📷 Photo session auto-ended (5 min idle)');
+    _endPhotoSession({ silent: true });
+  }, _photoSession.IDLE_MS);
+}
+
+function _startPhotoSession(stopId, address, notes) {
+  _photoSession.active = true;
+  _photoSession.startedAt = new Date();
+  _photoSession.stopId = stopId;
+  _photoSession.address = address || '';
+  _photoSession.notes = notes || '';
+  _photoSession.shots = [];
+  // quickMode persists across sessions in localStorage
+  try { _photoSession.quickMode = localStorage.getItem('photo-quick-mode') === '1'; }
+  catch(_e) { _photoSession.quickMode = false; }
+  _resetIdleTimer();
+}
+
+function _endPhotoSession(opts) {
+  opts = opts || {};
+  if (_photoSession.idleTimer) { clearTimeout(_photoSession.idleTimer); _photoSession.idleTimer = null; }
+  _photoSession.active = false;
+  // Free memory
+  _photoSession.shots = [];
+  _photoSession.address = '';
+  _photoSession.notes = '';
+  _photoSession.stopId = null;
+  // Also clear single-shot working buffer
+  _photoContext.stampedBlob = null;
+  _photoContext.stampedDataUrl = null;
+  _photoContext.originalBlob = null;
+  var img = document.getElementById('photo-preview-img');
+  if (img) img.src = '';
+}
+
+function _toggleQuickMode() {
+  _photoSession.quickMode = !_photoSession.quickMode;
+  try { localStorage.setItem('photo-quick-mode', _photoSession.quickMode ? '1' : '0'); } catch(_e) {}
+  _renderQuickModeToggle();
+  showToast(_photoSession.quickMode ? '⚡ Quick mode ON — auto-shoots' : '⏸ Quick mode OFF — review each shot');
+}
+
+function _renderQuickModeToggle() {
+  var el = document.getElementById('photo-quick-toggle');
+  if (!el) return;
+  var on = _photoSession.quickMode;
+  el.innerHTML = (on ? '⚡' : '⏸') + ' Quick mode: <b>' + (on ? 'ON' : 'OFF') + '</b>';
+  el.style.background = on ? '#fff4cd' : '#f0f0f0';
+  el.style.color = on ? '#7a5000' : '#666';
+  el.style.borderColor = on ? '#e8c878' : '#ccc';
+}
+
+function _renderSessionStrip() {
+  var strip = document.getElementById('photo-session-strip');
+  if (!strip) return;
+  if (!_photoSession.active) { strip.style.display = 'none'; return; }
+  strip.style.display = 'block';
+  var count = _photoSession.shots.length;
+  var addrShort = _photoSession.address ? (_photoSession.address.length > 32 ? _photoSession.address.slice(0,32) + '…' : _photoSession.address) : '(no address)';
+  strip.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      '<span style="font-family:Syne,sans-serif;font-weight:800;font-size:0.7rem;color:#1a3320">📸 Session: <span style="color:#1b5e20">' + count + '</span> shot' + (count===1?'':'s') + '</span>' +
+      '<span style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:#666;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@ ' + escHtml(addrShort) + '</span>' +
+    '</div>';
+}
 
 // Entry point — opens pre-capture setup modal
 function openStampedCameraForStop(stopId) {
@@ -6615,6 +6714,9 @@ function photoSetupContinue(source) {
   var notesField = document.getElementById('photo-setup-notes');
   _photoContext.address = addrField ? addrField.value.trim() : '';
   _photoContext.notes   = notesField ? notesField.value.trim() : '';
+  // Start a multi-shot session keyed to this address+notes+stop. Any subsequent
+  // shots taken via "Take Another" inherit these stamp values.
+  _startPhotoSession(_photoContext.stopId, _photoContext.address, _photoContext.notes);
   closePhotoSetup();
   // Trigger the appropriate hidden file input
   var inputId = (source === 'library') ? 'photo-library-input' : 'photo-camera-input';
@@ -6624,16 +6726,37 @@ function photoSetupContinue(source) {
   input.click();
 }
 
-// Camera captured a photo — stamp and show preview
+// "Take Another" — re-trigger the camera with current session metadata.
+// Re-uses the same camera input so iOS sees a fresh user-gesture chain.
+function takeAnotherPhoto() {
+  if (!_photoSession.active) { showToast('Session ended'); closePhotoPreview({force:true}); return; }
+  // Hide preview modal first so when camera closes, we land cleanly on whatever was behind
+  document.getElementById('photo-preview-modal').style.display = 'none';
+  _resetIdleTimer();
+  var input = document.getElementById('photo-camera-input');
+  if (!input) { showToast('⚠ Camera input unavailable'); return; }
+  input.value = '';
+  // small delay so the preview close animation doesn't fight the file input
+  setTimeout(function(){ input.click(); }, 80);
+}
+
+// Camera captured a photo — stamp it and append to current session
 async function onPhotoCaptured(evt) {
   var file = evt && evt.target && evt.target.files && evt.target.files[0];
   if (!file) return;
   showToast('📷 Stamping photo…');
   try {
-    // Store original so we can re-stamp later if user edits fields
+    // Lock stamp metadata to the session — ignore any edits from previous shot's
+    // preview that might have lingered in _photoContext.
+    if (_photoSession.active) {
+      _photoContext.address = _photoSession.address;
+      _photoContext.notes   = _photoSession.notes;
+      _photoContext.stopId  = _photoSession.stopId;
+    }
     _photoContext.originalBlob = file;
     _photoContext.capturedAt = new Date();
     _photoContext.gps = await _tryGetLocationForStamp();
+    _resetIdleTimer();
     // Track photo count on the stop if linked
     if (_photoContext.stopId !== null && typeof stops !== 'undefined') {
       var stop = stops.find(function(x){ return x.id === _photoContext.stopId; });
@@ -6645,37 +6768,87 @@ async function onPhotoCaptured(evt) {
       }
     }
     await rebuildStampedPreview();
+    // Push the stamped result onto the session
+    if (_photoSession.active && _photoContext.stampedBlob) {
+      _photoSession.shots.push({
+        blob: _photoContext.stampedBlob,
+        filename: _photoContext.filename,
+        dataUrl: _photoContext.stampedDataUrl,
+        capturedAt: _photoContext.capturedAt,
+        gps: _photoContext.gps
+      });
+      // Android can save each shot immediately; iOS holds for batch share
+      if (!_isIOS()) {
+        try { downloadStampedPhoto(); } catch(_e) {}
+      }
+      _renderSessionStrip();
+    }
     // Prefill the edit fields with current values
     var editAddr = document.getElementById('photo-edit-addr');
     var editNotes = document.getElementById('photo-edit-notes');
     if (editAddr)  editAddr.value  = _photoContext.address || '';
     if (editNotes) editNotes.value = _photoContext.notes || '';
 
-    // iOS: the <a download> pathway doesn't reliably save anywhere. Hide Download
-    // entirely on iOS and promote Share to full-width — iOS Share Sheet handles
-    // Save to Photos / Save to Files reliably.
-    var dlBtn    = document.getElementById('photo-download-btn');
-    var shareBtn = document.getElementById('photo-share-btn');
-    var explainer = document.getElementById('photo-save-explainer');
-    if (_isIOS()) {
-      if (dlBtn) dlBtn.style.display = 'none';
-      if (shareBtn) {
-        shareBtn.style.flex = '3';
-        shareBtn.textContent = '📤 Save / Share';
-      }
-      if (explainer) explainer.innerHTML = 'Tap <b>📤 Save / Share</b>, then pick <b>Save Image</b> (goes to Photos) or <b>Save to Files</b> (pick a folder).';
-    } else {
-      if (dlBtn) dlBtn.style.display = '';
-      if (shareBtn) {
-        shareBtn.style.flex = '1.5';
-        shareBtn.textContent = _canShareFiles() ? '📤 Share' : '📤 Share (link)';
-      }
-      if (explainer) explainer.innerHTML = '<b>💾 Download</b> saves the stamped photo to your phone\'s Downloads. <b>📤 Share</b> opens the share sheet (email, Drive, Files, Photos, etc.).';
-    }
+    // Configure the preview UI for session mode
+    _configurePreviewForSession();
     document.getElementById('photo-preview-modal').style.display = 'flex';
+
+    // Quick mode → auto-dismiss preview after 1.5s and reopen camera
+    if (_photoSession.active && _photoSession.quickMode) {
+      setTimeout(function() {
+        if (_photoSession.active && _photoSession.quickMode) {
+          takeAnotherPhoto();
+        }
+      }, 1500);
+    }
   } catch (err) {
     console.error('Photo stamp error', err);
     showToast('⚠ Photo stamp failed — ' + (err.message || 'unknown error'));
+  }
+}
+
+// Adjust preview modal buttons based on iOS vs Android and active session
+function _configurePreviewForSession() {
+  var dlBtn       = document.getElementById('photo-download-btn');
+  var shareBtn    = document.getElementById('photo-share-btn');
+  var explainer   = document.getElementById('photo-save-explainer');
+  var takeAnother = document.getElementById('photo-take-another-btn');
+  var doneBtn     = document.getElementById('photo-done-btn');
+  var sessionInfo = document.getElementById('photo-session-info');
+
+  _renderSessionStrip();
+  _renderQuickModeToggle();
+
+  // Always show Take Another while a session is active
+  if (takeAnother) takeAnother.style.display = _photoSession.active ? 'flex' : 'none';
+
+  if (_isIOS()) {
+    if (dlBtn) dlBtn.style.display = 'none';
+    if (shareBtn) {
+      shareBtn.style.flex = '2';
+      // On iOS in session mode, this becomes "Save All & Done"
+      shareBtn.textContent = (_photoSession.active && _photoSession.shots.length > 1)
+        ? '📤 Save All ' + _photoSession.shots.length + ' & Done'
+        : '📤 Save / Share';
+    }
+    if (explainer) {
+      if (_photoSession.active && _photoSession.shots.length > 0) {
+        explainer.innerHTML = 'iOS: stamped photos are held until you tap <b>📤 Save All</b>. Then pick <b>Save ' + _photoSession.shots.length + ' Image' + (_photoSession.shots.length===1?'':'s') + '</b> in the share sheet to send all to Photos at once.';
+      } else {
+        explainer.innerHTML = 'Tap <b>📤 Save / Share</b>, then pick <b>Save Image</b> (Photos) or <b>Save to Files</b> (pick a folder).';
+      }
+    }
+  } else {
+    if (dlBtn) dlBtn.style.display = '';
+    if (shareBtn) {
+      shareBtn.style.flex = '1.3';
+      shareBtn.textContent = _canShareFiles() ? '📤 Share' : '📤 Share (link)';
+    }
+    if (explainer) {
+      explainer.innerHTML = _photoSession.active
+        ? '<b>Auto-saved.</b> Each stamped shot is downloaded automatically. <b>Take Another</b> for the next shot, or <b>Done</b> to end the session.'
+        : '<b>💾 Download</b> saves the stamped photo to your phone\'s Downloads. <b>📤 Share</b> opens the share sheet.';
+    }
   }
 }
 
@@ -6931,33 +7104,78 @@ function downloadStampedPhoto() {
   }
 }
 
-// Web Share — opens share sheet with file (email / Drive / Photos / Files / etc.)
+// Web Share — opens share sheet. If a session is active and has multiple
+// shots queued (iOS), shares them all at once. Otherwise single shot.
 async function shareStampedPhoto() {
-  if (!_photoContext.stampedBlob) { showToast('No photo'); return; }
-  var filename = _photoContext.filename || 'stamped.jpg';
-  var file;
-  try { file = new File([_photoContext.stampedBlob], filename, {type:'image/jpeg'}); }
-  catch(_e) { file = _photoContext.stampedBlob; }
-  if (_canShareFiles()) {
+  var files = [];
+  if (_photoSession.active && _photoSession.shots.length > 0) {
+    for (var i = 0; i < _photoSession.shots.length; i++) {
+      var s = _photoSession.shots[i];
+      try {
+        files.push(new File([s.blob], s.filename, {type:'image/jpeg'}));
+      } catch(_e) {
+        files.push(s.blob);
+      }
+    }
+  } else if (_photoContext.stampedBlob) {
+    var filename = _photoContext.filename || 'stamped.jpg';
+    try { files.push(new File([_photoContext.stampedBlob], filename, {type:'image/jpeg'})); }
+    catch(_e) { files.push(_photoContext.stampedBlob); }
+  }
+  if (!files.length) { showToast('No photo'); return; }
+
+  // Validate share capability
+  if (navigator.canShare && navigator.share) {
     try {
-      await navigator.share({ files: [file], title: 'Stamped photo', text: filename });
-      return;
+      if (navigator.canShare({ files: files })) {
+        await navigator.share({
+          files: files,
+          title: 'Stamped photos',
+          text: files.length === 1 ? 'Stamped photo' : files.length + ' stamped photos'
+        });
+        // Successful share — on iOS, treat as "saved" → end session cleanly
+        if (_photoSession.active && _isIOS()) {
+          showToast('✓ Saved ' + files.length + ' photo' + (files.length===1?'':'s'));
+          _endPhotoSession();
+          document.getElementById('photo-preview-modal').style.display = 'none';
+        }
+        return;
+      }
     } catch(err) {
       if (err && err.name === 'AbortError') return;
     }
   }
-  // Fallback to plain download
-  downloadStampedPhoto();
+  // Fallback to single-file download (Android-style)
+  if (_photoContext.stampedBlob) downloadStampedPhoto();
 }
 
-function closePhotoPreview() {
+// Done button — handles session-end with iOS warn-if-unsaved
+function handlePreviewDone() {
+  if (_photoSession.active && _isIOS() && _photoSession.shots.length > 0) {
+    var n = _photoSession.shots.length;
+    var ok = confirm('You have ' + n + ' stamped photo' + (n===1?'':'s') + ' that won\'t be saved.\n\nDiscard and exit, or cancel to go back and Save?');
+    if (!ok) return;
+  }
+  _endPhotoSession();
+  closePhotoPreview({force:true});
+}
+
+function closePhotoPreview(opts) {
+  opts = opts || {};
+  // Without {force:true}, defer to handlePreviewDone for the session+warn path
+  if (!opts.force && _photoSession.active && _isIOS() && _photoSession.shots.length > 0) {
+    handlePreviewDone();
+    return;
+  }
   document.getElementById('photo-preview-modal').style.display = 'none';
-  // Clear refs (blobs are big)
+  // Clear single-shot working buffer
   _photoContext.stampedBlob = null;
   _photoContext.stampedDataUrl = null;
   _photoContext.originalBlob = null;
   var img = document.getElementById('photo-preview-img');
   if (img) img.src = '';
+  // If session ended explicitly via force, also clear session
+  if (opts.force) _endPhotoSession();
 }
 
 // ============================================================
