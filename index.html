@@ -209,6 +209,15 @@ header{
 /* CARDS */
 .card{background:var(--card);border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow);position:relative}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--leaf);border-radius:var(--radius) 0 0 var(--radius)}
+/* Nearby-cluster highlight: two or more stops within the user-configured
+   radius get a gold outline so they're visible as a natural group to batch.
+   Applied to both .card (stops tab) and .route-card (route/map popup). */
+.card.nearby-cluster,
+.route-card.nearby-cluster{
+  box-shadow:0 0 0 2px #d4a017, var(--shadow);
+  border-radius:var(--radius);
+}
+.card.nearby-cluster::before{background:#d4a017}
 .card.service_request::before{background:var(--danger)}
 .card.canvas::before{background:var(--warn)}
 .card.priority_list::before{background:#e8a020}
@@ -416,7 +425,14 @@ header{
 
 /* VISUAL MAP */
 #visual-route-map{
-  height:calc(100dvh - 180px);
+  /* Constrained height so the map doesn't swallow the whole viewport. The
+     screen-map container scrolls around it (toolbar above, legend + stop
+     popup below). Leaflet gestures only apply when the touch starts inside
+     the map box, so the user can always swipe the area outside to scroll
+     back up to the toolbar. */
+  height:65dvh;
+  max-height:560px;
+  min-height:320px;
   border-radius:var(--radius);
   overflow:hidden;
   /* Let Leaflet handle all touch - do NOT set touch-action:none here */
@@ -424,8 +440,10 @@ header{
   user-select:none;
   position:relative;
 }
-/* Only block vertical scroll on the screen container, not the map itself */
-#screen-map{overflow:hidden;padding:0}
+/* Let the map screen scroll vertically so the toolbar stays reachable even
+   when the map is taller than one thumb-reach. The inner map still eats
+   touch gestures (pan/zoom) but the area around it scrolls normally. */
+#screen-map{overflow-y:auto;padding:0 2px;-webkit-overflow-scrolling:touch}
 
 /* CASE EDITOR MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:998;align-items:flex-end;justify-content:center;padding:0}
@@ -600,8 +618,53 @@ header{
     <details class="settings-panel" id="settings-ai-usage-panel">
       <summary>📊 AI Usage (this session)</summary>
       <div class="settings-panel-body">
-        <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px">Token counts for requests made with your key since this page loaded. Resets on refresh.</div>
+        <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px">Token counts for requests made with your key. <b>Session</b> resets on refresh; <b>Today</b>, <b>7d</b>, and <b>30d</b> are persisted on-device.</div>
         <div id="settings-ai-usage-body" style="font-size:0.62rem;font-family:'Space Mono',monospace;color:#555">No AI calls yet this session.</div>
+      </div>
+    </details>
+
+    <!-- ──────────── PHOTO CACHE (48h temporary copies) ──────────── -->
+    <details class="settings-panel" id="settings-photo-cache-panel">
+      <summary>📷 Photo Cache (48h)</summary>
+      <div class="settings-panel-body">
+        <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px;line-height:1.55">A temporary in-app copy of recently stamped photos so the <b>📧 Email + Photos</b> button works for stops you photographed in the last 48 hours. Auto-deletes older entries. Your phone gallery keeps the permanent copies regardless.</div>
+        <div id="settings-photo-cache-body" style="font-size:0.62rem;font-family:'Space Mono',monospace;color:#555;background:#f5f5f5;border-radius:8px;padding:8px 10px;margin-bottom:8px;line-height:1.6">Loading…</div>
+        <button class="btn-sm btn-del" style="width:100%;padding:8px;font-size:0.62rem" data-fn="clearPhotoCache">🗑 CLEAR CACHE NOW</button>
+      </div>
+    </details>
+
+    <!-- ──────────── NEARBY-CLUSTER RADIUS ──────────── -->
+    <details class="settings-panel" id="settings-cluster-panel">
+      <summary>✨ Nearby-Stops Highlight Radius</summary>
+      <div class="settings-panel-body">
+        <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px;line-height:1.55">When two or more pending stops sit within this radius, each of them gets a gold border in the Stops, Route, and Map tabs — so you can spot natural clusters at a glance.</div>
+        <select id="settings-cluster-select" class="input-field" data-fn="saveClusterRadius" onchange="saveClusterRadius(this.value)" style="font-size:0.65rem">
+          <option value="0.1">1 block (1/10 mile)</option>
+          <option value="0.2">2 blocks (1/5 mile)</option>
+          <option value="0.25">1/4 mile</option>
+          <option value="0.5">1/2 mile</option>
+          <option value="1">1 mile</option>
+          <option value="5">5 miles</option>
+        </select>
+        <div style="font-size:0.52rem;color:#999;font-family:'Space Mono',monospace;margin-top:6px;line-height:1.5">Default: 2 blocks. Set higher to see more matches; lower for only the closest pairs.</div>
+      </div>
+    </details>
+
+    <!-- ──────────── EMAIL + PHOTO HOW-IT-WORKS ──────────── -->
+    <details class="settings-panel">
+      <summary>📧 How email attachments work</summary>
+      <div class="settings-panel-body" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#444;line-height:1.65">
+        <p style="margin:0 0 8px 0"><b>Short version:</b> the app keeps a temporary 48-hour cache of stamped photos so the <b>📧 Email + Photos</b> button can attach them to email automatically. After 48 hours the cached copies are deleted to keep the app small. Your phone gallery always keeps the permanent copies (those are saved by Download / Share, never the cache).</p>
+        <p style="margin:0 0 8px 0"><b>Why a cache and not unlimited storage?</b> Web apps (which is what this is, technically — a PWA) live in a sandbox the browser enforces. The sandbox lets the app <i>hand</i> photos to your phone (via the Share sheet or Download) but never lets it <i>read back</i> photos from your gallery. So once a photo leaves the cache, the app can\u2019t pull it back to attach. Storing them indefinitely in-app would slowly fill your phone\u2019s storage and on iOS would risk being silently wiped by the system. 48 hours is the sweet spot — long enough to cover Friday\u2192Monday workflows, short enough to stay tiny.</p>
+        <p style="margin:0 0 8px 0"><b>What to do in each case:</b></p>
+        <ul style="margin:0 0 8px 18px;padding:0">
+          <li style="margin-bottom:4px">📷 <b>Just took photos:</b> tap <b>📧 Email Summary + Photos</b> in the photo preview, OR mark the stop done and tap <b>📧📷 Email Summary + photos attached</b> in the close-stop screen. Either way your share sheet opens with the stop summary text and all the stamped photos pre-attached.</li>
+          <li style="margin-bottom:4px">📅 <b>Within 48 hours:</b> open the stop, tap <b>✅ MARK COMPLETE</b> (or just tap the existing complete stop), the close-stop modal will show the <b>📧📷 Email Summary + photos attached</b> button if cached photos still exist for this stop. The cache count appears under the button.</li>
+          <li style="margin-bottom:4px">📝 <b>Older than 48 hours:</b> the <b>📧 Email Stop Summary</b> button still sends the full text summary, and the email body lists the exact filenames of every photo taken at that stop — so you (or the recipient) know which files to attach manually from the gallery.</li>
+          <li>📱 <b>Filenames:</b> photos are named like <code style="font-size:0.95em">2801daltonavenue042326101832847.jpg</code> (address + date + time + ms). Search for that filename in your gallery or file manager.</li>
+        </ul>
+        <p style="margin:0 0 8px 0"><b>Cache size limits:</b> normally 200MB. On phones with less than ~150MB free, the cap drops to 50MB to be polite. Either way, when full, the oldest photos go first. The newest photo for any stop is always preserved as long as it fits.</p>
+        <p style="margin:0;color:#888;font-size:0.92em"><i>The cache is a working convenience, not a permanent record. The photos you see in your phone\u2019s Photos app or Downloads folder are the real archive — the app never modifies or removes those.</i></p>
       </div>
     </details>
 
@@ -801,7 +864,11 @@ header{
       </button>
       <button onclick="emailStopSummary(_closeStopId, true)" style="padding:13px 16px;border:none;border-radius:11px;background:#1a5276;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.74rem;cursor:pointer;text-align:left">
         📧 EMAIL STOP SUMMARY
-        <div style="font-size:0.54rem;font-weight:400;opacity:0.8;margin-top:2px">Opens your mail app with address, times, notes, transactions pre-filled. Attach photos manually from Photos.</div>
+        <div style="font-size:0.54rem;font-weight:400;opacity:0.8;margin-top:2px">Opens your mail app with address, times, notes, transactions pre-filled. Photo filenames listed for manual attach.</div>
+      </button>
+      <button id="close-stop-email-photos-btn" onclick="emailStopWithPhotos(_closeStopId)" style="display:none;padding:13px 16px;border:none;border-radius:11px;background:linear-gradient(135deg,#1a5276,#2980b9);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.74rem;cursor:pointer;text-align:left">
+        📧📷 EMAIL SUMMARY <i>+ photos attached</i>
+        <div id="close-stop-email-photos-meta" style="font-size:0.54rem;font-weight:400;opacity:0.8;margin-top:2px">Photos cached in-app for 48 h after capture. Auto-deleted after that — gallery copies remain.</div>
       </button>
       <button data-fn="closeStopDelete" style="padding:14px 16px;border:none;border-radius:11px;background:#fde8e8;color:var(--danger);font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;text-align:left">
         🗑 REMOVE STOP
@@ -1341,14 +1408,15 @@ header{
         · 📷 Photo scan — photograph a printed route sheet; AI reads the addresses (requires Anthropic API key in Settings)<br>
         · 📋 Paste — copy a list of addresses from any source and paste it<br>
         · 📊 Spreadsheet — upload a CSV or Excel file with addresses in the first column<br><br>
-        <b>Stop types:</b> Tap the color badge on any stop to cycle through Inspection · Service Request · Work Order · General.<br><br>
+        <b>Stop types:</b> Tap the color badge on any stop to cycle through Inspection · Service Request · Work Order · General. You can also create custom types in Settings.<br><br>
         <b>Stop buttons (left to right):</b><br>
         · 📝 Notes — add or view field notes for this stop<br>
         · 🔍 Property search — opens City property lookup for this address<br>
         · CSB — copies address and opens the Citizens Service Bureau request form<br>
         · 📍 ARRIVE — tap when you pull up to the stop; starts a dwell timer<br>
-        · ✓ CLOSE — mark the stop complete; prompts for completion notes<br>
+        · ✓ CLOSE — mark the stop complete; prompts for completion notes and offers email options (see <b>Email Stop Summaries</b> below)<br>
         · 🧭 (round, right) — navigate to this address via Google Maps<br><br>
+        <b>Photo capture per stop:</b> Tap and hold the photostamp button (📷 in the top header) while a stop is active to start a photo session linked to that stop. Each stamped photo is saved to your phone gallery AND cached in the app for 48 hours so you can email them with the stop summary later. See the <b>Photo Stamping &amp; Cache</b> and <b>Email Stop Summaries</b> sections below for details.<br><br>
         <b>Completed stops</b> collapse to a separate "Completed" section at the bottom. Use ↩ to restore or 🗑 to delete permanently.<br><br>
         <b>Duplicate detection:</b> Adding an address already on the list shows a prompt — tap to confirm or cancel.
       </div>
@@ -1377,6 +1445,36 @@ header{
       </div>
     </div>
 
+    <!-- ── PHOTO STAMPING & CACHE ── -->
+    <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">📷 Photo Stamping &amp; Cache</div>
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+        <b>What is photostamping?</b> The 📷 button in the top header opens your camera and overlays the address, date, time, and inspector name onto the bottom-right corner of every photo you take. The stamped JPEG saves to your phone's gallery (iOS) or Downloads folder (Android) automatically.<br><br>
+        <b>Per-stop photo sessions:</b> When you launch the camera from a specific stop's row, the photo is linked to that stop. Each stamped shot increments a 📷 counter on the stop card so you can see at a glance how many photos you've taken at that address.<br><br>
+        <b>Filenames are searchable:</b> Stamped photos are named like <code style="font-size:0.95em">2801daltonavenue042326101832847.jpg</code> — that's address + date (mmddyy) + time (hhmmss) + milliseconds. You can search this exact name in your Photos / Files app to find any photo later.<br><br>
+        <b>The 48-hour cache:</b> A copy of every stamped photo is also kept inside the app for 48 hours. This is what makes the <b>📧 Email Summary + photos attached</b> button work for stops you photographed earlier in the day or yesterday. After 48 hours the cached copy is auto-deleted to keep the app small — your phone gallery copies are not affected and remain forever.<br><br>
+        <b>Cache size:</b> Capped at 200MB normally, or 50MB on phones with limited free space. When the cache fills up, oldest photos go first; the newest photo for each stop is always preserved.<br><br>
+        <b>Manage the cache:</b> Settings → 📷 Photo Cache (48h) shows current size and a "🗑 Clear Cache Now" button. Clearing the cache only affects in-app copies — gallery photos are untouched.<br><br>
+        <b>Quick mode:</b> Tap the ⚡ toggle in the photo preview to auto-dismiss the preview and reopen the camera after each shot. Good for batch capture (multiple shots at one stop).<br><br>
+        <b>Settings → 📷 Stamp Settings</b> lets you control what gets burned into the stamp (address, date, time, inspector name, GPS coords) and the size (small / medium / large).
+      </div>
+    </div>
+
+    <!-- ── EMAIL STOP SUMMARIES ── -->
+    <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">📧 Email Stop Summaries</div>
+      <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
+        <b>What's in a stop summary email?</b> Address, type, times (added / arrived / completed / dwell), GPS coordinates, your inspector name, completion notes, transactions with totals, and the filenames of any photos taken at that stop.<br><br>
+        <b>Three ways to send one:</b><br>
+        · <b>📧 EMAIL STOP SUMMARY</b> in the close-stop modal (text only) — opens your share sheet or mail app with the summary pre-filled. Photo filenames are listed in the body so the recipient knows what to look for in the gallery.<br>
+        · <b>📧📷 EMAIL SUMMARY + photos attached</b> in the close-stop modal (text + photos) — appears only if photos for this stop are still in the 48-hour cache. Opens the share sheet with the stamped JPEGs pre-attached.<br>
+        · <b>📧 EMAIL SUMMARY + PHOTOS</b> in the photo preview modal — uses the photos from the active session you just captured. Always works as long as you haven't tapped Done yet.<br><br>
+        <b>Why two versions of the email?</b> Web apps can't read photos from your gallery (browser security rule). The 48-hour cache works around this by keeping in-app copies just long enough to cover the typical email-after-stop window. Past 48 hours the email body still lists every filename — useful so you (or the recipient) can manually attach from the gallery.<br><br>
+        <b>Cross-platform compatibility:</b> The summary uses CRLF line endings so it formats correctly in Gmail composer on Android. The mailto: fallback uses an anchor click instead of a navigation, so PWA users on iOS don't lose their session opening Mail.<br><br>
+        See Settings → 📧 How email attachments work for the full explainer.
+      </div>
+    </div>
+
     <!-- ── INFO TAB ── -->
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🪪 INFO Tab</div>
@@ -1385,9 +1483,20 @@ header{
         <b>❓ Questions &amp; Follow-Up</b> — Contact information for departments you selected in Settings. CSB is always first. One-tap dialing.<br><br>
         <b>⚖️ Roles &amp; Authority</b> — Three panels (Roles, Summary, Ordinance) loaded from your saved position. Use the position selector to preview any other role without changing your profile. Navigate away and your saved default restores automatically.<br><br>
         <b>📄 Reference Documents</b> — Upload and store images (maps, forms, permit templates, reference sheets) for quick in-field lookup.<br><br>
+        <b>📋 RESOURCES</b> — Local contacts, city departments, wildlife rescue, property lookup tools, pest control, and more.<br><br>
         <b>📊 Data &amp; Metrics</b> — Your shift data, stop history, and export tools.<br><br>
         <b>❓ Help &amp; Guide</b> — This page.<br><br>
-        <b>⚙️ Settings</b> — Profile, photo, position, email, phone, API key, app install, and share link.
+        <b>⚙️ Settings</b> — Includes:<br>
+        &nbsp;&nbsp;· Profile (name, title, division, contact info, ID photo)<br>
+        &nbsp;&nbsp;· Position selector + custom stop types<br>
+        &nbsp;&nbsp;· 📷 Stamp Settings (what gets burned into photos)<br>
+        &nbsp;&nbsp;· Anthropic API Key (encrypted with PIN)<br>
+        &nbsp;&nbsp;· 📊 AI Usage (per-feature token counts, this session)<br>
+        &nbsp;&nbsp;· 📷 Photo Cache (48h temporary photo storage management)<br>
+        &nbsp;&nbsp;· 📧 How email attachments work (explainer)<br>
+        &nbsp;&nbsp;· 📈 Google Sheets Sync (one-time setup for push-to-sheets)<br>
+        &nbsp;&nbsp;· App Install (PWA add-to-home-screen helper)<br>
+        &nbsp;&nbsp;· Share link (send the app URL to a coworker)
       </div>
     </div>
 
@@ -1463,8 +1572,9 @@ header{
         · <b>⚖️ CASE</b> — Opens Missouri Case.net (22nd Judicial Circuit) for municipal court case lookups<br>
         · <b>📞 CSB</b> — Opens the Citizens Service Bureau. Copies the current stop's address to clipboard first if one is active<br>
         · <b>🔍 Search</b> — City of St. Louis property lookup by address<br>
-        · <b>📋 RESOURCES</b> — Local contacts, city departments, wildlife rescue, property lookup tools, pest control, and more<br>
-        · <b>⚙️</b> (top right) — Opens your Settings / profile editor
+        · <b>📷 Photostamp</b> — Opens your camera with stop-aware overlay. Stamped photos save to your gallery and to the 48-hour cache (see Photo Stamping &amp; Cache section)<br>
+        · <b>⚙️</b> (top right) — Opens your Settings / profile editor<br><br>
+        Other resources (city departments, wildlife rescue, pest control, property lookup tools) are available in the Info tab under the <b>📋 RESOURCES</b> button.
       </div>
     </div>
 
@@ -1472,11 +1582,15 @@ header{
     <div style="background:#ffffff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.8rem;color:#0d2b6b;margin-bottom:8px">🤖 AI Features (Optional)</div>
       <div style="font-size:0.62rem;color:#333;font-family:'Space Mono',monospace;line-height:1.9">
-        Three features unlock when you add a free Anthropic API key in Settings:<br><br>
+        Four features unlock when you add a free Anthropic API key in Settings:<br><br>
         · <b>📷 Photo scan</b> — Photograph a printed route sheet, dispatch list, or whiteboard. AI reads the addresses and adds them to your stop list.<br>
-        · <b>Address assist</b> — Fuzzy address completion when typing stops manually.<br>
-        · <b>Route narrative</b> — Plain-English description of your optimized route.<br><br>
-        To get an API key: visit <b>console.anthropic.com</b>, create a free account, and generate a key. Paste it into Settings → Anthropic API Key. Your key is encrypted on-device with a PIN you set — it never leaves your phone unencrypted.
+        · <b>Address smart-complete</b> — When you type a partial or ambiguous address, AI suggests the most likely full St. Louis address.<br>
+        · <b>Address list cleanup</b> — When pasting or scanning a batch of addresses, AI normalizes formatting and corrects obvious typos.<br>
+        · <b>Route narrative</b> — Plain-English description of your optimized route after you tap ⚡ OPTIMIZE.<br><br>
+        <b>Get a key:</b> Visit <b>console.anthropic.com</b>, create a free account, and generate a key. Paste it into Settings → Anthropic API Key with a 4+ character PIN.<br><br>
+        <b>Security:</b> Your key is encrypted on-device with AES-GCM using your PIN as the password. The encrypted blob lives in this app's private storage — it never leaves your phone unencrypted, and other apps on your phone can't see it.<br><br>
+        <b>Model:</b> All AI requests use Claude Haiku (the fastest, cheapest tier). The app intentionally won't use more expensive models — this gives you predictable costs and limits damage if your key is ever leaked.<br><br>
+        <b>Usage tracking:</b> Settings → 📊 AI Usage shows per-feature call counts and token usage for the current session, so you can see what your key has spent. Resets when you reload the app.
       </div>
     </div>
 
@@ -1488,9 +1602,13 @@ header{
         · <b>Tap 📍 ARRIVE</b> when you pull up to a stop — this starts a dwell timer so you know how long each visit took.<br>
         · <b>Add notes at close</b> — the CLOSE dialog has a notes field. Use it for condition observations, owner contact attempts, or case numbers.<br>
         · <b>Pin your first stop</b> on the ROUTE tab if you know you need to start at a specific address (e.g., a scheduled appointment).<br>
+        · <b>Email summaries with photos work for 48 hours.</b> If you took photos at a stop today and want to email them tomorrow morning, the cached copies are still in the app — just open the stop and use the 📧📷 button. After 48 hours, the email body still lists every photo filename so you can attach manually from your gallery.<br>
+        · <b>Run quick mode for batch photos</b> at multi-photo stops — toggle ⚡ in the photo preview and the camera reopens automatically after each shot.<br>
         · <b>Install the app</b> to your home screen via Settings → App Install for offline access and a faster experience.<br>
         · <b>The map auto-updates</b> when you switch to it after making changes — no need to refresh.<br>
-        · <b>Completed stops save permanently</b> until you clear them. Your history is available under "All Time" in the DATA tab.
+        · <b>Completed stops save permanently</b> until you clear them. Your history is available under "All Time" in the DATA tab.<br>
+        · <b>Watch your AI spend</b> in Settings → 📊 AI Usage if you're using photo scan heavily — image inputs are the most expensive type of request.<br>
+        · <b>Photo gallery is the permanent record.</b> The app's 48-hour cache is convenience only. Photos in your phone's Photos / Downloads folder never expire.
       </div>
     </div>
 
@@ -1717,7 +1835,7 @@ header{
 <!-- Hidden file input for native camera handoff -->
 <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display:none" onchange="onPhotoCaptured(event)">
 <!-- Hidden file input for picking an existing photo from the device library (no capture attr) -->
-<input type="file" id="photo-library-input" accept="image/*" style="display:none" onchange="onPhotoCaptured(event)">
+<input type="file" id="photo-library-input" accept="image/*" multiple style="display:none" onchange="onPhotoCaptured(event)">
 
 <!-- PHOTO SETUP MODAL — pre-capture address + notes -->
 <div id="photo-setup-modal" class="modal-overlay" style="display:none;z-index:9998" data-backdrop-close data-fn="closePhotoSetup">
@@ -1727,7 +1845,7 @@ header{
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#8c4a00">📷 Prepare Photo</div>
       <button data-fn="openPhotoSettings" style="background:#fff4e0;border:1px solid #ead3b0;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#8c4a00;cursor:pointer">⚙ Stamp</button>
     </div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Set the details that will be stamped onto this photo. You can edit them again after the shot.</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Set the details that will be stamped onto this photo. You can edit them again after the shot.<br><span style="color:#8c4a00"><b>Tip:</b> tap <b>Pick Existing</b> and select multiple photos to stamp all of them with the same address.</span></div>
 
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Address</label>
     <div style="display:flex;gap:6px;margin-bottom:10px">
@@ -1740,7 +1858,7 @@ header{
 
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button data-fn="closePhotoSetup" style="flex:1 1 70px;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
-      <button data-fn="photoSetupContinue" data-arg="library" style="flex:1.3 1 120px;padding:11px;background:linear-gradient(135deg,#4a2d5a,#6b3a7a);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer">🖼 Pick Existing →</button>
+      <button data-fn="photoSetupContinue" data-arg="library" style="flex:1.3 1 120px;padding:11px;background:linear-gradient(135deg,#4a2d5a,#6b3a7a);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer" title="Pick one or more photos from your gallery; all will be stamped with the address above">🖼 Pick Existing (1+) →</button>
       <button data-fn="photoSetupContinue" data-arg="camera" style="flex:1.4 1 120px;padding:11px;background:linear-gradient(135deg,#8c4a00,#b56a10);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">📷 Open Camera →</button>
     </div>
   </div>
@@ -1782,6 +1900,12 @@ header{
 
     <!-- Take Another button — primary during sessions -->
     <button id="photo-take-another-btn" data-fn="takeAnotherPhoto" style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#1a5aab,#2563eb);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer;margin-bottom:8px;align-items:center;justify-content:center;gap:6px">📷 Take Another</button>
+
+    <!-- Email Summary + Photos — only useful when linked to a stop and session has shots -->
+    <button id="photo-email-btn" data-fn="emailStopWithPhotos" style="display:none;width:100%;padding:12px;background:linear-gradient(135deg,#1a5276,#2980b9);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;margin-bottom:6px">📧 Email Summary + Photos</button>
+    <div id="photo-email-hint" style="display:none;font-family:'Space Mono',monospace;font-size:0.52rem;color:rgba(0,0,0,0.5);line-height:1.45;margin-bottom:10px;padding:0 2px">
+      Opens your share sheet with the stop summary and the photos from this session attached. Works only while this preview is open — once you tap Done, the photos stay in your gallery but can\u2019t be re-attached from inside the app.
+    </div>
 
     <div style="display:flex;gap:8px">
       <button id="photo-done-btn" data-fn="handlePreviewDone" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Done</button>
@@ -1956,15 +2080,65 @@ const AI_USAGE = {
   batch_validate:   { calls: 0, in: 0, out: 0, label: 'Address list cleanup' },
   photo_scan:       { calls: 0, in: 0, out: 0, label: 'Photo address scan' }
 };
+// Daily rollup of AI usage. One LS key per calendar day:
+//   stlcr:ai-usage:YYYY-MM-DD → {smart_address:{calls,in,out}, route_narrative:{...}, ...}
+// ~200 bytes/day uncompressed; a year of heavy daily use is well under 100KB.
+// _ROLLUP_KEEP_DAYS caps history to a year — older entries are pruned on app
+// open by _pruneAiUsageRollup() so we don't grow without bound.
+const _ROLLUP_KEEP_DAYS = 365;
+function _aiRollupKey(d) {
+  d = d || new Date();
+  var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+  return 'ai-usage:' + d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function _readAiRollup(dateKeyOrDate) {
+  var key = (typeof dateKeyOrDate === 'string') ? dateKeyOrDate : _aiRollupKey(dateKeyOrDate);
+  try {
+    var raw = LS.get(key);
+    if (!raw) return null;
+    var obj = JSON.parse(raw);
+    return (obj && typeof obj === 'object') ? obj : null;
+  } catch(_) { return null; }
+}
+function _writeAiRollup(feature, inTok, outTok) {
+  var key = _aiRollupKey();
+  var roll = _readAiRollup(key) || {};
+  if (!roll[feature]) roll[feature] = { calls: 0, in: 0, out: 0 };
+  roll[feature].calls += 1;
+  roll[feature].in    += inTok;
+  roll[feature].out   += outTok;
+  try { LS.set(key, JSON.stringify(roll)); } catch(_) {}
+}
+function _pruneAiUsageRollup() {
+  // Iterate LS, find all ai-usage:* keys, drop any older than _ROLLUP_KEEP_DAYS.
+  try {
+    var keys = LS.keys();
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - _ROLLUP_KEEP_DAYS);
+    var cutoffKey = _aiRollupKey(cutoff); // string-comparable since YYYY-MM-DD sorts correctly
+    keys.forEach(function(k) {
+      if (k.indexOf('ai-usage:') !== 0) return;
+      // Compare lexically: 'ai-usage:2025-01-01' < 'ai-usage:2026-04-24'
+      if (k < cutoffKey) LS.remove(k);
+    });
+  } catch(_) {}
+}
+// Rollup pruning fires on first AI call of the session — cheap, defensive,
+// and avoids running on every page load even if the user never uses AI.
+var _rollupPruned = false;
 function _recordUsage(feature, data) {
   const row = AI_USAGE[feature];
   if (!row) return;
   row.calls += 1;
+  var inTok = 0, outTok = 0;
   const u = data && data.usage;
   if (u) {
-    if (typeof u.input_tokens  === 'number') row.in  += u.input_tokens;
-    if (typeof u.output_tokens === 'number') row.out += u.output_tokens;
+    if (typeof u.input_tokens  === 'number') { inTok = u.input_tokens;  row.in  += inTok; }
+    if (typeof u.output_tokens === 'number') { outTok = u.output_tokens; row.out += outTok; }
   }
+  // Persist to today's daily rollup
+  try { _writeAiRollup(feature, inTok, outTok); } catch(_) {}
+  if (!_rollupPruned) { _rollupPruned = true; try { _pruneAiUsageRollup(); } catch(_) {} }
   // If Settings is open, refresh the readout — otherwise it'll pick up the new
   // numbers the next time the user opens Settings. Defensive: don't throw if
   // the DOM isn't ready or the function hasn't been defined yet.
@@ -3328,6 +3502,27 @@ function openCloseModal(id) {
   }
 
   document.getElementById('close-stop-modal').style.display = 'flex';
+
+  // Show "Email Summary + photos attached" only if (a) device supports file
+  // sharing AND (b) PhotoCache has at least one entry for this stop. The
+  // lookup is async; default the button to hidden and reveal once the count
+  // comes back. Eviction may have aged photos out — that's by design.
+  var emailPhotosBtn  = document.getElementById('close-stop-email-photos-btn');
+  var emailPhotosMeta = document.getElementById('close-stop-email-photos-meta');
+  if (emailPhotosBtn) {
+    emailPhotosBtn.style.display = 'none';
+    if (typeof _canShareFiles === 'function' && _canShareFiles() && typeof PhotoCache !== 'undefined') {
+      PhotoCache.getForStop(id).then(function(entries) {
+        if (id !== _closeStopId) return; // user navigated away
+        if (!entries || !entries.length) return;
+        emailPhotosBtn.style.display = '';
+        if (emailPhotosMeta) {
+          var n = entries.length;
+          emailPhotosMeta.textContent = n + ' cached photo' + (n===1?'':'s') + ' will be attached. Photos auto-delete after 48h — gallery copies remain.';
+        }
+      }).catch(function(){});
+    }
+  }
 }
 
 var _closeModalTimer = null;
@@ -3392,6 +3587,7 @@ function closeStopComplete() {
   logDaySession(); // keep daily log current after each close
   renderAll();
   markRouteChanged();
+  refreshMapIfActive(); // if user is on map tab, redraw markers now that stop is done
   showToast('Stop completed ✓');
 }
 
@@ -3402,8 +3598,13 @@ function closeStopDelete() {
   stops = stops.filter(x => x.id !== id);
   routeOrder = routeOrder.filter(x => x !== id);
   saveStops();
+  // Drop any cached photo blobs and the photo log entry for this stop —
+  // both are now orphaned. Fire-and-forget; failures don't block the delete.
+  try { if (typeof PhotoCache !== 'undefined') PhotoCache.clearStop(id); } catch(_) {}
+  try { LS.remove('photo-log:' + id); } catch(_) {}
   renderAll();
   markRouteChanged();
+  refreshMapIfActive(); // if on map tab, remove deleted stop's marker immediately
   showToast('Stop deleted');
 }
 // ── Stop Notes ─────────────────────────────────────────────
@@ -4463,6 +4664,10 @@ function renderStops() {
     return;
   }
 
+  // Cluster detection — any two pending stops within the user-chosen radius
+  // get a golden border. Computed once per render; see computeNearbyClusters.
+  const clusterIds = computeNearbyClusters(stops);
+
   const typeLabel = t => typeCodeFor(t);
   const typePillClass = t => `pill-${t||'inspection'}`;
 
@@ -4510,9 +4715,14 @@ function renderStops() {
 
     let stateBtns = '';
     if (s.done) {
-      // Completed: RESTORE + DELETE + EMAIL stay as text buttons (no new icons)
-      stateBtns = `<button data-action="summary" data-id="${s.id}" title="Email stop summary"
-        style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.25)" class="action-btn-new">📧<span class="action-btn-label">EMAIL</span></button>
+      // Completed: RESTORE + DELETE + EMAIL stay as text buttons (no new icons).
+      // The email button shows a small 📷 marker if any photos were taken at
+      // this stop, hinting that attaching them is an option (the close-stop
+      // modal will offer the photo-attached variant if cached copies are still
+      // within the 48-hour window).
+      const emailMarker = s.photoCount ? ' 📷' : '';
+      stateBtns = `<button data-action="summary" data-id="${s.id}" title="Email stop summary${s.photoCount ? ' (' + s.photoCount + ' photo' + (s.photoCount===1?'':'s') + ' taken)' : ''}"
+        style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.25)" class="action-btn-new">📧${emailMarker}<span class="action-btn-label">EMAIL</span></button>
       <button data-action="restore" data-id="${s.id}" title="Restore stop (no confirm)"
         style="background:#e8f5e9;color:var(--moss);border:1.5px solid rgba(39,174,96,0.3)" class="action-btn-new">↩<span class="action-btn-label">RESTORE</span></button>
       <button data-action="del" data-id="${s.id}" title="Delete stop (confirms)"
@@ -4532,7 +4742,7 @@ function renderStops() {
       </button>
     </div>`;
 
-    return `<div class="card ${s.type||'inspection'} ${s.done?'completed':''}">
+    return `<div class="card ${s.type||'inspection'} ${s.done?'completed':''}${clusterIds.has(s.id)?' nearby-cluster':''}">
       <div class="card-body-row">
         <div class="card-body-col">
           <div class="card-header">
@@ -4589,6 +4799,51 @@ function haversineKm(lat1,lon1,lat2,lon2) {
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
   const result = R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   _havCache.set(key, result);
+  return result;
+}
+
+// ── Nearby-cluster detection ───────────────────────────────────────────────
+// Returns a Set of stop IDs that have at least one other pending stop within
+// the user-configured cluster radius. Used by renderStops and renderRoute to
+// apply a golden border — a visual hint that two or more nearby stops could
+// be batched on foot. O(n^2) but n is the pending-stop count (typically <50)
+// so this is negligible.
+// Done stops do not participate in clustering (they're already handled).
+// Stops without lat/lng are skipped.
+var _CLUSTER_RADIUS_DEFAULT_MI = 0.2;   // 2 blocks
+var _CLUSTER_RADIUS_CHOICES = [
+  { id: '0.1',  mi: 0.10, label: '1 block (1/10 mi)' },
+  { id: '0.2',  mi: 0.20, label: '2 blocks (1/5 mi)' },
+  { id: '0.25', mi: 0.25, label: '1/4 mile' },
+  { id: '0.5',  mi: 0.50, label: '1/2 mile' },
+  { id: '1',    mi: 1.00, label: '1 mile' },
+  { id: '5',    mi: 5.00, label: '5 miles' }
+];
+function getClusterRadiusMi() {
+  try {
+    var stored = LS.get('nearby-cluster-radius-miles');
+    if (stored == null) return _CLUSTER_RADIUS_DEFAULT_MI;
+    var n = parseFloat(stored);
+    if (!isFinite(n) || n <= 0) return _CLUSTER_RADIUS_DEFAULT_MI;
+    return n;
+  } catch(_) { return _CLUSTER_RADIUS_DEFAULT_MI; }
+}
+function computeNearbyClusters(stopsList) {
+  var result = new Set();
+  if (!Array.isArray(stopsList) || !stopsList.length) return result;
+  var radiusMi = getClusterRadiusMi();
+  var radiusKm = radiusMi * 1.609344;
+  var candidates = stopsList.filter(function(s) { return !s.done && s.lat && s.lng; });
+  for (var i = 0; i < candidates.length; i++) {
+    for (var j = i + 1; j < candidates.length; j++) {
+      var a = candidates[i], b = candidates[j];
+      var d = haversineKm(a.lat, a.lng, b.lat, b.lng);
+      if (d <= radiusKm) {
+        result.add(a.id);
+        result.add(b.id);
+      }
+    }
+  }
   return result;
 }
 
@@ -4940,15 +5195,24 @@ async function _optimizeRouteInner() {
 
 // Top-level renderer — used by route tab (for each stop in the list) and map tab
 // (for the active selected stop). Keeps route+map cards 100% identical.
-function renderRouteStopHtml(s, i, pendingLen) {
+function renderRouteStopHtml(s, i, pendingLen, clusterIds) {
     const fullAddr = escHtml(s.fullAddress || s.address + ', St. Louis, MO');
     const addr     = escHtml(s.address);
     const isPinned = pinnedStartId === s.id;
 
-    // Left column: [stop# + pin] side by side on top, ▲ ▼ stacked below
-    const leftColStack = `<div class="route-leftcol">
+    // Left column: [stop# + pin] side by side on top, ▲ ▼ stacked below.
+    // Completed stops drop the pin button (can't reorder a done stop) and
+    // the ▲▼ reorder buttons (not in the active route anymore) — showing
+    // them invites taps that do nothing.
+    const leftColStack = s.done
+      ? `<div class="route-leftcol">
+           <div style="display:flex;flex-direction:row;align-items:center;gap:4px;margin:0 auto 2px">
+             <div class="stop-num">\u2713</div>
+           </div>
+         </div>`
+      : `<div class="route-leftcol">
       <div style="display:flex;flex-direction:row;align-items:center;gap:4px;margin:0 auto 2px">
-        <div class="stop-num">${s.done?'\u2713':(i+1)}</div>
+        <div class="stop-num">${i+1}</div>
         <button data-action="pin" data-id="${s.id}" title="${isPinned?'Unpin as route start':'Pin as route start'}"
           style="background:none;border:none;padding:0;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center"><img src="${isPinned?PIN_ACTIVE_ICON_URI:PIN_ICON_URI}" alt="${isPinned?'Pinned':'Pin'}" style="width:26px;height:26px;display:block"></button>
       </div>
@@ -4990,8 +5254,9 @@ function renderRouteStopHtml(s, i, pendingLen) {
 
     let stateBtns = '';
     if (s.done) {
-      stateBtns = `<button data-action="summary" data-id="${s.id}" title="Email stop summary"
-        style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.25)" class="action-btn-new">📧<span class="action-btn-label">EMAIL</span></button>
+      const emailMarker = s.photoCount ? ' 📷' : '';
+      stateBtns = `<button data-action="summary" data-id="${s.id}" title="Email stop summary${s.photoCount ? ' (' + s.photoCount + ' photo' + (s.photoCount===1?'':'s') + ' taken)' : ''}"
+        style="background:#e8f4fd;color:#1a5276;border:1.5px solid rgba(26,82,118,0.25)" class="action-btn-new">📧${emailMarker}<span class="action-btn-label">EMAIL</span></button>
       <button data-action="restore" data-id="${s.id}" title="Restore stop (no confirm)"
         style="background:#e8f5e9;color:var(--moss);border:1.5px solid rgba(39,174,96,0.3)" class="action-btn-new">↩<span class="action-btn-label">RESTORE</span></button>
       <button data-action="del" data-id="${s.id}" title="Delete stop (confirms)"
@@ -5009,7 +5274,7 @@ function renderRouteStopHtml(s, i, pendingLen) {
       </button>
     </div>`;
 
-    return `<div class="card ${s.type||'inspection'} ${s.done?'completed':''}">
+    return `<div class="card ${s.type||'inspection'} ${s.done?'completed':''}${clusterIds && clusterIds.has(s.id)?' nearby-cluster':''}">
       <div class="card-body-row">
         ${leftColStack}
         <div class="card-body-col">
@@ -5057,12 +5322,15 @@ function renderRoute() {
     return;
   }
 
-  let html = pending.map((s,i) => renderRouteStopHtml(s, i, pending.length)).join('');
+  // Nearby-cluster set — computed once per render, shared across all cards
+  const clusterIds = computeNearbyClusters(stops);
+
+  let html = pending.map((s,i) => renderRouteStopHtml(s, i, pending.length, clusterIds)).join('');
   if (done.length) {
     html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px 8px;margin-top:6px;border-top:2px solid rgba(200,230,201,0.15)">
       <span style="font-family:Syne,sans-serif;font-weight:700;font-size:0.65rem;color:rgba(200,230,201,0.4);letter-spacing:2px">✓ COMPLETED (${done.length})</span>
     </div>`;
-    html += done.map((s,i) => renderRouteStopHtml(s, pending.length + i, pending.length)).join('');
+    html += done.map((s,i) => renderRouteStopHtml(s, pending.length + i, pending.length, clusterIds)).join('');
   }
   list.innerHTML = html;
 
@@ -5283,6 +5551,10 @@ async function pingGPSOnMap() {
     routeMap.setView([lat,lng], 15);
     saveManualOrigin({ lat, lng, label });
     LS.set('inspector-last-gps', JSON.stringify({ lat, lng, ts: Date.now() }));
+    // Re-run the map refresh silently — the origin has moved, so the route
+    // polyline and bounds should re-render against the new starting point.
+    // Delay slightly so setView above completes first.
+    setTimeout(() => { try { refreshRouteMap(true); } catch(_) {} }, 150);
   };
 
   // Tier 1: Native GPS
@@ -5337,7 +5609,10 @@ let activeMapStopId = null;
 let _pinEntry = '';  // PIN entry buffer for settings unlock
 
 let _mapRefreshInProgress = false;
-async function refreshRouteMap() {
+// silent=true suppresses the "X stops plotted" toast and "Optimize route first"
+// empty-list message, used when this fires as a side effect of completing,
+// deleting, or GPS-updating rather than from an explicit user tap.
+async function refreshRouteMap(silent) {
   if (_mapRefreshInProgress) return; // prevent concurrent refreshes
   _mapRefreshInProgress = true;
   try {
@@ -5353,7 +5628,10 @@ async function refreshRouteMap() {
     : stops.filter(s=>!s.done);
   const withCoords = ordered.filter(s=>s.lat&&s.lng);
 
-  if (!withCoords.length) { showToast('Optimize route first to plot stops'); return; }
+  if (!withCoords.length) {
+    if (!silent) showToast('Optimize route first to plot stops');
+    return;
+  }
 
   const origin = manualOrigin || {lat:38.627,lng:-90.1994};
 
@@ -5378,9 +5656,21 @@ async function refreshRouteMap() {
   const geometry = await fetchRouteGeometry([origin,...withCoords.filter(s=>!s.done)]);
   if (geometry&&geometry.length>1) routeMapPolyline=L.polyline(geometry,{color:'#2980b9',weight:4,opacity:0.85}).addTo(routeMap);
   routeMap.fitBounds(L.latLngBounds(bounds).pad(0.12));
-  showToast(`${withCoords.length} stops plotted`);
+  if (!silent) showToast(`${withCoords.length} stops plotted`);
   } catch(e) { console.error('refreshRouteMap failed:', e); }
   finally { _mapRefreshInProgress = false; }
+}
+
+// Auto-refresh the map iff the map tab is the active one. Used as a side
+// effect of stop completion, deletion, and GPS updates so the map stays in
+// sync without a manual tap. No-op when the user is on a different tab.
+function refreshMapIfActive() {
+  try {
+    const active = document.getElementById('screen-map');
+    if (active && active.classList.contains('active')) {
+      refreshRouteMap(true);
+    }
+  } catch(_e) {}
 }
 
 function _getMapPending() {
@@ -7359,70 +7649,111 @@ function takeAnotherPhoto() {
   setTimeout(function(){ input.click(); }, 80);
 }
 
-// Camera captured a photo — stamp it and append to current session
+// Camera captured a photo — stamp it and append to current session.
+// Supports multi-file selection from the library picker: files are processed
+// sequentially (each stamp pipeline runs to completion before the next file
+// starts) so memory usage stays bounded even with dozens of photos. Only the
+// LAST stamped photo's preview is shown — intermediates appear in the session
+// strip as they complete, with a progress toast announcing each.
 async function onPhotoCaptured(evt) {
-  var file = evt && evt.target && evt.target.files && evt.target.files[0];
-  if (!file) return;
-  showToast('📷 Stamping photo…');
+  var files = evt && evt.target && evt.target.files;
+  if (!files || !files.length) return;
+  var fileArr = Array.prototype.slice.call(files);
+  var isBatch = fileArr.length > 1;
+  if (isBatch) {
+    showToast('📷 Stamping ' + fileArr.length + ' photos…');
+  } else {
+    showToast('📷 Stamping photo…');
+  }
   try {
-    // Lock stamp metadata to the session — ignore any edits from previous shot's
-    // preview that might have lingered in _photoContext.
-    if (_photoSession.active) {
-      _photoContext.address = _photoSession.address;
-      _photoContext.notes   = _photoSession.notes;
-      _photoContext.stopId  = _photoSession.stopId;
-    }
-    _photoContext.originalBlob = file;
-    _photoContext.capturedAt = new Date();
-    _photoContext.gps = await _tryGetLocationForStamp();
-    _resetIdleTimer();
-    // Track photo count on the stop if linked
-    if (_photoContext.stopId !== null && typeof stops !== 'undefined') {
-      var stop = stops.find(function(x){ return x.id === _photoContext.stopId; });
-      if (stop) {
-        stop.photoCount = (stop.photoCount || 0) + 1;
-        stop.lastPhotoAt = new Date().toISOString();
-        try { saveStops(); } catch(_e) {}
-        try { renderStops(); } catch(_e) {}
+    for (var i = 0; i < fileArr.length; i++) {
+      // Only show preview / configure UI for the LAST file in a batch;
+      // intermediate shots update the session strip but stay off-screen.
+      var isLast = (i === fileArr.length - 1);
+      await _stampSingleFile(fileArr[i], { showPreview: isLast, batchIndex: i, batchTotal: fileArr.length });
+      if (isBatch && !isLast) {
+        showToast('📷 ' + (i + 1) + ' of ' + fileArr.length + ' stamped');
       }
     }
-    await rebuildStampedPreview();
-    // Push the stamped result onto the session
-    if (_photoSession.active && _photoContext.stampedBlob) {
-      _photoSession.shots.push({
-        blob: _photoContext.stampedBlob,
-        filename: _photoContext.filename,
-        dataUrl: _photoContext.stampedDataUrl,
-        capturedAt: _photoContext.capturedAt,
-        gps: _photoContext.gps
-      });
-      // Android can save each shot immediately; iOS holds for batch share
-      if (!_isIOS()) {
-        try { downloadStampedPhoto(); } catch(_e) {}
-      }
-      _renderSessionStrip();
+    if (isBatch) {
+      showToast('✓ All ' + fileArr.length + ' photos stamped');
     }
+  } catch (err) {
+    console.error('Photo stamp error', err);
+    showToast('⚠ Photo stamp failed — ' + (err.message || 'unknown error'));
+  }
+}
+
+// Single-file stamp pipeline — extracted so multi-file selection can loop.
+// When showPreview is false, skips opening the preview modal (used for
+// non-final shots in a batch).
+async function _stampSingleFile(file, opts) {
+  opts = opts || {};
+  // Lock stamp metadata to the session — ignore any edits from previous shot's
+  // preview that might have lingered in _photoContext.
+  if (_photoSession.active) {
+    _photoContext.address = _photoSession.address;
+    _photoContext.notes   = _photoSession.notes;
+    _photoContext.stopId  = _photoSession.stopId;
+  }
+  _photoContext.originalBlob = file;
+  _photoContext.capturedAt = new Date();
+  _photoContext.gps = await _tryGetLocationForStamp();
+  _resetIdleTimer();
+  // Track photo count on the stop if linked
+  if (_photoContext.stopId !== null && typeof stops !== 'undefined') {
+    var stop = stops.find(function(x){ return x.id === _photoContext.stopId; });
+    if (stop) {
+      stop.photoCount = (stop.photoCount || 0) + 1;
+      stop.lastPhotoAt = new Date().toISOString();
+      try { saveStops(); } catch(_e) {}
+      try { renderStops(); } catch(_e) {}
+    }
+    // Photo log: record filename + timestamp (no bytes, just metadata)
+    try { _appendPhotoLog(_photoContext.stopId, _photoContext.filename, _photoContext.capturedAt || new Date().toISOString()); } catch(_e) {}
+    // Cache a temporary copy of the JPEG blob so "Email Summary + Photos"
+    // works for ~48 hours (see PhotoCache module).
+    try {
+      if (_photoContext.stampedBlob) {
+        PhotoCache.put(_photoContext.stopId, _photoContext.filename, _photoContext.stampedBlob, _photoContext.capturedAt || new Date().toISOString());
+      }
+    } catch(_e) {}
+  }
+  await rebuildStampedPreview();
+  // Push the stamped result onto the session
+  if (_photoSession.active && _photoContext.stampedBlob) {
+    _photoSession.shots.push({
+      blob: _photoContext.stampedBlob,
+      filename: _photoContext.filename,
+      dataUrl: _photoContext.stampedDataUrl,
+      capturedAt: _photoContext.capturedAt,
+      gps: _photoContext.gps
+    });
+    // Android auto-download each stamped shot as it lands (matches camera path).
+    // iOS holds for batch share via the preview modal.
+    if (!_isIOS()) {
+      try { downloadStampedPhoto(); } catch(_e) {}
+    }
+    _renderSessionStrip();
+  }
+  if (opts.showPreview !== false) {
     // Prefill the edit fields with current values
     var editAddr = document.getElementById('photo-edit-addr');
     var editNotes = document.getElementById('photo-edit-notes');
     if (editAddr)  editAddr.value  = _photoContext.address || '';
     if (editNotes) editNotes.value = _photoContext.notes || '';
-
-    // Configure the preview UI for session mode
     _configurePreviewForSession();
     document.getElementById('photo-preview-modal').style.display = 'flex';
-
-    // Quick mode → auto-dismiss preview after 1.5s and reopen camera
-    if (_photoSession.active && _photoSession.quickMode) {
+    // Quick mode → auto-dismiss preview after 1.5s and reopen camera.
+    // Skip when this was the last file of a multi-file batch — user likely
+    // doesn't want the camera to reopen after they picked from library.
+    if (_photoSession.active && _photoSession.quickMode && !opts.batchTotal) {
       setTimeout(function() {
         if (_photoSession.active && _photoSession.quickMode) {
           takeAnotherPhoto();
         }
       }, 1500);
     }
-  } catch (err) {
-    console.error('Photo stamp error', err);
-    showToast('⚠ Photo stamp failed — ' + (err.message || 'unknown error'));
   }
 }
 
@@ -7434,12 +7765,24 @@ function _configurePreviewForSession() {
   var takeAnother = document.getElementById('photo-take-another-btn');
   var doneBtn     = document.getElementById('photo-done-btn');
   var sessionInfo = document.getElementById('photo-session-info');
+  var emailBtn    = document.getElementById('photo-email-btn');
+  var emailHint   = document.getElementById('photo-email-hint');
 
   _renderSessionStrip();
   _renderQuickModeToggle();
 
   // Always show Take Another while a session is active
   if (takeAnother) takeAnother.style.display = _photoSession.active ? 'flex' : 'none';
+
+  // Show "Email Summary + Photos" only when the session is linked to a stop
+  // AND at least one photo has been taken AND the device supports file-sharing
+  // via navigator.share (covers most iOS + modern Android; desktop usually can't).
+  var canEmailWithPhotos = _photoSession.active
+    && _photoSession.stopId != null
+    && _photoSession.shots.length > 0
+    && _canShareFiles();
+  if (emailBtn)  emailBtn.style.display  = canEmailWithPhotos ? '' : 'none';
+  if (emailHint) emailHint.style.display = canEmailWithPhotos ? '' : 'none';
 
   if (_isIOS()) {
     if (dlBtn) dlBtn.style.display = 'none';
@@ -7539,10 +7882,378 @@ function _tryGetLocationForStamp() {
   });
 }
 
+// ── PhotoCache: temporary in-app copies of stamped photos ───────────────────
+// IndexedDB-backed cache that holds JPEG blobs of recently-stamped photos so
+// "Email Summary + Photos" works for stops that were photographed in the last
+// ~48 hours, not just the active session. The user's phone gallery is still
+// the permanent record (Download / Share writes there as before); the cache
+// is a working convenience that auto-purges to keep the app's footprint tiny.
+//
+// Retention policy:
+//   - Time cap: anything older than 48 hours is dropped on app open and on
+//     every cache write.
+//   - Size cap: 200MB normally, dropped to 50MB if the device's available
+//     storage is constrained (detected via navigator.storage.estimate()).
+//     When the cap is exceeded, oldest entries are deleted first.
+//   - The most recent photo for a stop is always preserved unless we can't
+//     even fit one entry — in which case the write quietly fails and the
+//     user still has the photo in their gallery.
+//
+// What is NOT in this cache:
+//   - The phone's own gallery copy (that's outside our sandbox by design)
+//   - Any metadata that wouldn't fit in the photo log (stopId, filename,
+//     timestamp, blob — that's it)
+//
+// Why IndexedDB and not LocalStorage / LS facade:
+//   LocalStorage caps at ~5MB total per origin and stores strings only. Blobs
+//   would need base64 encoding (33% size penalty) and would blow the cap with
+//   a single photo. IndexedDB is what every PWA uses for binary data.
+const PhotoCache = (function() {
+  var DB_NAME       = 'stlcr-photo-cache';
+  var DB_VERSION    = 1;
+  var STORE         = 'photos';
+  var TTL_MS        = 48 * 60 * 60 * 1000;        // 48 hours
+  var SIZE_CAP_NORMAL = 200 * 1024 * 1024;        // 200 MB
+  var SIZE_CAP_TIGHT  =  50 * 1024 * 1024;        //  50 MB on constrained devices
+  var TIGHT_FREE_THRESHOLD = 150 * 1024 * 1024;   // <150MB free → tight mode
+  var _dbPromise = null;
+  var _persistRequested = false;
+
+  function _open() {
+    if (_dbPromise) return _dbPromise;
+    _dbPromise = new Promise(function(resolve, reject) {
+      try {
+        var req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = function() {
+          var db = req.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            // keyPath is auto-incremented; we index by stopId for retrieval and
+            // capturedAt for time-based eviction.
+            var os = db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+            os.createIndex('stopId',     'stopId',     { unique: false });
+            os.createIndex('capturedAt', 'capturedAt', { unique: false });
+          }
+        };
+        req.onsuccess = function() { resolve(req.result); };
+        req.onerror   = function() { reject(req.error); };
+      } catch(e) { reject(e); }
+    });
+    return _dbPromise;
+  }
+
+  function _tx(mode) {
+    return _open().then(function(db) {
+      return db.transaction(STORE, mode).objectStore(STORE);
+    });
+  }
+
+  // Returns the active size cap for this device. Uses storage.estimate() if
+  // available; falls back to the normal cap when the API isn't there.
+  async function _activeCap() {
+    try {
+      if (navigator.storage && navigator.storage.estimate) {
+        var est = await navigator.storage.estimate();
+        var free = (est.quota || 0) - (est.usage || 0);
+        if (free > 0 && free < TIGHT_FREE_THRESHOLD) return SIZE_CAP_TIGHT;
+      }
+    } catch(_) {}
+    return SIZE_CAP_NORMAL;
+  }
+
+  // Request that the browser try not to evict our origin storage. On Chrome
+  // this prompts the heuristic ("recently engaged with"); on Safari it's
+  // usually ignored but doesn't hurt to ask. Idempotent — only fires once.
+  async function _requestPersist() {
+    if (_persistRequested) return;
+    _persistRequested = true;
+    try {
+      if (navigator.storage && navigator.storage.persist) {
+        await navigator.storage.persist();
+      }
+    } catch(_) {}
+  }
+
+  // Walk the store ordered by capturedAt ASC; collect all entries with a
+  // running size total. Used by both eviction and stats.
+  function _scan() {
+    return _tx('readonly').then(function(os) {
+      return new Promise(function(resolve, reject) {
+        var entries = [];
+        var totalSize = 0;
+        var cur = os.index('capturedAt').openCursor();
+        cur.onsuccess = function(e) {
+          var c = e.target.result;
+          if (!c) { resolve({ entries: entries, totalSize: totalSize }); return; }
+          entries.push({ id: c.value.id, stopId: c.value.stopId, filename: c.value.filename,
+                         capturedAt: c.value.capturedAt, size: (c.value.blob && c.value.blob.size) || 0 });
+          totalSize += (c.value.blob && c.value.blob.size) || 0;
+          c.continue();
+        };
+        cur.onerror = function() { reject(cur.error); };
+      });
+    });
+  }
+
+  function _deleteIds(ids) {
+    if (!ids.length) return Promise.resolve(0);
+    return _tx('readwrite').then(function(os) {
+      return new Promise(function(resolve, reject) {
+        var done = 0;
+        ids.forEach(function(id) {
+          var req = os.delete(id);
+          req.onsuccess = function() { done++; if (done === ids.length) resolve(done); };
+          req.onerror   = function() { reject(req.error); };
+        });
+      });
+    });
+  }
+
+  // Drop expired (>TTL_MS old) and over-cap (oldest first) entries.
+  // Returns { droppedTime, droppedSize, remaining, totalSize }.
+  async function evict() {
+    var now = Date.now();
+    var scan;
+    try { scan = await _scan(); }
+    catch(_) { return { droppedTime:0, droppedSize:0, remaining:0, totalSize:0 }; }
+    var cap = await _activeCap();
+    var killTime = [];
+    var killSize = [];
+    var keep = [];
+    var totalSize = 0;
+    // Phase 1: time-based
+    for (var i = 0; i < scan.entries.length; i++) {
+      var e = scan.entries[i];
+      var ts = e.capturedAt ? new Date(e.capturedAt).getTime() : 0;
+      if (!ts || (now - ts) > TTL_MS) { killTime.push(e.id); }
+      else { keep.push(e); totalSize += e.size; }
+    }
+    // Phase 2: size-based — drop oldest until under cap, but always keep at
+    // least one entry per stopId if possible (newest survives).
+    if (totalSize > cap) {
+      // 'keep' is already sorted by capturedAt ASC (oldest first) because _scan
+      // walked the capturedAt index in ascending order.
+      // Build a per-stop "newest id" so we never drop a stop's only photo.
+      var newestForStop = {};
+      for (var j = 0; j < keep.length; j++) {
+        var k = keep[j];
+        newestForStop[k.stopId] = k.id; // overwritten by later (newer) entries
+      }
+      // Walk oldest first, mark for deletion until under cap or only newest-per-stop remain
+      var stillKept = [];
+      for (var k2 = 0; k2 < keep.length; k2++) {
+        var ent = keep[k2];
+        if (totalSize <= cap) { stillKept.push(ent); continue; }
+        if (newestForStop[ent.stopId] === ent.id) { stillKept.push(ent); continue; } // protect newest per stop
+        killSize.push(ent.id);
+        totalSize -= ent.size;
+      }
+      keep = stillKept;
+      // Phase 3: if still over cap (single-stop overflow scenario), drop oldest
+      // among the protected set too — feature still has to fit.
+      if (totalSize > cap) {
+        for (var k3 = 0; k3 < keep.length && totalSize > cap; k3++) {
+          killSize.push(keep[k3].id);
+          totalSize -= keep[k3].size;
+          keep[k3] = null;
+        }
+        keep = keep.filter(function(x){ return x; });
+      }
+    }
+    var allKills = killTime.concat(killSize);
+    if (allKills.length) { try { await _deleteIds(allKills); } catch(_) {} }
+    return {
+      droppedTime: killTime.length,
+      droppedSize: killSize.length,
+      remaining:   keep.length,
+      totalSize:   totalSize
+    };
+  }
+
+  // Add a stamped photo. Runs evict() AFTER write so the new entry is always
+  // honored (subject to single-entry overflow). On QuotaExceededError, retry
+  // once after dropping the oldest entry; if it still fails, swallow quietly —
+  // the user's gallery still has the photo, the app feature just won't.
+  async function put(stopId, filename, blob, capturedAtISO) {
+    if (!blob || !blob.size) return null;
+    if (stopId == null) return null;
+    _requestPersist(); // fire-and-forget
+    var record = {
+      stopId: stopId,
+      filename: filename || ('photo-' + Date.now() + '.jpg'),
+      capturedAt: capturedAtISO || new Date().toISOString(),
+      blob: blob
+    };
+    try {
+      await _tx('readwrite').then(function(os) {
+        return new Promise(function(resolve, reject) {
+          var req = os.add(record);
+          req.onsuccess = function() { resolve(req.result); };
+          req.onerror   = function() { reject(req.error); };
+        });
+      });
+    } catch(e) {
+      // Probably QuotaExceededError. Make room and retry once.
+      try { await evict(); } catch(_) {}
+      // Force one more eviction by dropping the oldest entry outright
+      try {
+        var scan = await _scan();
+        if (scan.entries.length) {
+          await _deleteIds([scan.entries[0].id]);
+        }
+      } catch(_) {}
+      try {
+        await _tx('readwrite').then(function(os) {
+          return new Promise(function(resolve, reject) {
+            var req = os.add(record);
+            req.onsuccess = function() { resolve(req.result); };
+            req.onerror   = function() { reject(req.error); };
+          });
+        });
+      } catch(_) { return null; } // give up silently
+    }
+    // Post-write housekeeping (don't await — let it happen async)
+    evict().catch(function(){});
+    return true;
+  }
+
+  // Fetch all cached entries for a stop, oldest first. Returns array of
+  // { id, filename, blob, capturedAt }.
+  function getForStop(stopId) {
+    if (stopId == null) return Promise.resolve([]);
+    return _tx('readonly').then(function(os) {
+      return new Promise(function(resolve, reject) {
+        var out = [];
+        var cur = os.index('stopId').openCursor(IDBKeyRange.only(stopId));
+        cur.onsuccess = function(e) {
+          var c = e.target.result;
+          if (!c) {
+            out.sort(function(a, b) {
+              return new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime();
+            });
+            resolve(out);
+            return;
+          }
+          out.push({
+            id: c.value.id,
+            filename: c.value.filename,
+            blob: c.value.blob,
+            capturedAt: c.value.capturedAt
+          });
+          c.continue();
+        };
+        cur.onerror = function() { reject(cur.error); };
+      });
+    }).catch(function(){ return []; });
+  }
+
+  // Returns { count, totalSize, perStop: {stopId: count}, capUsed }
+  async function stats() {
+    try {
+      var scan = await _scan();
+      var perStop = {};
+      scan.entries.forEach(function(e) {
+        perStop[e.stopId] = (perStop[e.stopId] || 0) + 1;
+      });
+      var cap = await _activeCap();
+      return {
+        count: scan.entries.length,
+        totalSize: scan.totalSize,
+        perStop: perStop,
+        capUsed: cap
+      };
+    } catch(_) {
+      return { count:0, totalSize:0, perStop:{}, capUsed: SIZE_CAP_NORMAL };
+    }
+  }
+
+  // Returns Set of stopIds that have at least one cached photo. Useful for
+  // efficiently deciding whether to render the "Email + Photos" button on
+  // each stop card without doing per-stop async lookups.
+  async function stopIdsWithPhotos() {
+    try {
+      var scan = await _scan();
+      var s = new Set();
+      scan.entries.forEach(function(e) { if (e.stopId != null) s.add(e.stopId); });
+      return s;
+    } catch(_) { return new Set(); }
+  }
+
+  // Wipe everything. User-facing "Clear cache" button.
+  async function clear() {
+    try {
+      await _tx('readwrite').then(function(os) {
+        return new Promise(function(resolve, reject) {
+          var req = os.clear();
+          req.onsuccess = function() { resolve(); };
+          req.onerror   = function() { reject(req.error); };
+        });
+      });
+      return true;
+    } catch(_) { return false; }
+  }
+
+  // Drop all entries for a single stop. Called when a stop is deleted so we
+  // don't keep orphaned blobs.
+  async function clearStop(stopId) {
+    if (stopId == null) return 0;
+    try {
+      var entries = await getForStop(stopId);
+      if (!entries.length) return 0;
+      await _deleteIds(entries.map(function(e){ return e.id; }));
+      return entries.length;
+    } catch(_) { return 0; }
+  }
+
+  return {
+    put:              put,
+    getForStop:       getForStop,
+    evict:            evict,
+    stats:            stats,
+    stopIdsWithPhotos: stopIdsWithPhotos,
+    clear:            clear,
+    clearStop:        clearStop,
+    TTL_MS:           TTL_MS,
+    SIZE_CAP_NORMAL:  SIZE_CAP_NORMAL,
+    SIZE_CAP_TIGHT:   SIZE_CAP_TIGHT
+  };
+})();
+
+// Boot-time eviction sweep — fire and forget. Cheap because it only reads the
+// capturedAt index, not full blobs.
+try { PhotoCache.evict().catch(function(){}); } catch(_) {}
+
+// ── Photo log (metadata only, NO photo bytes) ───────────────────────────────
+// For each stop we keep a short array of { filename, timestamp } so the email
+// summary can tell the recipient exactly which files to attach from the user's
+// gallery. This never stores the image itself — the phone's Photos/Downloads
+// folder remains the only copy of the actual bytes.
+//
+// Storage key format: 'photo-log:<stopId>' → JSON array.
+// Capped at 50 entries per stop (well beyond realistic inspection volume).
+function _appendPhotoLog(stopId, filename, timestampISO) {
+  if (stopId == null || !filename) return;
+  var key = 'photo-log:' + stopId;
+  var log = [];
+  try { log = JSON.parse(LS.get(key) || '[]'); if (!Array.isArray(log)) log = []; } catch(_) {}
+  log.push({ filename: filename, timestamp: timestampISO });
+  if (log.length > 50) log = log.slice(-50);  // cap
+  try { LS.set(key, JSON.stringify(log)); } catch(_) {}
+}
+function _getPhotoLog(stopId) {
+  if (stopId == null) return [];
+  try {
+    var log = JSON.parse(LS.get('photo-log:' + stopId) || '[]');
+    return Array.isArray(log) ? log : [];
+  } catch(_) { return []; }
+}
+
 function _buildPhotoFilename(addr, dt) {
-  // Desired: streetnumberstreetnameaddresssuffixmmddyyhhmmss (no separators, lowercase)
-  // Example: "2801 Dalton Avenue" + 2026-04-23 10:18:32 → "2801daltonavenue042326101832.jpg"
+  // Desired: streetnumberstreetnameaddresssuffixmmddyyhhmmssSSS (no separators, lowercase)
+  // Example: "2801 Dalton Avenue" + 2026-04-23 10:18:32.847 → "2801daltonavenue042326101832847.jpg"
   // Fallback: if parsing fails, uses a lowercased compact form of the whole string.
+  // The trailing 3-digit millisecond is a tiebreaker for rapid double-taps — without it,
+  // two photos captured in the same second at the same address would produce identical
+  // filenames, and on Android the second download silently overwrites the first.
   var cleanAddr = (addr || 'photo').toString().toLowerCase();
   // Strip a trailing ", St. Louis, MO" or similar city/state tail
   cleanAddr = cleanAddr.replace(/,.*$/, '');
@@ -7553,13 +8264,15 @@ function _buildPhotoFilename(addr, dt) {
   addrCompact = addrCompact.slice(0, 60);
 
   var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+  var pad3 = function(n){ return n < 10 ? '00'+n : n < 100 ? '0'+n : ''+n; };
   var mm = pad(dt.getMonth() + 1);
   var dd = pad(dt.getDate());
   var yy = pad(dt.getFullYear() % 100);
   var hh = pad(dt.getHours());
   var mi = pad(dt.getMinutes());
   var ss = pad(dt.getSeconds());
-  return addrCompact + mm + dd + yy + hh + mi + ss + '.jpg';
+  var ms = pad3(dt.getMilliseconds());
+  return addrCompact + mm + dd + yy + hh + mi + ss + ms + '.jpg';
 }
 
 // Core stamping: loads photo into canvas, draws stamp according to enabled
@@ -7634,12 +8347,16 @@ function _stampImageBlob(blob, meta) {
         }
 
         // Font sizing based on image width + user stamp-size preference.
-        // Large is the prior default (bold, dominant). Medium (new default) is ~80% of
-        // large. Small is ~60% of large — still readable but lower visual weight.
+        // Scaled down from the original tier set to be less visually dominant:
+        //   large  = 0.80  (was 1.00 — the old "bold, dominant" look)
+        //   medium = 0.60  (was 0.80 — current default, modest)
+        //   small  = 0.45  (was 0.60 — subtle corner stamp)
+        // The goal is for even "large" to read as a tasteful overlay, not a
+        // billboard. Users can still bump up via Settings → 📷 Stamp Settings.
         var stampSize = 'medium';
         try { stampSize = LS.get('photo-stamp-size') || 'medium'; } catch(_e) {}
-        var sizeScale = stampSize === 'large' ? 1.00 : stampSize === 'small' ? 0.60 : 0.80;
-        var base = Math.max(22, Math.round(w * 0.075 * sizeScale));
+        var sizeScale = stampSize === 'large' ? 0.80 : stampSize === 'small' ? 0.45 : 0.60;
+        var base = Math.max(18, Math.round(w * 0.075 * sizeScale));
         var sizeFor = { big: Math.round(base * 1.30), normal: Math.round(base * 0.78), small: Math.round(base * 0.65) };
         var pad = Math.round(base * 0.70);
         var lineGap = Math.round(base * 0.38);
@@ -7821,13 +8538,16 @@ function closePhotoPreview(opts) {
 // SHARE STOP SUMMARY — Web Share Sheet (email / Drive / Messages / etc.)
 // with mailto: fallback for browsers w/o Web Share API.
 // ============================================================
-function emailStopSummary(stopId, suppressClose) {
-  var id = Number(stopId);
-  var s = (typeof stops !== 'undefined') ? stops.find(function(x){return x.id===id;}) : null;
-  if (!s) { showToast('Stop not found'); return; }
+// Build subject/body text for a stop. Extracted so both the plain email flow
+// (emailStopSummary) and the email-with-photos flow (emailStopWithPhotos) can
+// use the same content. Returns { subject, body } with CRLF line endings —
+// some Android Gmail versions flatten LF-only text when it arrives via the
+// share sheet, which makes the summary read as one ugly paragraph.
+function _buildStopSummaryText(s) {
   var addr = s.address || 'No address';
   var dt = s.completedAt ? new Date(s.completedAt) : new Date();
   var subject = 'Stop Summary: ' + addr + ' — ' + dt.toLocaleDateString('en-US');
+  var NL = '\r\n';
   var lines = [];
   lines.push('STOP SUMMARY');
   lines.push('════════════════════════════');
@@ -7867,39 +8587,150 @@ function emailStopSummary(stopId, suppressClose) {
     lines.push('');
   }
 
+  // Photos section: list filenames from the photo log so the recipient (or the
+  // inspector themselves, later) knows exactly which files to look for in the
+  // phone's gallery/Downloads folder. This is metadata only — the actual photo
+  // bytes are NOT in this app.
   if (s.photoCount) {
-    lines.push('PHOTOS');
+    var photoLog = (typeof _getPhotoLog === 'function') ? _getPhotoLog(s.id) : [];
+    lines.push('PHOTOS  (' + s.photoCount + ' taken at this stop)');
     lines.push('────────────────────');
-    lines.push(s.photoCount + ' photo' + (s.photoCount === 1 ? '' : 's') + ' taken at this stop.');
-    lines.push('The stamped photos are in your phone\u2019s gallery — attach them manually.');
+    if (photoLog.length) {
+      lines.push('Attach these files from your phone\u2019s gallery or Downloads:');
+      photoLog.forEach(function(p) { lines.push('  • ' + p.filename); });
+    } else {
+      lines.push('The stamped photos are in your phone\u2019s gallery — attach them manually.');
+    }
     lines.push('');
   }
 
   lines.push('— Sent from YourCityRoute');
-  var body = lines.join('\n');
+  return { subject: subject, body: lines.join(NL) };
+}
+
+function emailStopSummary(stopId, suppressClose) {
+  var id = Number(stopId);
+  var s = (typeof stops !== 'undefined') ? stops.find(function(x){return x.id===id;}) : null;
+  if (!s) { showToast('Stop not found'); return; }
+  var pkt = _buildStopSummaryText(s);
 
   // Prefer Web Share API (shows iOS/Android share sheet → Gmail / Drive / Messages / etc.)
   if (navigator.share) {
-    navigator.share({ title: subject, text: body })
+    navigator.share({ title: pkt.subject, text: pkt.body })
       .then(function(){ /* success */ })
       .catch(function(err) {
         if (err && err.name === 'AbortError') return; // user canceled
         // Fallback to mailto
-        _mailtoStopSummary(subject, body);
+        _mailtoStopSummary(pkt.subject, pkt.body);
       });
     return;
   }
   // No Web Share — mailto fallback
-  _mailtoStopSummary(subject, body);
+  _mailtoStopSummary(pkt.subject, pkt.body);
 }
 
 function _mailtoStopSummary(subject, body) {
+  // Use an <a> click instead of location.href — on installed iOS PWAs running
+  // in standalone mode, assigning to location.href with a mailto: URL can
+  // navigate the PWA shell itself, breaking the session. A temporary anchor
+  // click hands the URL to the OS launcher the same way a tap on a real link
+  // would, which reliably opens Mail without disturbing the app.
   var href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  try { window.location.href = href; }
-  catch(_e) {
-    try { window.open(href, '_blank'); } catch(_e2) { showToast('⚠ Could not open mail app'); return; }
+  try {
+    var a = document.createElement('a');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ try { document.body.removeChild(a); } catch(_){} }, 0);
+  } catch(_e) {
+    try { window.location.href = href; } catch(_e2) { showToast('⚠ Could not open mail app'); return; }
   }
   showToast('📧 Opening mail app…');
+}
+
+// Email with photos attached.
+//   - Called with no argument: uses the active photo session's in-memory shots
+//     (the "I just took these and want to email them right now" path).
+//   - Called with a stopId argument: pulls photos from PhotoCache for that
+//     stop (the "I took these earlier today and want to email them now" path).
+//     This works for any stop with cached photos, which is roughly any stop
+//     photographed in the last 48 hours (subject to size cap eviction).
+// In both cases the email body comes from _buildStopSummaryText so the format
+// is identical to the regular Email Summary button.
+async function emailStopWithPhotos(stopIdArg) {
+  var stop, files = [];
+  if (stopIdArg != null) {
+    // Cached-photo path: look up the stop and read blobs from IndexedDB
+    var id = Number(stopIdArg);
+    stop = (typeof stops !== 'undefined') ? stops.find(function(x){ return x.id === id; }) : null;
+    if (!stop) { showToast('Stop not found'); return; }
+    var cached;
+    try { cached = await PhotoCache.getForStop(id); } catch(_) { cached = []; }
+    if (!cached.length) {
+      showToast('No cached photos for this stop (older than 48h or cleared)');
+      return;
+    }
+    for (var i = 0; i < cached.length; i++) {
+      var c = cached[i];
+      try { files.push(new File([c.blob], c.filename, { type: 'image/jpeg' })); }
+      catch(_e) {}
+    }
+  } else {
+    // Active-session path (original behavior)
+    if (!_photoSession.active || _photoSession.stopId == null) {
+      showToast('Start a photo session linked to a stop first');
+      return;
+    }
+    if (!_photoSession.shots || !_photoSession.shots.length) {
+      showToast('Take at least one photo first');
+      return;
+    }
+    stop = (typeof stops !== 'undefined')
+      ? stops.find(function(x){ return x.id === _photoSession.stopId; })
+      : null;
+    if (!stop) { showToast('Linked stop not found'); return; }
+    for (var j = 0; j < _photoSession.shots.length; j++) {
+      var sh = _photoSession.shots[j];
+      try { files.push(new File([sh.blob], sh.filename, { type: 'image/jpeg' })); }
+      catch(_e) {}
+    }
+  }
+  if (!files.length) { showToast('No photos to attach'); return; }
+
+  var pkt = _buildStopSummaryText(stop);
+
+  if (!navigator.canShare || !navigator.share) {
+    showToast('Share with attachments not supported on this device');
+    return;
+  }
+  if (!navigator.canShare({ files: files })) {
+    showToast('Attachments too large for share sheet');
+    return;
+  }
+  try {
+    await navigator.share({
+      files: files,
+      title: pkt.subject,
+      text: pkt.body
+    });
+    // Success — for the active-session iOS path, end the session and close
+    // the modal (matches shareStampedPhoto's behavior). For the cached-photo
+    // path, just toast — the stop card stays as it was.
+    if (stopIdArg == null && _isIOS()) {
+      showToast('✓ Emailed summary + ' + files.length + ' photo' + (files.length===1?'':'s'));
+      _endPhotoSession();
+      var pm = document.getElementById('photo-preview-modal');
+      if (pm) pm.style.display = 'none';
+    } else {
+      showToast('✓ Sent summary + ' + files.length + ' photo' + (files.length===1?'':'s'));
+    }
+  } catch(err) {
+    if (err && err.name === 'AbortError') return; // user canceled — no toast
+    showToast('⚠ Share failed: ' + (err && err.message || 'unknown'));
+  }
 }
 
 // ============================================================
@@ -8151,20 +8982,150 @@ function _openSettingsPanel() {
   try { renderSettingsCustomTypes(); } catch(_e) {}
   try { refreshSheetsWebhookDisplay(); } catch(_e) {}
   try { renderAiUsage(); } catch(_e) {}
+  try { renderPhotoCacheStats(); } catch(_e) {}
+  try { renderClusterRadius(); } catch(_e) {}
 }
 
-// ── AI usage readout (session-scoped; see AI_USAGE definition) ──────────────
+// ── Photo cache stats readout (Settings panel) ──────────────────────────────
+async function renderPhotoCacheStats() {
+  var body = document.getElementById('settings-photo-cache-body');
+  if (!body) return;
+  if (typeof PhotoCache === 'undefined') { body.textContent = 'Cache unavailable.'; return; }
+  try {
+    var s = await PhotoCache.stats();
+    if (s.count === 0) {
+      body.innerHTML = 'Cache is empty.';
+      return;
+    }
+    var mb     = (s.totalSize / (1024 * 1024)).toFixed(1);
+    var capMb  = Math.round(s.capUsed / (1024 * 1024));
+    var pct    = Math.round((s.totalSize / s.capUsed) * 100);
+    var stops  = Object.keys(s.perStop).length;
+    body.innerHTML =
+      '<div><b>' + s.count + '</b> photo' + (s.count===1?'':'s') + ' across <b>' + stops + '</b> stop' + (stops===1?'':'s') + '</div>' +
+      '<div><b>' + mb + ' MB</b> used of ' + capMb + ' MB (' + pct + '%)</div>' +
+      '<div style="background:#ddd;height:6px;border-radius:3px;margin-top:6px;overflow:hidden"><div style="background:' + (pct>80?'#c0392b':'#2980b9') + ';height:100%;width:' + Math.min(pct,100) + '%"></div></div>';
+  } catch(e) {
+    body.textContent = 'Cache stats unavailable.';
+  }
+}
+
+async function clearPhotoCache() {
+  if (typeof PhotoCache === 'undefined') return;
+  if (!confirm('Clear all cached photos now? Your phone gallery copies are not affected.')) return;
+  var ok = await PhotoCache.clear();
+  if (ok) {
+    showToast('✓ Photo cache cleared');
+    renderPhotoCacheStats();
+  } else {
+    showToast('⚠ Clear failed');
+  }
+}
+
+// ── Nearby-cluster radius (settings) ──────────────────────────────────────
+// Persist the user's chosen radius (in miles) as a string in LS under
+// 'nearby-cluster-radius-miles'. Defaults to 0.2 (2 blocks) if unset.
+// Any change triggers a re-render so the golden borders update immediately.
+function saveClusterRadius(value) {
+  try {
+    var mi = parseFloat(value);
+    if (!isFinite(mi) || mi <= 0) return;
+    LS.set('nearby-cluster-radius-miles', String(mi));
+    showToast('✓ Cluster radius updated');
+    // Re-render the three places clusters show so the border appears/disappears right away
+    try { renderStops(); } catch(_) {}
+    try { renderRoute(); } catch(_) {}
+    try { refreshMapIfActive(); } catch(_) {}
+  } catch(_) {}
+}
+function renderClusterRadius() {
+  var sel = document.getElementById('settings-cluster-select');
+  if (!sel) return;
+  var cur = getClusterRadiusMi();
+  // Match against the closest available option (handles legacy values too)
+  var options = Array.prototype.slice.call(sel.options).map(function(o){ return parseFloat(o.value); });
+  var best = options[0];
+  var bestD = Math.abs(cur - best);
+  options.forEach(function(v){
+    var d = Math.abs(cur - v);
+    if (d < bestD) { best = v; bestD = d; }
+  });
+  sel.value = String(best);
+}
+
+// ── AI usage readout ─────────────────────────────────────────────────────────
+// Shows per-feature call and token counts in a configurable window:
+//   'session' — in-memory AI_USAGE since page load (default)
+//   'today'   — sum of today's daily rollup
+//   '7d'      — sum of last 7 days of rollups
+//   '30d'     — sum of last 30 days of rollups
+// Window is selected by pill buttons in the Settings panel.
+var _aiUsageWindow = 'session';
+function setAiUsageWindow(w) {
+  _aiUsageWindow = w;
+  renderAiUsage();
+}
+function _aggregateAiRollup(days) {
+  // Sum the daily rollup over the last `days` days (today inclusive).
+  var agg = {};
+  for (var key in AI_USAGE) {
+    agg[key] = { calls: 0, in: 0, out: 0, label: AI_USAGE[key].label };
+  }
+  var now = new Date();
+  for (var i = 0; i < days; i++) {
+    var d = new Date(now); d.setDate(d.getDate() - i);
+    var roll = _readAiRollup(d);
+    if (!roll) continue;
+    for (var feat in roll) {
+      if (!agg[feat]) continue; // unknown feature in stored data — skip
+      agg[feat].calls += roll[feat].calls || 0;
+      agg[feat].in    += roll[feat].in    || 0;
+      agg[feat].out   += roll[feat].out   || 0;
+    }
+  }
+  return agg;
+}
 function renderAiUsage() {
   const body = document.getElementById('settings-ai-usage-body');
   if (!body) return;
+  // Pick data source based on window
+  var data, emptyMsg;
+  if (_aiUsageWindow === 'session') {
+    data = AI_USAGE;
+    emptyMsg = 'No AI calls yet this session.';
+  } else if (_aiUsageWindow === 'today') {
+    data = _aggregateAiRollup(1);
+    emptyMsg = 'No AI calls today.';
+  } else if (_aiUsageWindow === '7d') {
+    data = _aggregateAiRollup(7);
+    emptyMsg = 'No AI calls in the last 7 days.';
+  } else if (_aiUsageWindow === '30d') {
+    data = _aggregateAiRollup(30);
+    emptyMsg = 'No AI calls in the last 30 days.';
+  } else {
+    data = AI_USAGE;
+    emptyMsg = 'No AI calls yet this session.';
+  }
+  // Window-picker pills (rebuilt on every render so the active state stays in sync)
+  var pillStyle = function(active) {
+    return 'padding:3px 8px;border-radius:11px;border:1px solid '+(active?'var(--forest)':'#ddd')+';background:'+(active?'var(--forest)':'white')+';color:'+(active?'white':'#666')+';font-family:Syne,sans-serif;font-weight:700;font-size:0.55rem;cursor:pointer';
+  };
+  var pills =
+    '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+      '<button data-fn="setAiUsageWindow" data-arg="session" style="' + pillStyle(_aiUsageWindow==='session') + '">Session</button>' +
+      '<button data-fn="setAiUsageWindow" data-arg="today" style="'   + pillStyle(_aiUsageWindow==='today')   + '">Today</button>' +
+      '<button data-fn="setAiUsageWindow" data-arg="7d" style="'      + pillStyle(_aiUsageWindow==='7d')      + '">7d</button>' +
+      '<button data-fn="setAiUsageWindow" data-arg="30d" style="'     + pillStyle(_aiUsageWindow==='30d')     + '">30d</button>' +
+    '</div>';
+  // Build rows
   const rows = [];
   let totalCalls = 0, totalIn = 0, totalOut = 0;
-  for (const key in AI_USAGE) {
-    const r = AI_USAGE[key];
-    if (r.calls === 0) continue;
+  for (const key in data) {
+    const r = data[key];
+    if (!r || r.calls === 0) continue;
     rows.push(
       '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #e4e4e4">' +
-        '<span>' + escHtml(r.label) + '</span>' +
+        '<span>' + escHtml(r.label || key) + '</span>' +
         '<span style="color:#888">' +
           r.calls + ' call' + (r.calls === 1 ? '' : 's') +
           ' · ' + (r.in + r.out).toLocaleString() + ' tok' +
@@ -8174,7 +9135,7 @@ function renderAiUsage() {
     totalCalls += r.calls; totalIn += r.in; totalOut += r.out;
   }
   if (rows.length === 0) {
-    body.innerHTML = 'No AI calls yet this session.';
+    body.innerHTML = pills + '<div style="color:#888">' + emptyMsg + '</div>';
     return;
   }
   const total =
@@ -8184,7 +9145,7 @@ function renderAiUsage() {
         '<span style="color:#888;font-weight:400">(' + totalIn.toLocaleString() + ' in / ' + totalOut.toLocaleString() + ' out)</span>' +
       '</span>' +
     '</div>';
-  body.innerHTML = rows.join('') + total;
+  body.innerHTML = pills + rows.join('') + total;
 }
 
 // ── Google Sheets webhook URL (Apps Script Web App) ──────────────────────────
