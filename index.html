@@ -374,6 +374,12 @@ header{
 .btn-scan{width:42px;height:42px;border-radius:50%;border:none;background:transparent center/contain no-repeat;cursor:pointer;flex-shrink:0;padding:0;transition:transform 0.15s;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15))}
 .btn-scan:active{transform:scale(0.93)}
 .btn-scan.scanning{animation:pulse 1s infinite}
+/* Vertical column for each input-method button + its label. The flex parent
+   uses space-between, so these columns spread evenly across the panel
+   regardless of width. Label is intentionally small and tight to stay
+   readable on narrow screens without stealing visual weight from the icon. */
+.input-method-col{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;width:100%}
+.input-method-label{font-family:'Syne',sans-serif;font-weight:700;font-size:0.52rem;color:#1a5c34;text-align:center;letter-spacing:0.3px;line-height:1.15;overflow-wrap:break-word;opacity:0.78}
 .scan-preview{width:100%;border-radius:10px;margin-bottom:8px;max-height:140px;object-fit:cover;display:none;border:2px solid var(--sky)}
 .scan-result-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #eee;font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:600;color:var(--forest)}
 .scan-result-row:last-child{border-bottom:none}
@@ -1041,12 +1047,26 @@ header{
     </div>
     <!-- Status line: verifying / verified / not found -->
     <div id="addr-preview" style="display:none;font-size:0.58rem;font-family:'Syne',sans-serif;font-weight:700;padding:5px 8px;border-radius:7px;margin-bottom:5px"></div>
-    <!-- Scan / paste / spreadsheet / voice — image buttons -->
-    <div style="display:flex;gap:5px;margin-bottom:5px">
-      <button class="btn-scan" id="btn-scan" data-fn="triggerScan" title="Scan photo of address list" aria-label="Scan photo of address list"></button>
-      <button class="btn-scan" id="btn-paste-toggle" data-fn="togglePastePanel" title="Paste address list" aria-label="Paste address list"></button>
-      <button class="btn-scan" id="btn-xlsx" data-fn="openSpreadsheetModal" title="Upload CSV or Excel file" aria-label="Upload CSV or Excel"></button>
-      <button class="btn-scan" id="btn-mic" data-fn="toggleVoiceInput" title="Speak addresses" aria-label="Speak addresses"></button>
+    <!-- Scan / paste / spreadsheet / voice — image buttons with labels.
+         4-column grid, each cell gets exactly 1/4 of the available width
+         regardless of label length, so the buttons are always evenly spaced. -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:5px;justify-items:center">
+      <div class="input-method-col">
+        <button class="btn-scan" id="btn-scan" data-fn="triggerScan" title="Scan photo of address list" aria-label="Scan photo of address list"></button>
+        <span class="input-method-label">Photo Scan</span>
+      </div>
+      <div class="input-method-col">
+        <button class="btn-scan" id="btn-paste-toggle" data-fn="togglePastePanel" title="Paste address list" aria-label="Paste address list"></button>
+        <span class="input-method-label">Paste List</span>
+      </div>
+      <div class="input-method-col">
+        <button class="btn-scan" id="btn-xlsx" data-fn="openSpreadsheetModal" title="Upload CSV or Excel file" aria-label="Upload CSV or Excel"></button>
+        <span class="input-method-label">CSV/Excel</span>
+      </div>
+      <div class="input-method-col">
+        <button class="btn-scan" id="btn-mic" data-fn="toggleVoiceInput" title="Speak addresses" aria-label="Speak addresses"></button>
+        <span class="input-method-label">Voice to Text</span>
+      </div>
     </div>
     <input type="file" id="scan-file-input" accept="image/*" style="display:none" onchange="handleScanImage(event)">
     <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(event)">
