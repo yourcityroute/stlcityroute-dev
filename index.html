@@ -161,7 +161,27 @@ function listenForInstallPrompt() {
   --pale:#fef9e7;--bark:#8b6f47;--soil:#3d2b1f;--cream:#f5f0e8;
   --warn:#e8a020;--danger:#c0392b;--sky:#e8f0fe;
   --card:rgba(255,255,255,0.97);--shadow:0 4px 24px rgba(13,43,107,0.18);--radius:14px;
+  /* Drop L: Ink scale + neutral tokens. These standardize the most-repeated
+     literal hex colors in inline styles. New CSS should prefer var(--ink-*)
+     over literals. Existing literals can be swept opportunistically; the
+     ratchet is forward-looking, not a forced refactor. */
+  --ink-700:#333;        /* primary body text on light backgrounds */
+  --ink-500:#555;        /* secondary text, button labels in neutral context */
+  --ink-400:#666;        /* tertiary text, helper copy, captions */
+  --ink-300:#888;        /* muted text, placeholder hints */
+  --ink-200:#999;        /* deep-muted text, disabled labels */
+  --rule:#ddd;           /* default border / divider color */
+  --success:#1b5e20;     /* success-state green (transaction confirmations etc) */
 }
+/* Drop L: Utility classes for the top inline-style patterns. Documented at
+   §2.x of the System Doc; new HTML should prefer these over inline equivalents.
+   The exact-match counts as of Drop L: u-mono-label seen 16× as inline,
+   u-card seen 15×, u-section-heading seen 14×. Retrofit is opportunistic
+   (per-drop, when touching nearby code) — not a single-shot sweep, because
+   pattern-matching at scale risks visual regressions. */
+.u-mono-label  { display:block; font-family:'Space Mono',monospace; font-size:0.56rem; color:var(--ink-400); margin-bottom:4px; }
+.u-card        { background:#ffffff; border-radius:12px; padding:14px; margin-bottom:10px; }
+.u-section-heading { font-family:'Syne',sans-serif; font-weight:800; font-size:0.8rem; color:var(--forest); margin-bottom:8px; }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Space Mono',monospace;background:var(--forest);min-height:100dvh;color:var(--forest);overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(245,197,24,0.07) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(26,74,156,0.35) 0%,transparent 60%),linear-gradient(160deg,#0d2b6b 0%,#071840 100%);z-index:0;pointer-events:none}
@@ -975,11 +995,45 @@ header{
     </details>
 
     <!-- ──────────── PROFILE BACKUP ──────────── -->
+    <!-- ──────────── PROFILES (Drop J) ────────────
+         Multi-profile management UI. Profiles live in localStorage under
+         the `stlcr:p:<id>:` namespace introduced in Drop I. This panel
+         lets the user see the active profile, switch between profiles,
+         rename, create, and delete. Switching or deleting the active
+         profile triggers a full page reload so every IIFE re-reads from
+         the new profile's storage scope.
+
+         Note: "Profile Backup & Restore" below this panel exports the
+         currently-active profile only (LS.keys() is profile-scoped after
+         Drop I), so the two panels compose cleanly: switch profiles,
+         then export. Drop K extends the import side to offer "import as
+         new profile" vs "merge into current profile".
+
+         The panel is rendered fresh every time Settings opens via
+         renderProfilesPanel(), so it picks up changes made through the
+         module API (or, theoretically, in another tab). -->
+    <details class="settings-panel" id="settings-profiles-panel">
+      <summary>👤 Profiles</summary>
+      <div class="settings-panel-body">
+        <div style="font-size:0.56rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.7">
+          Use multiple profiles when one phone is shared between job roles or inspectors.
+          Each profile has its own stops, ID photo, settings, and API key.
+          Switching profiles reloads the app.
+        </div>
+        <div id="profiles-list-container" style="margin-bottom:10px"></div>
+        <button data-fn="createNewProfile" style="width:100%;padding:10px;border:1.5px solid var(--moss);border-radius:9px;background:white;color:var(--moss);font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer">+ NEW PROFILE</button>
+        <div style="font-size:0.5rem;color:#999;font-family:'Space Mono',monospace;line-height:1.7;margin-top:10px">
+          A new profile starts empty — the setup wizard runs again so you can configure it.
+          Existing profiles are not affected.
+        </div>
+      </div>
+    </details>
+
     <details class="settings-panel" id="settings-profile-backup-panel">
       <summary>💾 Profile Backup &amp; Restore</summary>
       <div class="settings-panel-body">
         <div style="font-size:0.56rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:10px;line-height:1.7">
-          Save everything to a single file you can email yourself or stash in cloud storage.
+          Saves the <b>currently-active profile</b> to a single file you can email yourself or stash in cloud storage.
           When you get a new phone, restore the file to bring all your stops, settings, ID card,
           custom map layers, and history with you.
         </div>
@@ -1065,13 +1119,27 @@ header{
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📥 Import Profile</div>
       <button data-fn="closeProfileImportModal" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
     </div>
-    <div id="profile-import-summary" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#444;background:#f5f5f1;padding:12px 14px;border-radius:9px;margin-bottom:14px;line-height:1.65;white-space:pre-wrap">Reading file…</div>
-    <div style="background:#fff8ec;border-left:3px solid #e8a020;border-radius:0 8px 8px 0;padding:10px 12px;font-size:0.58rem;font-family:'Space Mono',monospace;color:#7a5000;line-height:1.65;margin-bottom:14px">
-      <b>This will replace</b> all current stops, settings, and custom map layers on this device with the contents of the file. Your photos on phone storage are not touched. This cannot be undone.
+    <div id="profile-import-summary" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#444;background:#f5f5f1;padding:12px 14px;border-radius:9px;margin-bottom:12px;line-height:1.65;white-space:pre-wrap">Reading file…</div>
+
+    <!-- Drop K: Two import modes — As new profile vs Merge into current.
+         The merge-preview block fills in dynamically when the user toggles
+         to merge mode. As-new-profile is the safe default (creates an
+         isolated profile, no data risk to current). -->
+    <div style="background:#f5fbf3;border:1px solid #cfe6c6;border-radius:9px;padding:11px 12px;margin-bottom:11px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:var(--forest);margin-bottom:5px">As a new profile (recommended)</div>
+      <div style="font-size:0.55rem;font-family:'Space Mono',monospace;color:#5b6e57;line-height:1.65">Creates a new profile with the file's data. Your current profile is not changed. Switches to the new profile after import.</div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button data-fn="closeProfileImportModal" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
-      <button data-fn="confirmProfileImport" id="profile-import-confirm-btn" disabled style="flex:1.5;padding:11px;background:linear-gradient(135deg,#7c3aed,#9333ea);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer;opacity:0.5">Replace &amp; Restore</button>
+
+    <div style="background:#fbf6ec;border:1px solid #e6d5a8;border-radius:9px;padding:11px 12px;margin-bottom:14px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:#7a5000;margin-bottom:5px">Or merge into current profile</div>
+      <div style="font-size:0.55rem;font-family:'Space Mono',monospace;color:#7a5000;line-height:1.65;margin-bottom:7px">Adds stops, archives, transactions, custom types, and map layers from the file. Inspector identity, ID photo, API key, preferences, and webhook URLs are kept as-is on this device (additive only — never overwritten).</div>
+      <div id="profile-import-merge-preview" style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#5a4500;background:white;border:1px solid #e6d5a8;border-radius:7px;padding:7px 9px;line-height:1.55;white-space:pre-wrap;max-height:140px;overflow-y:auto;display:none"></div>
+    </div>
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button data-fn="closeProfileImportModal" style="flex:1 1 80px;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.66rem;cursor:pointer">Cancel</button>
+      <button data-fn="confirmProfileImportMerge" id="profile-import-merge-btn" disabled style="flex:1 1 100px;padding:11px;background:white;border:1.5px solid #b8860b;border-radius:10px;color:#7a5000;font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer;opacity:0.5">🔀 Merge</button>
+      <button data-fn="confirmProfileImportAsNew" id="profile-import-asnew-btn" disabled style="flex:1.5 1 140px;padding:11px;background:linear-gradient(135deg,var(--moss),var(--leaf));border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer;opacity:0.5">+ Import as New</button>
     </div>
   </div>
 </div>
@@ -2962,12 +3030,300 @@ function _newClientId(prefix) {
 window._newClientId = _newClientId;
 
 const LS_PREFIX = 'stlcr:';
+
+// ============================================================
+// PROFILES — multi-profile support (Drop I, Phase 1)
+// ============================================================
+// The app supports multiple independent user profiles on the same device,
+// each with its own stops, custom layers, settings, API key, ID photo,
+// preferences, etc. A user may have separate profiles for different jobs
+// or roles.
+//
+// Storage shape (post-Drop-I):
+//   Profile-scoped: stlcr:p:<profile_id>:<key>
+//   Shared:         stlcr:<key>   (a small allowlist; everything else is scoped)
+//
+// SHARED keys are device-level state that should NOT be cloned per profile:
+//   - profile-active           which profile is currently selected
+//   - profile-list             registry of all profiles on this device
+//   - _migrated_v1             legacy migration marker (Drop F era)
+//   - _migrated_v2_profiles    Drop I migration marker
+//   - pwa-installed            device-level PWA install state
+//   - pwa-prompt-dismissed     device-level PWA prompt state
+//   - swipe-hint-shown         device-level UI hint state
+//
+// All other keys are profile-scoped. The LS wrapper's get/set/remove
+// auto-prepend `p:<active_profile_id>:` to non-SHARED keys.
+//
+// FIRST BOOT MIGRATION: existing users (with v1-migrated data under stlcr:*)
+// have all their non-SHARED keys moved to stlcr:p:default:*. The default
+// profile is registered as { id:'default', name:'Default', createdAt:... }
+// and made active. Idempotent — guarded by _migrated_v2_profiles marker.
+// On second boot, the migration is a no-op.
+
+// Set of LS keys that bypass profile namespacing. New cross-profile keys
+// must be added here. Membership is checked exactly (no prefix match).
+const SHARED_LS_KEYS = new Set([
+  'profile-active',
+  'profile-list',
+  '_migrated_v1',
+  '_migrated_v2_profiles',
+  'pwa-installed',
+  'pwa-prompt-dismissed',
+  'swipe-hint-shown'
+]);
+function _isSharedKey(k) { return SHARED_LS_KEYS.has(k); }
+
+// Default profile id used by the migration. Profile ids are stable string
+// tokens; new profiles get UUIDs via _newClientId('p'). The literal 'default'
+// is reserved for the migration target so existing user data has a stable
+// home. Never recycled if the default profile is deleted.
+const DEFAULT_PROFILE_ID = 'default';
+
+// Active profile id is read once at boot and cached; updates go through
+// Profiles.switchTo() which forces a reload so derived state (in-memory
+// caches, the stops array, etc.) gets rebuilt from the new profile's data.
+let _activeProfileId = null;
+
+// Profiles module — public API for managing profiles. Keep thin and
+// transactional: each public method does one thing, does it atomically,
+// and either succeeds or leaves storage unchanged.
+/**
+ * Profiles — multi-profile registry & active-profile switching (Drop I).
+ *
+ * Each profile owns an isolated namespace under `stlcr:p:<id>:` in localStorage.
+ * SHARED_LS_KEYS bypass this namespacing for device-level state (PWA install
+ * status, the profile registry itself, migration markers).
+ *
+ * Public API:
+ *   getActiveId()        → string  — current active profile UUID
+ *   getActive()          → object  — { id, name, createdAt }
+ *   list()               → array   — all profiles, sorted by createdAt
+ *   create(name)         → object  — new profile record (does NOT switch)
+ *   switchTo(id)         → void    — sets active profile (caller reloads)
+ *   rename(id, newName)  → object  — updated profile record
+ *   delete(id)           → void    — removes profile + its scoped keys; will
+ *                                    auto-switch if active was deleted; throws
+ *                                    if attempt to delete the last profile.
+ *
+ * Storage layout:
+ *   stlcr:profile-active           = "<id>"     (SHARED — unscoped)
+ *   stlcr:profile-list             = JSON array (SHARED — unscoped)
+ *   stlcr:p:<id>:<key>             = profile-scoped LS values
+ *   stlcr:_migrated_v2_profiles    = "1"        (SHARED — migration marker)
+ *
+ * Consumers should NEVER touch localStorage directly for profile state — go
+ * through the LS facade (which auto-namespaces) and the Profiles module.
+ *
+ * @namespace Profiles
+ * @see ProfileBackup for export/import flows
+ * @see SHARED_LS_KEYS for the cross-profile key allowlist
+ */
+const Profiles = {
+  // Returns the active profile id, defaulting to DEFAULT_PROFILE_ID if
+  // no marker is set yet (first-boot or pre-migration).
+  getActiveId() {
+    if (_activeProfileId) return _activeProfileId;
+    try {
+      _activeProfileId = localStorage.getItem(LS_PREFIX + 'profile-active') || DEFAULT_PROFILE_ID;
+    } catch(_) { _activeProfileId = DEFAULT_PROFILE_ID; }
+    return _activeProfileId;
+  },
+
+  // Returns the active profile object {id, name, createdAt}, or a synthetic
+  // default record if no list exists yet (pre-migration first boot).
+  getActive() {
+    const id = this.getActiveId();
+    const list = this.list();
+    return list.find(p => p.id === id) ||
+           { id: DEFAULT_PROFILE_ID, name: 'Default', createdAt: new Date().toISOString() };
+  },
+
+  // Returns all profiles on the device. Always returns at least one record
+  // (the default), even if the list isn't persisted yet.
+  list() {
+    try {
+      const raw = localStorage.getItem(LS_PREFIX + 'profile-list');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch(_) {}
+    // Synthesize default record so the rest of the code never has to
+    // handle "no profiles exist."
+    return [{ id: DEFAULT_PROFILE_ID, name: 'Default', createdAt: new Date().toISOString() }];
+  },
+
+  // Persist the profile list. Internal — public methods (create/delete/
+  // rename) call this after computing the new list.
+  _saveList(list) {
+    try { localStorage.setItem(LS_PREFIX + 'profile-list', JSON.stringify(list)); return true; }
+    catch(_) { return false; }
+  },
+
+  // Create a new profile with the given display name. Returns the new
+  // profile object on success, or null on failure (e.g. quota error).
+  // The new profile is empty — no setup-complete flag, no API key,
+  // no stops. Caller is responsible for switching to it (or not) and
+  // for triggering the setup wizard via reload.
+  create(name) {
+    const trimmedName = String(name || '').trim() || ('Profile ' + new Date().toLocaleDateString());
+    const id = (typeof _newClientId === 'function') ? _newClientId('p') : ('p-' + Date.now() + '-' + Math.random().toString(36).slice(2,8));
+    const profile = { id: id, name: trimmedName, createdAt: new Date().toISOString() };
+    const list = this.list();
+    list.push(profile);
+    if (!this._saveList(list)) return null;
+    return profile;
+  },
+
+  // Switch active profile. Caller must reload the page after calling
+  // this — the in-memory state (stops, caches, etc.) reflects the
+  // OLD profile and must be torn down. switchTo() does NOT auto-reload
+  // because some callers (e.g. tests) want to verify the side effect
+  // before the reload races them.
+  switchTo(id) {
+    if (!id) return false;
+    const list = this.list();
+    if (!list.find(p => p.id === id)) return false;
+    try {
+      localStorage.setItem(LS_PREFIX + 'profile-active', id);
+      _activeProfileId = id;
+      return true;
+    } catch(_) { return false; }
+  },
+
+  // Rename a profile. Returns true on success.
+  rename(id, newName) {
+    const list = this.list();
+    const idx = list.findIndex(p => p.id === id);
+    if (idx < 0) return false;
+    const trimmed = String(newName || '').trim();
+    if (!trimmed) return false;
+    list[idx] = Object.assign({}, list[idx], { name: trimmed });
+    return this._saveList(list);
+  },
+
+  // Delete a profile. Wipes all of its profile-scoped LS keys. If the
+  // active profile is deleted, switches to the first remaining profile.
+  // Refuses to delete the last profile (the user must always have at
+  // least one). Returns the new active profile id on success, or null
+  // on refusal/failure.
+  delete(id) {
+    const list = this.list();
+    if (list.length <= 1) return null;  // refuse to delete last profile
+    const idx = list.findIndex(p => p.id === id);
+    if (idx < 0) return null;
+
+    // Remove all profile-scoped LS keys for this id
+    try {
+      const profilePrefix = LS_PREFIX + 'p:' + id + ':';
+      const victims = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.indexOf(profilePrefix) === 0) victims.push(k);
+      }
+      victims.forEach(k => localStorage.removeItem(k));
+    } catch(_) {}
+
+    // Remove from list
+    const newList = list.filter(p => p.id !== id);
+    this._saveList(newList);
+
+    // If the deleted profile was active, switch to the first remaining
+    let newActive = this.getActiveId();
+    if (newActive === id) {
+      newActive = newList[0].id;
+      this.switchTo(newActive);
+    }
+    return newActive;
+  }
+};
+window.Profiles = Profiles;
+
+// One-time profile-namespace migration. Runs ONCE on the first boot of this
+// version. Walks every existing stlcr:<key> (excluding SHARED keys) and
+// rewrites it to stlcr:p:default:<key>. Records 'default' in profile-list
+// and sets profile-active to 'default'. Idempotent — second-boot is a
+// no-op because _migrated_v2_profiles is set.
+//
+// ORDERING: this MUST run AFTER the v1 legacy-key migration below. On a
+// fresh upgrade from a pre-v1 install, data still lives at bare-key
+// locations (no `stlcr:` prefix). v1 moves it to `stlcr:<k>`, then v2
+// moves it to `stlcr:p:default:<k>`. We declare the function here so the
+// referenced helpers (_isSharedKey, DEFAULT_PROFILE_ID) are in scope, but
+// invoke it AFTER the v1 IIFE further down.
+//
+// IMPORTANT: keys not in SHARED_LS_KEYS at the time of migration get
+// scoped to default. Adding a key to SHARED_LS_KEYS later won't
+// retroactively un-scope existing data.
+function _migrateToProfiles() {
+  try {
+    if (localStorage.getItem(LS_PREFIX + '_migrated_v2_profiles') === '1') return;
+
+    // Find every stlcr:<key> that isn't SHARED and isn't already p:-scoped
+    const moves = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const fullKey = localStorage.key(i);
+      if (!fullKey || fullKey.indexOf(LS_PREFIX) !== 0) continue;
+      const key = fullKey.substring(LS_PREFIX.length);
+      // Skip already-scoped keys (defensive — shouldn't exist on first run)
+      if (key.indexOf('p:') === 0) continue;
+      // Skip SHARED keys (they stay unscoped)
+      if (_isSharedKey(key)) continue;
+      const v = localStorage.getItem(fullKey);
+      if (v !== null) moves.push([fullKey, key, v]);
+    }
+
+    // Two-phase write: copy to scoped key first, then remove the unscoped
+    // original. If quota fires mid-migration, the unscoped originals
+    // remain and the migration retries on next boot.
+    for (const [, key, v] of moves) {
+      try { localStorage.setItem(LS_PREFIX + 'p:' + DEFAULT_PROFILE_ID + ':' + key, v); }
+      catch(_) { return; /* quota — retry next boot */ }
+    }
+    for (const [fullKey] of moves) {
+      try { localStorage.removeItem(fullKey); } catch(_) {}
+    }
+
+    // Register the default profile if not already registered
+    try {
+      const existingList = localStorage.getItem(LS_PREFIX + 'profile-list');
+      if (!existingList) {
+        const defaultProfile = {
+          id: DEFAULT_PROFILE_ID,
+          name: 'Default',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem(LS_PREFIX + 'profile-list', JSON.stringify([defaultProfile]));
+      }
+      if (!localStorage.getItem(LS_PREFIX + 'profile-active')) {
+        localStorage.setItem(LS_PREFIX + 'profile-active', DEFAULT_PROFILE_ID);
+      }
+    } catch(_) {}
+
+    localStorage.setItem(LS_PREFIX + '_migrated_v2_profiles', '1');
+    if (moves.length) console.info('[Profiles] migrated ' + moves.length + ' keys to default profile');
+  } catch(e) { console.warn('[Profiles] migration failed:', e); }
+}
+
+// LS wrapper — profile-aware. Most call sites use LS.get(k)/set(k,v) and
+// don't know or care whether `k` is profile-scoped or shared; the wrapper
+// resolves the full storage key based on _isSharedKey(k) and the active
+// profile id. Backwards compatible: pre-Drop-I call sites continue to
+// work without modification.
 const LS = {
-  get(k)          { try { return localStorage.getItem(LS_PREFIX + k); }         catch(_) { return null; } },
-  set(k, v)       { try { localStorage.setItem(LS_PREFIX + k, v); return true; } catch(_) { return false; } },
-  remove(k)       { try { localStorage.removeItem(LS_PREFIX + k); }              catch(_) {} },
-  // Clear only keys this app owns. Use this instead of localStorage.clear()
-  // when you want to wipe app data without nuking other origins' storage.
+  // Resolve the full localStorage key for a logical key. SHARED keys go to
+  // stlcr:<k>; profile-scoped keys go to stlcr:p:<active>:<k>.
+  _fullKey(k) {
+    if (_isSharedKey(k)) return LS_PREFIX + k;
+    return LS_PREFIX + 'p:' + Profiles.getActiveId() + ':' + k;
+  },
+  get(k)          { try { return localStorage.getItem(this._fullKey(k)); }         catch(_) { return null; } },
+  set(k, v)       { try { localStorage.setItem(this._fullKey(k), v); return true; } catch(_) { return false; } },
+  remove(k)       { try { localStorage.removeItem(this._fullKey(k)); }              catch(_) {} },
+  // Clear only keys this app owns. Wipes EVERYTHING under stlcr: across
+  // all profiles and the SHARED keys. Used by the RESET button. If you
+  // want to wipe only the active profile, use Profiles.delete(id) instead.
   clearAll() {
     try {
       const victims = [];
@@ -2978,13 +3334,26 @@ const LS = {
       victims.forEach(k => localStorage.removeItem(k));
     } catch(_) {}
   },
-  // Enumerate app keys (without the prefix) — useful for debugging/export.
+  // Enumerate logical app keys for the active profile (without the
+  // stlcr:p:<id>: prefix) plus shared keys. Useful for export/debugging.
+  // Pre-Drop-I returned every stlcr:* key without prefix. Post-Drop-I
+  // returns the union of the active profile's keys and shared keys, all
+  // as logical names (no profile prefix).
   keys() {
     const out = [];
     try {
+      const active = Profiles.getActiveId();
+      const profilePrefix = LS_PREFIX + 'p:' + active + ':';
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
-        if (k && k.indexOf(LS_PREFIX) === 0) out.push(k.slice(LS_PREFIX.length));
+        if (!k) continue;
+        if (k.indexOf(profilePrefix) === 0) {
+          out.push(k.slice(profilePrefix.length));
+        } else if (k.indexOf(LS_PREFIX) === 0) {
+          const tail = k.slice(LS_PREFIX.length);
+          // Skip other profiles' keys (p:other-id:...) — only show shared
+          if (tail.indexOf('p:') !== 0 && _isSharedKey(tail)) out.push(tail);
+        }
       }
     } catch(_) {}
     return out;
@@ -3057,6 +3426,13 @@ window.LS = LS;
   } catch(e) { console.warn('[LS] migration failed:', e); }
 })();
 
+// Run the v2 profile-namespace migration AFTER the v1 legacy migration above.
+// Order matters: v1 ensures every key lives at stlcr:<k>, then v2 scopes
+// non-SHARED keys to stlcr:p:default:<k>. Both are idempotent (guarded by
+// _migrated_v1 / _migrated_v2_profiles markers respectively), so subsequent
+// boots are no-ops.
+_migrateToProfiles();
+
 // ── Profile Backup & Restore ─────────────────────────────────────────────────
 // Export every persistent piece of user data into a single JSON file the user
 // can store somewhere safe (email it to themselves, save in cloud storage, etc).
@@ -3080,6 +3456,38 @@ window.LS = LS;
 //
 // Custom map layers (in IndexedDB) are pulled separately via MapLayers.list()
 // and merged into the export blob.
+/**
+ * ProfileBackup — export/import the active profile (Drops I, K).
+ *
+ * Builds a single JSON blob containing all of the active profile's localStorage
+ * keys (minus device-bound exclusions like API key encrypted with this device's
+ * PIN) plus the IndexedDB-backed custom map layers. The blob can be emailed,
+ * stashed in cloud storage, or transferred between devices.
+ *
+ * On import, three modes are supported (Drop K split applyImport into two
+ * intentional choices, kept the legacy single-button path for back-compat):
+ *
+ *   applyImportAsNewProfile(blob, name?) — creates a new profile (current
+ *       profile untouched), switches to it, populates it from the blob.
+ *       Recommended default.
+ *
+ *   applyImportMerge(blob) — additive merge into current profile. Stops,
+ *       archives, transactions, custom types, custom layers are appended.
+ *       Inspector identity, ID photo, API key, prefs, webhooks are SKIPPED
+ *       if the current profile already has them. Throws on aggregate-metric
+ *       keys (data-log) with a "import as new profile" workaround message.
+ *
+ *   applyImport(blob) — legacy single-button "Replace & Restore". Wipes the
+ *       active profile, restores from blob. No longer wired to UI but
+ *       preserved for back-compat with any external callers.
+ *
+ *   describe(blob) / describeMerge(blob) — pure read; produce preview text
+ *       for the import modal so the user sees what an operation will do.
+ *
+ * @namespace ProfileBackup
+ * @see Profiles — consumed for new-profile creation and switching
+ * @see MapLayers.addCustom — used during custom-layer restore
+ */
 const ProfileBackup = (function() {
   // Keys we explicitly skip — they're either device-bound or about session
   // ephemera that shouldn't migrate. Use exact matches and prefix matches.
@@ -3212,6 +3620,373 @@ const ProfileBackup = (function() {
     };
   }
 
+  // ─── DROP K: Import as new profile ──────────────────────────────────────
+  // Creates a new profile, switches to it, then runs applyImport into the
+  // new (empty) profile's storage scope. The active profile from before the
+  // import is unchanged. Caller is responsible for the page reload after
+  // this returns.
+  //
+  // We rely on the fact that LS reads/writes are profile-scoped (Drop I), so
+  // applyImport(...) called AFTER a Profiles.switchTo writes everything into
+  // the new profile's namespace automatically. The only complication is the
+  // legacy applyImport's "wipe current LS keys" step — in a fresh profile,
+  // there's nothing to wipe, but the call is harmless.
+  async function applyImportAsNewProfile(blob, profileName) {
+    if (!blob || typeof blob !== 'object') throw new Error('Invalid file');
+    if (blob.app !== 'STLCityRoute') throw new Error('Not an STLCityRoute backup file');
+    if (typeof Profiles === 'undefined') throw new Error('Profiles module not loaded');
+
+    var name = (profileName || blob.exportedBy || 'Imported').toString().trim();
+    if (!name) name = 'Imported';
+    if (name.length > 40) name = name.slice(0, 40);
+
+    // Disambiguate name if a profile with that name already exists
+    var existing = Profiles.list();
+    var taken = {};
+    for (var i = 0; i < existing.length; i++) taken[existing[i].name.toLowerCase()] = true;
+    var unique = name;
+    if (taken[name.toLowerCase()]) {
+      for (var n = 2; n < 100; n++) {
+        unique = name + ' ' + n;
+        if (!taken[unique.toLowerCase()]) break;
+      }
+    }
+
+    var newProfile = Profiles.create(unique);
+    Profiles.switchTo(newProfile.id);
+    // applyImport now writes into the new profile's namespace because LS is
+    // profile-scoped post-Drop-I. No data loss for the prior profile.
+    var stats = await applyImport(blob);
+    stats.newProfileId = newProfile.id;
+    stats.newProfileName = unique;
+    stats.mode = 'new-profile';
+    return stats;
+  }
+
+  // ─── DROP K: Merge import into current profile ──────────────────────────
+  // Per-data-class merge policy. Documented by the user as:
+  //   - stops, archives, transactions ledger → APPEND (no collisions, fresh IDs)
+  //   - custom stop types, custom map layers → APPEND, suffix on name collision
+  //   - inspector identity, ID photo, API key, prefs, webhooks → SKIP if set
+  //   - aggregate metrics (data-log) → THROW with a workaround message
+  //
+  // Returns a stats object with counts of what was added and what was skipped.
+  // Caller is responsible for the page reload after this returns.
+
+  // Keys whose value should be SKIPPED if the current profile already has a
+  // non-empty value at that key. Defines "additive only — never overwrite".
+  var MERGE_SKIP_IF_SET_EXACT = {
+    'inspector-name':         true,
+    'inspector-id':           true,
+    'inspector-data':         true,  // contains stops — handled separately below
+    'creds-id-name':          true,
+    'creds-id-front':         true,
+    'creds-sub':              true,
+    'creds-title':            true,
+    'creds-division':         true,
+    'creds-department':       true,
+    'creds-name':             true,
+    'creds-id':               true,
+    'creds-photo':            true,
+    'creds-role':             true,
+    'creds-authority':        true,
+    'creds-questions':        true,
+    'creds-scope':            true,
+    'creds-custom-depts':     true,
+    'creds-selected-depts':   true,
+    'creds-ref-docs':         true,
+    'payment-settings':       true,
+    'photo-stamp-settings':   true,
+    'photo-stamp-size':       true,
+    'photo-quick-mode':       true,
+    'sheets-webhook-url':     true,
+    'analytics-beacon-url':   true,
+    'selected-job-role':      true,
+    'selected-sector':        true,
+    'inspector-end-location': true,
+    'inspector-manual-origin':true,
+    'inspector-pinned-start': true,
+    'fiscal-day-cutoff':      true
+  };
+
+  // Prefix matches — pref-* (any preference key) is skip-if-set
+  function _isSkipIfSetKey(k) {
+    if (MERGE_SKIP_IF_SET_EXACT[k]) return true;
+    if (typeof k === 'string' && k.indexOf('pref-') === 0) return true;
+    return false;
+  }
+
+  // Aggregate metric keys that we cannot safely merge (sums, daily counters, etc.)
+  // Throw with a helpful suggestion to import as a new profile instead.
+  var MERGE_BLOCKED_EXACT = {
+    'stlcr-data-log': true,
+    'data-log':       true
+  };
+
+  function describeMerge(blob) {
+    if (!blob || typeof blob !== 'object') return 'Could not read file.';
+    if (blob.app !== 'STLCityRoute') return 'Not an STLCityRoute backup file.';
+    var ls = blob.ls || {};
+    var lines = [];
+
+    // What will be appended
+    var appended = [];
+    try {
+      var inspB = ls['inspector-data'];
+      if (inspB) {
+        var pb = JSON.parse(inspB);
+        if (pb && Array.isArray(pb.stops) && pb.stops.length) appended.push(pb.stops.length + ' active stop' + (pb.stops.length === 1 ? '' : 's'));
+      }
+    } catch(_) {}
+    try {
+      var arch = ls['stops-archive'];
+      if (arch) {
+        var ap = JSON.parse(arch);
+        if (ap && typeof ap === 'object') {
+          var n = 0;
+          Object.keys(ap).forEach(function(k) { if (Array.isArray(ap[k])) n += ap[k].length; });
+          if (n) appended.push(n + ' archived stop' + (n === 1 ? '' : 's'));
+        }
+      }
+    } catch(_) {}
+    try {
+      var ledger = ls['transactions-ledger'];
+      if (ledger) {
+        var lp = JSON.parse(ledger);
+        if (Array.isArray(lp) && lp.length) appended.push(lp.length + ' payment transaction' + (lp.length === 1 ? '' : 's'));
+      }
+    } catch(_) {}
+    try {
+      var ct = ls['custom-stop-types'];
+      if (ct) { var arr = JSON.parse(ct); if (Array.isArray(arr) && arr.length) appended.push(arr.length + ' custom stop type' + (arr.length === 1 ? '' : 's')); }
+    } catch(_) {}
+    if (Array.isArray(blob.customMapLayers) && blob.customMapLayers.length) appended.push(blob.customMapLayers.length + ' custom map layer' + (blob.customMapLayers.length === 1 ? '' : 's'));
+    if (appended.length) lines.push('Will append: ' + appended.join(', '));
+
+    // What will be skipped because the current profile already has it
+    var skipped = [];
+    Object.keys(ls).forEach(function(k) {
+      if (_isSkipIfSetKey(k) && k !== 'inspector-data') {
+        var cur = LS.get(k);
+        if (cur != null && cur !== '') skipped.push(k);
+      }
+    });
+    if (skipped.length) {
+      // Pretty-print common ones
+      var pretty = [];
+      if (skipped.indexOf('inspector-name') !== -1 || skipped.indexOf('creds-id-name') !== -1) pretty.push('inspector name');
+      if (skipped.indexOf('creds-id-front') !== -1) pretty.push('ID photo');
+      if (skipped.some(function(k) { return k.indexOf('creds-') === 0; })) pretty.push('creds info');
+      if (skipped.some(function(k) { return k.indexOf('pref-') === 0; })) pretty.push('preferences');
+      if (skipped.indexOf('payment-settings') !== -1) pretty.push('payment settings');
+      if (skipped.indexOf('sheets-webhook-url') !== -1) pretty.push('Sheets webhook');
+      if (skipped.indexOf('analytics-beacon-url') !== -1) pretty.push('analytics beacon');
+      if (pretty.length) lines.push('Will skip (already set): ' + pretty.join(', '));
+    }
+
+    // What's blocked
+    var blocked = [];
+    Object.keys(ls).forEach(function(k) { if (MERGE_BLOCKED_EXACT[k]) blocked.push(k); });
+    if (blocked.length) {
+      lines.push('');
+      lines.push('⚠ Cannot merge: aggregate metrics history (' + blocked.join(', ') + ').');
+      lines.push('   Import as a new profile to access this data.');
+    }
+
+    if (!lines.length) lines.push('Nothing to merge — the file appears empty.');
+
+    return lines.join('\n');
+  }
+
+  async function applyImportMerge(blob) {
+    if (!blob || typeof blob !== 'object') throw new Error('Invalid file');
+    if (blob.app !== 'STLCityRoute') throw new Error('Not an STLCityRoute backup file');
+    if (typeof blob.schema !== 'number') throw new Error('Missing schema version');
+    if (blob.schema > SCHEMA_VERSION) throw new Error('This backup is from a newer app version. Update the app and try again.');
+    if (!blob.ls || typeof blob.ls !== 'object') throw new Error('Backup missing the data section');
+
+    var ls = blob.ls;
+
+    // ─── Block on un-mergeable aggregate data ─────────────────────────────
+    var blockedKeys = Object.keys(MERGE_BLOCKED_EXACT).filter(function(k) { return ls[k] != null; });
+    if (blockedKeys.length) {
+      throw new Error("Some data can't be merged: aggregate metrics history. Import as a new profile to access this data.");
+    }
+
+    var stats = {
+      mode:                 'merge',
+      stopsAppended:        0,
+      archivedStopsAppended:0,
+      transactionsAppended: 0,
+      customTypesAppended:  0,
+      customTypesRenamed:   0,
+      mapLayersAppended:    0,
+      mapLayersRenamed:     0,
+      keysSkipped:          [],
+      schema:               blob.schema,
+      exportedAt:           blob.exportedAt,
+      exportedBy:           blob.exportedBy || ''
+    };
+
+    // ─── Active stops: APPEND into inspector-data.stops ───────────────────
+    try {
+      var incomingInspector = ls['inspector-data'];
+      if (incomingInspector) {
+        var incoming = JSON.parse(incomingInspector);
+        if (incoming && Array.isArray(incoming.stops) && incoming.stops.length) {
+          var curRaw = LS.get('inspector-data');
+          var cur = curRaw ? JSON.parse(curRaw) : { stops: [] };
+          if (!Array.isArray(cur.stops)) cur.stops = [];
+          // Just concat — IDs are timestamp-based so collisions are vanishingly
+          // rare across devices. If a collision did occur it would be silently
+          // resolved when the user next interacts with the stop (the second
+          // entry would shadow the first). Worth the simplicity.
+          var existingIds = {};
+          for (var i = 0; i < cur.stops.length; i++) existingIds[cur.stops[i].id] = true;
+          for (var j = 0; j < incoming.stops.length; j++) {
+            var st = incoming.stops[j];
+            if (!st || existingIds[st.id]) continue;
+            cur.stops.push(st);
+            existingIds[st.id] = true;
+            stats.stopsAppended++;
+          }
+          LS.set('inspector-data', JSON.stringify(cur));
+        }
+      }
+    } catch(e) { console.warn('[merge] inspector-data error:', e); }
+
+    // ─── Archived stops: per-date concat ──────────────────────────────────
+    try {
+      var incomingArchRaw = ls['stops-archive'];
+      if (incomingArchRaw) {
+        var incomingArch = JSON.parse(incomingArchRaw);
+        if (incomingArch && typeof incomingArch === 'object') {
+          var curArchRaw = LS.get('stops-archive');
+          var curArch = curArchRaw ? JSON.parse(curArchRaw) : {};
+          Object.keys(incomingArch).forEach(function(date) {
+            var incomingList = incomingArch[date];
+            if (!Array.isArray(incomingList)) return;
+            if (!Array.isArray(curArch[date])) curArch[date] = [];
+            // Build id set for dedupe
+            var seen = {};
+            for (var k = 0; k < curArch[date].length; k++) seen[curArch[date][k].id] = true;
+            for (var m = 0; m < incomingList.length; m++) {
+              var as = incomingList[m];
+              if (!as || seen[as.id]) continue;
+              curArch[date].push(as);
+              seen[as.id] = true;
+              stats.archivedStopsAppended++;
+            }
+          });
+          LS.set('stops-archive', JSON.stringify(curArch));
+        }
+      }
+    } catch(e) { console.warn('[merge] stops-archive error:', e); }
+
+    // ─── Transactions ledger: APPEND ──────────────────────────────────────
+    try {
+      var incomingLedgerRaw = ls['transactions-ledger'];
+      if (incomingLedgerRaw) {
+        var incomingLedger = JSON.parse(incomingLedgerRaw);
+        if (Array.isArray(incomingLedger) && incomingLedger.length) {
+          var curLedgerRaw = LS.get('transactions-ledger');
+          var curLedger = curLedgerRaw ? JSON.parse(curLedgerRaw) : [];
+          if (!Array.isArray(curLedger)) curLedger = [];
+          var seenTxn = {};
+          for (var t = 0; t < curLedger.length; t++) seenTxn[curLedger[t].id] = true;
+          for (var u = 0; u < incomingLedger.length; u++) {
+            var tx = incomingLedger[u];
+            if (!tx || seenTxn[tx.id]) continue;
+            curLedger.push(tx);
+            seenTxn[tx.id] = true;
+            stats.transactionsAppended++;
+          }
+          LS.set('transactions-ledger', JSON.stringify(curLedger));
+        }
+      }
+    } catch(e) { console.warn('[merge] transactions-ledger error:', e); }
+
+    // ─── Custom stop types: APPEND with -imported suffix on collision ─────
+    try {
+      var incomingTypesRaw = ls['custom-stop-types'];
+      if (incomingTypesRaw) {
+        var incomingTypes = JSON.parse(incomingTypesRaw);
+        if (Array.isArray(incomingTypes) && incomingTypes.length) {
+          var curTypesRaw = LS.get('custom-stop-types');
+          var curTypes = curTypesRaw ? JSON.parse(curTypesRaw) : [];
+          if (!Array.isArray(curTypes)) curTypes = [];
+          var existingNames = {};
+          for (var ct = 0; ct < curTypes.length; ct++) {
+            var nm = (curTypes[ct] && (curTypes[ct].name || curTypes[ct].label)) || '';
+            existingNames[String(nm).toLowerCase()] = true;
+          }
+          for (var ci = 0; ci < incomingTypes.length; ci++) {
+            var typ = incomingTypes[ci];
+            if (!typ) continue;
+            var origName = String(typ.name || typ.label || '');
+            if (existingNames[origName.toLowerCase()]) {
+              var newName = origName + ' (imported)';
+              if (typ.name !== undefined) typ.name = newName;
+              if (typ.label !== undefined) typ.label = newName;
+              stats.customTypesRenamed++;
+            }
+            curTypes.push(typ);
+            stats.customTypesAppended++;
+          }
+          LS.set('custom-stop-types', JSON.stringify(curTypes));
+        }
+      }
+    } catch(e) { console.warn('[merge] custom-stop-types error:', e); }
+
+    // ─── Custom map layers (IndexedDB): APPEND with rename on collision ───
+    try {
+      if (Array.isArray(blob.customMapLayers) && blob.customMapLayers.length && typeof MapLayers !== 'undefined') {
+        var existingLayers = await MapLayers.list();
+        var existingLayerNames = {};
+        for (var el = 0; el < existingLayers.length; el++) {
+          if (existingLayers[el].kind === 'custom') existingLayerNames[String(existingLayers[el].name || '').toLowerCase()] = true;
+        }
+        for (var bl = 0; bl < blob.customMapLayers.length; bl++) {
+          var lyr = blob.customMapLayers[bl];
+          if (!lyr) continue;
+          var lname = String(lyr.name || 'Imported Layer');
+          if (existingLayerNames[lname.toLowerCase()]) {
+            lname = lname + ' (imported)';
+            stats.mapLayersRenamed++;
+          }
+          await MapLayers.addCustom({
+            name: lname,
+            color: lyr.color,
+            addresses: Array.isArray(lyr.addresses) ? lyr.addresses : []
+          });
+          existingLayerNames[lname.toLowerCase()] = true;
+          stats.mapLayersAppended++;
+        }
+      }
+    } catch(e) { console.warn('[merge] custom map layers error:', e); }
+
+    // ─── Skip-if-set keys: only write if current is empty ─────────────────
+    Object.keys(ls).forEach(function(k) {
+      if (EXCLUDE_EXACT[k]) return;
+      // Already-handled-above keys: skip
+      if (k === 'inspector-data' || k === 'stops-archive' ||
+          k === 'transactions-ledger' || k === 'custom-stop-types') return;
+      if (_isSkipIfSetKey(k)) {
+        var cur = LS.get(k);
+        if (cur != null && cur !== '') {
+          stats.keysSkipped.push(k);
+          return;
+        }
+        try { LS.set(k, ls[k]); } catch(_) {}
+        return;
+      }
+      // Keys not in any policy: leave alone (don't blindly overwrite)
+      // The user's expected stance is "additive only — be conservative".
+    });
+
+    return stats;
+  }
+
   // ─── Summarize an import file for the user before they confirm ──────────
   // Returns a multi-line string with counts of stops, layers, etc. Pure read,
   // does not mutate anything. Used to populate the confirmation modal.
@@ -3267,6 +4042,9 @@ const ProfileBackup = (function() {
   return {
     buildExport: buildExport,
     applyImport: applyImport,
+    applyImportAsNewProfile: applyImportAsNewProfile,
+    applyImportMerge: applyImportMerge,
+    describeMerge: describeMerge,
     describe: describe,
     SCHEMA_VERSION: SCHEMA_VERSION
   };
@@ -3302,6 +4080,35 @@ window.ProfileBackup = ProfileBackup;
 // yet; their April 24 work day extends to the next 5pm boundary).
 //
 // Cutoff is configurable in Settings → ⏰ Fiscal-Day Cutoff.
+/**
+ * StopArchive — fiscal-day-keyed historical store for completed stops.
+ *
+ * Once a fiscal day is over, completed stops migrate from the active stops[]
+ * array to a date-keyed archive (LS key `stops-archive`). The active list
+ * stays focused on today; the archive preserves every field of every stop
+ * so historical metrics, exports, and reviews remain accurate.
+ *
+ * Public API:
+ *   migrate()            → { moved, kept } — runs the migration; called at boot
+ *   getInRange(s, e)     → array — archived stops with completedAt in [s, e]
+ *   getAll()             → array — all archived stops, flat
+ *   getByDate()          → object — { 'YYYY-MM-DD': [stop, ...], ... }, newest first
+ *   count()              → number — total archived stops across all dates
+ *   dateKeys()           → array  — fiscal-date strings present in archive
+ *   clear()              → void   — removes the archive (debug; not user-exposed)
+ *   getCutoff() / setCutoff(hhmm) — fiscal-day cutoff time (default 17:00)
+ *   DEFAULT_CUTOFF       = '17:00'
+ *
+ * Storage shape (`stlcr:p:<active>:stops-archive`):
+ *   { 'YYYY-MM-DD': [<stop>, ...], ... }
+ *
+ * "Fiscal date" of a stop = calendar date of completedAt minus the cutoff
+ * offset (e.g. with cutoff=17:00, a stop completed 2026-04-25 16:30 belongs
+ * to fiscal date 2026-04-24 because the inspector's "April 25" hasn't begun).
+ *
+ * @namespace StopArchive
+ * @see _migrateExpiredStops — the boot-time integration point
+ */
 const StopArchive = (function() {
   var ARCHIVE_KEY = 'stops-archive';
   var CUTOFF_KEY  = 'fiscal-day-cutoff';  // 'HH:MM' string; default '17:00'
@@ -3478,6 +4285,221 @@ const StopArchive = (function() {
 })();
 window.StopArchive = StopArchive;
 
+// ============================================================
+// PROFILES — multi-profile management UI handlers (Drop J)
+// ============================================================
+//
+// Thin wrappers around the Profiles module from Drop I. Each handler
+// renders or mutates state, then re-renders the panel. Destructive
+// operations (switch, delete) trigger a hard reload so every IIFE
+// re-initializes from the new profile's storage scope.
+//
+// Render flow:
+//   openSettings() → renderProfilesPanel() → walks Profiles.list(),
+//   paints one row per profile with switch/rename/delete affordances,
+//   marks the active profile.
+//
+// State changes go through Profiles.* methods only — never touch
+// localStorage directly. Profiles.create / switchTo / delete each
+// return a value or throw; handlers translate failures to toasts.
+//
+// Two-stage delete confirmation matches the Danger Zone pattern.
+
+function renderProfilesPanel() {
+  var container = document.getElementById('profiles-list-container');
+  if (!container || typeof Profiles === 'undefined') return;
+  try {
+    var list = Profiles.list();
+    var activeId = Profiles.getActiveId();
+    if (!list || !list.length) {
+      // Defensive — Profiles.list() should always return at least the default
+      container.innerHTML = '<div style="font-size:0.6rem;color:#999;font-family:\'Space Mono\',monospace;font-style:italic">No profiles found.</div>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      var isActive = (p.id === activeId);
+      var safeName = escHtml(p.name || '(unnamed)');
+      var safeId = escHtml(p.id);
+      // Active profile gets a moss border + check mark; inactive shows switch button
+      var headerBg = isActive ? 'background:linear-gradient(135deg,#f5fbf3,#fafaf8)' : 'background:#fafaf8';
+      var headerBorder = isActive ? 'border:1.5px solid var(--moss)' : 'border:1px solid #e4e4e4';
+      var marker = isActive
+        ? '<span style="background:var(--moss);color:white;font-size:0.5rem;padding:2px 7px;border-radius:8px;font-family:\'Syne\',sans-serif;font-weight:800;letter-spacing:0.5px">ACTIVE</span>'
+        : '';
+      var switchBtn = isActive
+        ? ''
+        : '<button data-fn="switchToProfile" data-profile-id="' + safeId + '" style="flex:1;padding:7px;border:1.5px solid var(--moss);border-radius:7px;background:white;color:var(--moss);font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.58rem;cursor:pointer">SWITCH</button>';
+      // Allow delete only if more than one profile exists (Profiles.delete will also enforce)
+      var canDelete = list.length > 1;
+      var deleteBtn = canDelete
+        ? '<button data-fn="deleteProfileById" data-profile-id="' + safeId + '" style="flex:1;padding:7px;border:1.5px solid #c0392b;border-radius:7px;background:white;color:#c0392b;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.58rem;cursor:pointer">DELETE</button>'
+        : '';
+      html += '<div style="' + headerBorder + ';' + headerBg + ';border-radius:9px;padding:10px 12px;margin-bottom:7px">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">' +
+              '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.74rem;color:var(--forest);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;margin-right:8px">' + safeName + '</div>' +
+              marker +
+              '</div>' +
+              '<div style="display:flex;gap:5px">' +
+              switchBtn +
+              '<button data-fn="renameProfile" data-profile-id="' + safeId + '" style="flex:1;padding:7px;border:1px solid #ccc;border-radius:7px;background:white;color:#555;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.58rem;cursor:pointer">RENAME</button>' +
+              deleteBtn +
+              '</div>' +
+              '</div>';
+    }
+    container.innerHTML = html;
+    // Wire data-profile-id buttons via event delegation since data-fn dispatcher
+    // doesn't pass through dataset attributes by default
+    var btns = container.querySelectorAll('button[data-profile-id]');
+    for (var j = 0; j < btns.length; j++) {
+      (function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var fn = btn.getAttribute('data-fn');
+          var id = btn.getAttribute('data-profile-id');
+          if (fn === 'switchToProfile' && typeof switchToProfile === 'function') switchToProfile(id);
+          else if (fn === 'renameProfile' && typeof renameProfile === 'function') renameProfile(id);
+          else if (fn === 'deleteProfileById' && typeof deleteProfileById === 'function') deleteProfileById(id);
+        });
+      })(btns[j]);
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="color:#c0392b;font-size:0.55rem;font-family:\'Space Mono\',monospace">Error loading profiles: ' + escHtml(String(e && e.message || e)) + '</div>';
+  }
+}
+window.renderProfilesPanel = renderProfilesPanel;
+
+function createNewProfile() {
+  try {
+    var name = prompt('Name the new profile:\n\nExamples: "Inspector", "Health Dept", "Personal"', '');
+    if (name == null) return; // cancelled
+    name = String(name).trim();
+    if (!name) {
+      showToast('Profile name cannot be empty');
+      return;
+    }
+    if (name.length > 40) {
+      showToast('Profile name must be 40 characters or fewer');
+      return;
+    }
+    var p = Profiles.create(name);
+    // Ask whether to switch to the new profile now. Switching loads an empty
+    // profile and the setup wizard runs since setup-complete is missing.
+    var doSwitch = confirm('Profile "' + name + '" created.\n\nSwitch to it now? The setup wizard will run since the new profile starts empty.');
+    if (doSwitch) {
+      Profiles.switchTo(p.id);
+      showToast('Switching to ' + name + '…');
+      setTimeout(function() { location.reload(); }, 700);
+    } else {
+      showToast('✓ Created profile: ' + name);
+      renderProfilesPanel();
+    }
+  } catch(e) {
+    showToast('Could not create profile: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('createNewProfile error:', e);
+  }
+}
+window.createNewProfile = createNewProfile;
+
+function switchToProfile(id) {
+  if (!id) return;
+  try {
+    var list = Profiles.list();
+    var target = null;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { target = list[i]; break; } }
+    if (!target) {
+      showToast('Profile not found');
+      return;
+    }
+    if (target.id === Profiles.getActiveId()) {
+      showToast('Already on ' + target.name);
+      return;
+    }
+    if (!confirm('Switch to "' + target.name + '"?\n\nThe app will reload and load this profile\'s data.')) return;
+    Profiles.switchTo(target.id);
+    showToast('Switching…');
+    setTimeout(function() { location.reload(); }, 600);
+  } catch(e) {
+    showToast('Switch failed: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('switchToProfile error:', e);
+  }
+}
+window.switchToProfile = switchToProfile;
+
+function renameProfile(id) {
+  if (!id) return;
+  try {
+    var list = Profiles.list();
+    var target = null;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { target = list[i]; break; } }
+    if (!target) {
+      showToast('Profile not found');
+      return;
+    }
+    var newName = prompt('Rename profile:', target.name);
+    if (newName == null) return;
+    newName = String(newName).trim();
+    if (!newName) {
+      showToast('Profile name cannot be empty');
+      return;
+    }
+    if (newName === target.name) return;
+    if (newName.length > 40) {
+      showToast('Profile name must be 40 characters or fewer');
+      return;
+    }
+    Profiles.rename(target.id, newName);
+    showToast('✓ Renamed to ' + newName);
+    renderProfilesPanel();
+  } catch(e) {
+    showToast('Rename failed: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('renameProfile error:', e);
+  }
+}
+window.renameProfile = renameProfile;
+
+function deleteProfileById(id) {
+  if (!id) return;
+  try {
+    var list = Profiles.list();
+    var target = null;
+    for (var i = 0; i < list.length; i++) { if (list[i].id === id) { target = list[i]; break; } }
+    if (!target) {
+      showToast('Profile not found');
+      return;
+    }
+    if (list.length <= 1) {
+      showToast('Cannot delete the last remaining profile');
+      return;
+    }
+    var isActive = (target.id === Profiles.getActiveId());
+    // First confirmation — plain warning
+    if (!confirm('Delete profile "' + target.name + '"?\n\nThis will permanently remove all stops, settings, ID photo, custom map layers, and history for this profile. Other profiles are not affected.\n\nThis cannot be undone.')) return;
+    // Second confirmation — typed gate (matches the Danger Zone pattern)
+    var typed = prompt('Type DELETE (all caps) to confirm permanent deletion of "' + target.name + '":');
+    if (typed !== 'DELETE') {
+      showToast('Deletion cancelled');
+      return;
+    }
+    Profiles.delete(target.id);
+    if (isActive) {
+      // Active profile was deleted; Profiles.delete already auto-switched to
+      // another. Reload to pick up the new profile's data.
+      showToast('Deleted. Reloading…');
+      setTimeout(function() { location.reload(); }, 800);
+    } else {
+      showToast('✓ Deleted profile: ' + target.name);
+      renderProfilesPanel();
+    }
+  } catch(e) {
+    showToast('Delete failed: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('deleteProfileById error:', e);
+  }
+}
+window.deleteProfileById = deleteProfileById;
+
 // ─── Profile export / import UI handlers ────────────────────────────────────
 async function exportProfile() {
   try {
@@ -3523,32 +4545,46 @@ function onProfileImportFile(evt) {
 
   var reader = new FileReader();
   reader.onload = function() {
-    var summaryEl = document.getElementById('profile-import-summary');
-    var confirmBtn = document.getElementById('profile-import-confirm-btn');
+    var summaryEl  = document.getElementById('profile-import-summary');
+    var asNewBtn   = document.getElementById('profile-import-asnew-btn');
+    var mergeBtn   = document.getElementById('profile-import-merge-btn');
+    var mergePrev  = document.getElementById('profile-import-merge-preview');
     document.getElementById('profile-import-modal').style.display = 'flex';
+
+    function disable(btn) { if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; } }
+    function enable(btn)  { if (btn) { btn.disabled = false; btn.style.opacity = '1'; } }
 
     try {
       var parsed = JSON.parse(String(reader.result || ''));
       _pendingImportBlob = parsed;
       var summary = ProfileBackup.describe(parsed);
       if (summaryEl) summaryEl.textContent = summary;
-      if (confirmBtn) {
-        // Only enable the confirm button if it looks valid
-        if (parsed && parsed.app === 'STLCityRoute' && parsed.ls) {
-          confirmBtn.disabled = false;
-          confirmBtn.style.opacity = '1';
-        } else {
-          confirmBtn.disabled = true;
-          confirmBtn.style.opacity = '0.5';
+      if (parsed && parsed.app === 'STLCityRoute' && parsed.ls) {
+        enable(asNewBtn);
+        enable(mergeBtn);
+        // Populate merge preview
+        if (mergePrev) {
+          try {
+            var mergeText = ProfileBackup.describeMerge(parsed);
+            mergePrev.textContent = mergeText;
+            mergePrev.style.display = 'block';
+            // If the preview shows a "Cannot merge" warning, disable merge
+            if (mergeText.indexOf('Cannot merge') !== -1) {
+              disable(mergeBtn);
+            }
+          } catch(_) {}
         }
+      } else {
+        disable(asNewBtn);
+        disable(mergeBtn);
+        if (mergePrev) mergePrev.style.display = 'none';
       }
     } catch(e) {
       _pendingImportBlob = null;
       if (summaryEl) summaryEl.textContent = '⚠ Could not read this file as a profile backup.\n\n' + (e && e.message ? e.message : '');
-      if (confirmBtn) {
-        confirmBtn.disabled = true;
-        confirmBtn.style.opacity = '0.5';
-      }
+      disable(asNewBtn);
+      disable(mergeBtn);
+      if (mergePrev) mergePrev.style.display = 'none';
     }
   };
   reader.onerror = function() {
@@ -3560,15 +4596,80 @@ function onProfileImportFile(evt) {
 function closeProfileImportModal() {
   document.getElementById('profile-import-modal').style.display = 'none';
   _pendingImportBlob = null;
+  // Reset preview state so the modal opens fresh next time
+  var mergePrev = document.getElementById('profile-import-merge-preview');
+  if (mergePrev) { mergePrev.textContent = ''; mergePrev.style.display = 'none'; }
 }
 
+// Drop K: Import as new profile — creates an isolated profile and switches.
+// This is the safest path; the current profile is untouched.
+async function confirmProfileImportAsNew() {
+  if (!_pendingImportBlob) {
+    showToast('No backup file selected');
+    return;
+  }
+  // Default profile name from the backup's exportedBy field, with prompt
+  // override so the user can pick something they recognize.
+  var suggested = (_pendingImportBlob && _pendingImportBlob.exportedBy) || 'Imported';
+  var name = prompt('Name the new profile:\n\nThe backup will be loaded into this new profile, leaving your current profile untouched.', suggested);
+  if (name == null) return;
+  name = String(name).trim();
+  if (!name) {
+    showToast('Profile name cannot be empty');
+    return;
+  }
+  try {
+    showToast('Importing as new profile…');
+    var stats = await ProfileBackup.applyImportAsNewProfile(_pendingImportBlob, name);
+    closeProfileImportModal();
+    showToast('✓ Created profile "' + stats.newProfileName + '" with ' + stats.lsKeys + ' settings. Reloading…');
+    setTimeout(function() { location.reload(); }, 1100);
+  } catch(e) {
+    showToast('Import failed: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('confirmProfileImportAsNew error:', e);
+  }
+}
+window.confirmProfileImportAsNew = confirmProfileImportAsNew;
+
+// Drop K: Merge into current profile — runs the per-data-class merge.
+// Inspector identity, ID photo, API key, prefs, webhooks are skipped if the
+// current profile already has them (additive only — never overwritten).
+async function confirmProfileImportMerge() {
+  if (!_pendingImportBlob) {
+    showToast('No backup file selected');
+    return;
+  }
+  if (!confirm('Merge the backup into your current profile?\n\nThis appends stops, archives, transactions, custom types, and map layers. Inspector identity, ID photo, API key, preferences, and webhook URLs are kept as-is on this device.\n\nThis cannot be undone — but data is added, not replaced.')) return;
+  try {
+    showToast('Merging…');
+    var stats = await ProfileBackup.applyImportMerge(_pendingImportBlob);
+    closeProfileImportModal();
+    var parts = [];
+    if (stats.stopsAppended)         parts.push(stats.stopsAppended + ' stops');
+    if (stats.archivedStopsAppended) parts.push(stats.archivedStopsAppended + ' archived');
+    if (stats.transactionsAppended)  parts.push(stats.transactionsAppended + ' txns');
+    if (stats.customTypesAppended)   parts.push(stats.customTypesAppended + ' types' + (stats.customTypesRenamed ? ' (' + stats.customTypesRenamed + ' renamed)' : ''));
+    if (stats.mapLayersAppended)     parts.push(stats.mapLayersAppended + ' layers' + (stats.mapLayersRenamed ? ' (' + stats.mapLayersRenamed + ' renamed)' : ''));
+    var msg = parts.length ? ('✓ Merged: ' + parts.join(', ')) : '✓ Merge complete (nothing new to add)';
+    if (stats.keysSkipped && stats.keysSkipped.length) msg += '. Skipped: ' + stats.keysSkipped.length + ' setting' + (stats.keysSkipped.length === 1 ? '' : 's');
+    msg += '. Reloading…';
+    showToast(msg);
+    setTimeout(function() { location.reload(); }, 1400);
+  } catch(e) {
+    showToast('Merge failed: ' + (e && e.message ? e.message : 'unknown'));
+    console.error('confirmProfileImportMerge error:', e);
+  }
+}
+window.confirmProfileImportMerge = confirmProfileImportMerge;
+
+// Legacy single-button confirm — kept for backwards compatibility with any
+// external callers, but the UI no longer references it. The modal now has
+// dedicated As-New / Merge buttons (Drop K).
 async function confirmProfileImport() {
   if (!_pendingImportBlob) {
     showToast('No backup file selected');
     return;
   }
-  // Defense-in-depth confirm — modal already warns, but a hard confirm here
-  // ensures a stray tap doesn't wipe the user's data.
   if (!confirm('Replace ALL data on this device with the contents of the backup file?\n\nThis cannot be undone.')) {
     return;
   }
@@ -3577,8 +4678,6 @@ async function confirmProfileImport() {
     var stats = await ProfileBackup.applyImport(_pendingImportBlob);
     closeProfileImportModal();
     showToast('✓ Restored ' + stats.lsKeys + ' settings + ' + stats.customLayers + ' map layer' + (stats.customLayers === 1 ? '' : 's') + '. Reloading…');
-    // Hard reload — the simplest way to make sure every module picks up the
-    // restored state without us having to re-init every IIFE manually.
     setTimeout(function() { location.reload(); }, 1100);
   } catch(e) {
     showToast('Restore failed: ' + (e && e.message ? e.message : 'unknown'));
@@ -5460,6 +6559,30 @@ let _clockInTime   = null;  // unix ms when shift started
 let _breakStartTime = null; // unix ms when current break started
 let _totalBreakMs   = 0;    // accumulated break time this shift
 let _clockTimer     = null;
+
+// ── Drop M: setTimeout audit pass ──────────────────────────
+// The codebase has 81 setTimeout calls vs 16 clearTimeout (5:1). This is
+// fine for the dominant case (short-lived UI sequencers like toast dismissal,
+// 120ms map-redraw chains, 1100ms reload-after-toast) — but timers whose
+// target element has a SHORTER lifetime than the timer itself need explicit
+// clearing or they'll either crash on null or leak a closure.
+//
+// The two timer kinds in this file that DO need defensive clearing:
+//   1) _clockTimer (setInterval, declared just above) — re-entrant; the
+//      `clearInterval(_clockTimer)` calls scattered through clock state
+//      transitions are NOT redundant.
+//   2) _closeModalTimer (declared near line 6377) — same pattern.
+//
+// All other setTimeout() calls in this file are short-lived UI sequencers
+// where the worst-case is one stale callback firing on a dead element. Each
+// such site already wraps DOM access in a try/catch, so the "fired on a dead
+// element" failure mode is absorbed silently. Acceptable.
+//
+// Future drops adding new timers should: (a) check whether the target element
+// can be removed before the timer fires, (b) if yes, store the timer ID and
+// clear it on element removal, (c) if no, leave as fire-and-forget but wrap
+// DOM access in try/catch.
+// ───────────────────────────────────────────────────────────
 
 function _shiftWorkMs() {
   if (!_clockInTime) return 0;
@@ -11031,6 +12154,38 @@ function _formatCompassHeading(deg) {
 //   LocalStorage caps at ~5MB total per origin and stores strings only. Blobs
 //   would need base64 encoding (33% size penalty) and would blow the cap with
 //   a single photo. IndexedDB is what every PWA uses for binary data.
+/**
+ * PhotoCache — IndexedDB-backed cache for stop photos (stamped images).
+ *
+ * Photos are stored as Blobs keyed by stopId + timestamp. The cache has a
+ * rolling expiry (default 48h) that clears photos older than the cutoff on
+ * every put — keeps the IndexedDB store from growing unbounded across
+ * months of use. Photos are always considered ephemeral; the source of
+ * truth for "did this stop have a photo" is the stop's `photoCount` and
+ * `lastPhotoAt` fields, not the cache.
+ *
+ * Public API (Promise-returning unless noted):
+ *   put(stopId, blob, label?)  → { id, ... } — stores; auto-prunes expired
+ *   list(stopId)               → array — ordered by ts (oldest first)
+ *   listAll()                  → array — every cached photo, all stops
+ *   get(id)                    → record or null
+ *   delete(id)                 → boolean
+ *   deleteForStop(stopId)      → number — count removed
+ *   pruneExpired()             → number — count removed
+ *   clear()                    → void   — wipes the entire cache
+ *   getStats()                 → { count, totalBytes, oldestTs }
+ *
+ * Storage layout: IndexedDB database `stlcr-photo-cache`, store `photos`,
+ * primary key `id` (string, format `<stopId>-<ts>-<rand>`).
+ *
+ * Profile-scoping: NOT profile-scoped. Photos are referenced by stop ID, and
+ * stop IDs are profile-scoped, so cross-profile collision is structurally
+ * impossible in practice. Worst case on a profile delete is a few orphaned
+ * blobs that age out via the rolling expiry.
+ *
+ * @namespace PhotoCache
+ * @see toggleSavePhotoscan — opt-out switch in Settings
+ */
 const PhotoCache = (function() {
   var DB_NAME       = 'stlcr-photo-cache';
   var DB_VERSION    = 2;  // v1→v2: added source / ownerKind / ownerId / meta fields + indices
@@ -11715,6 +12870,31 @@ const STL_NEIGHBORHOODS_BY_NAME = {
   'North Riverfront': 79
 };
 
+/**
+ * GeoCache — shared lookup-data cache for boundary GeoJSON polygons.
+ *
+ * Stores immutable polygon data fetched from city/county data sources
+ * (neighborhoods, wards, school districts, etc.). Once fetched, polygons
+ * never change for the lifetime of the dataset — so we use IndexedDB with
+ * `cache:'force-cache'` HTTP semantics and never re-fetch. First boot
+ * downloads; subsequent boots read from disk.
+ *
+ * Public API (Promise-returning unless noted):
+ *   getOrFetch(key, url) → array — cached or freshly-downloaded polygons
+ *   has(key)             → boolean — synchronous-style cache probe
+ *   getKnownKeys()       → array — keys present in the store
+ *   clear()              → void   — wipes the whole cache (debug only)
+ *
+ * Profile-scoping: NOT profile-scoped — these are lookup tables, not
+ * user data. Every profile shares the same neighborhood polygons.
+ *
+ * Known limitation: in browser environments that proxy requests through
+ * postMessage (some embed contexts), `cache:'force-cache'` may fail and
+ * GeoCache falls back to network. Documented at the raw fetch carve-out
+ * (search file for "RAW FETCH" near _fetchOne).
+ *
+ * @namespace GeoCache
+ */
 const GeoCache = (function() {
   var DB_NAME = 'stlcr-geo-cache';
   var DB_VERSION = 2;                    // bumped to coordinate with MapLayers
@@ -11868,6 +13048,39 @@ const GeoCache = (function() {
 //   LS key 'map-layers-active' → ["parcels","custom-1729381928"]
 //
 // All methods are defensive: storage failures degrade to in-memory only.
+/**
+ * MapLayers — registry + storage for built-in and custom map layers.
+ *
+ * Built-in layers (neighborhoods, wards, etc.) are statically declared and
+ * sourced from GeoCache. Custom layers are user-created sets of street
+ * addresses that the inspector wants to see colored on the map (e.g. "all
+ * vacancies in this district"). Custom layers are stored in IndexedDB
+ * (database `stlcr-geo-cache`, store `mapLayers`) keyed by a UUID.
+ *
+ * The currently-active layer set lives in localStorage at the profile-scoped
+ * key `map-layers-active` as a JSON array of layer IDs. The map renderer
+ * reads this on each refresh to decide which polygons + custom marker sets
+ * to draw.
+ *
+ * Public API (Promise-returning unless noted):
+ *   list()                       → array — all layers (built-in + custom)
+ *   addCustom({name, color, addresses}) → record — assigns a new UUID
+ *   updateCustom(id, patch)      → record — partial update by id
+ *   deleteCustom(id)             → boolean
+ *   activate(id) / deactivate(id) → void — toggles in `map-layers-active`
+ *   isActive(id)                 → boolean
+ *   getActiveIds()               → array — current active layer IDs
+ *
+ * Profile-scoping: the active-layer SET is profile-scoped (different
+ * profiles can have different active layers). The custom-layer RECORDS
+ * in IndexedDB are NOT profile-scoped (they're keyed by UUID — IDs are
+ * unique across profiles, so blobs from a deleted profile orphan
+ * harmlessly until a future cleanup pass).
+ *
+ * @namespace MapLayers
+ * @see GeoCache — used internally to fetch built-in polygon data
+ * @see refreshRouteMap — primary consumer
+ */
 const MapLayers = (function() {
   var DB_NAME = 'stlcr-geo-cache';
   var DB_VERSION = 2;                    // bumped from 1 to add 'mapLayers' store
@@ -14308,6 +15521,8 @@ function openSettings() {
   } catch(_e) {}
   // Also populate business-card fields since Settings is now the merged modal
   try { _populateBusinessCardFields(); } catch(_e) {}
+  // Drop J: render the profiles management panel each time settings opens
+  try { renderProfilesPanel(); } catch(_e) {}
   // Programmatic population above may have fired 'input' events — clear flag one more time
   _settingsDirty = false;
 }
@@ -14708,6 +15923,30 @@ function saveSheetsWebhook() {
   const raw   = (input?.value || '').trim();
   if (!raw) { showToast('Paste your Apps Script Web App URL first'); return; }
   if (!raw.startsWith('https://')) { showToast('URL must start with https://'); return; }
+  // Drop M: Privacy tripwire on FIRST set. If the user has not previously
+  // configured a webhook URL, show a confirmation that names what data will
+  // be sent. Subsequent edits (changing an already-configured URL) skip the
+  // tripwire — the user has already opted into the integration. The tripwire
+  // protects against accidental paste of a malicious URL into a setup wizard.
+  const prevUrl = LS.get('sheets-webhook-url') || '';
+  if (!prevUrl) {
+    const confirmed = confirm(
+      'Confirm Google Sheets webhook\n\n' +
+      'This URL will receive a copy of every completed stop, including:\n' +
+      '  • Address and GPS coordinates\n' +
+      '  • Times (added, arrived, completed, dwell)\n' +
+      '  • Inspector name\n' +
+      '  • Notes and transactions\n' +
+      '  • Photo filenames (not photo bytes)\n\n' +
+      'Only set this if YOU control the destination.\n\n' +
+      'URL: ' + raw.slice(0, 80) + (raw.length > 80 ? '…' : '') + '\n\n' +
+      'Continue?'
+    );
+    if (!confirmed) {
+      showToast('Webhook NOT saved');
+      return;
+    }
+  }
   LS.set('sheets-webhook-url', raw);
   refreshSheetsWebhookDisplay();
   showToast('Google Sheets webhook saved ✓');
