@@ -13456,6 +13456,29 @@ const MapLayers = (function() {
   // minZoom: lowest zoom level at which the layer fetches data. At lower
   // zoom the polygons would be too dense to be useful and the response
   // would exceed the server's MaxRecordCount=2000 limit anyway.
+  // ── Drop W.1: shared helper for ward label/popup text ─────────────
+  // The wards layer derives its display label from one of several
+  // possible field names depending on the source. labelOptions.getText
+  // (for the on-map permanent label) and popup() (for the tap popup)
+  // both need this logic — extract it here so they stay in sync.
+  //
+  // Field-name precedence:
+  //   1. DISTRICT — city's own data (Drop V inline). String '1'..'14'.
+  //   2. WARD / ward / WARD_NUM / WARD2020 — alternate schemas from
+  //      hypothetical network-fallback data. Defensive.
+  //   3. NAME — last resort, parse digits from a string like 'WARD 1'.
+  //
+  // Returns 'Ward N' on success, or null if no number could be derived.
+  function _wardLabelFromProps(props) {
+    var num = props.DISTRICT || props.WARD || props.ward || props.WARD_NUM || props.WARD2020;
+    if (num != null) return 'Ward ' + num;
+    if (typeof props.NAME === 'string') {
+      var m = props.NAME.match(/(\d+)/);
+      if (m) return 'Ward ' + m[1];
+    }
+    return null;
+  }
+
   var BUILTIN_LAYERS = [
     {
       id: 'stl-parcels',
@@ -13586,35 +13609,25 @@ const MapLayers = (function() {
       // large enough to fit a "Ward N" label even when zoomed to city level).
       labelOptions: {
         getText: function(props) {
-          // City data: DISTRICT='1'..'14', NAME='WARD 1'..'WARD 14'.
-          // Older formats might have WARD or ward. Cover all cases.
-          var num = props.DISTRICT || props.WARD || props.ward || props.WARD_NUM || props.WARD2020;
-          if (num != null) return 'Ward ' + num;
-          // Last resort: parse from NAME like "WARD 1"
-          if (typeof props.NAME === 'string') {
-            var m = props.NAME.match(/(\d+)/);
-            if (m) return 'Ward ' + m[1];
-          }
-          return '';
+          // Drop W.1: delegate to the shared _wardLabelFromProps helper
+          // so the popup and label always agree on what the ward number
+          // is. Returning '' (not null) signals to the renderer that
+          // there's nothing to label for this feature.
+          return _wardLabelFromProps(props) || '';
         },
         minZoom: 0,  // always visible when layer is on
         className: 'boundary-label-ward'
       },
       popup: function(props) {
-        // Drop W bug fix: the city's wards data uses DISTRICT and NAME,
-        // not WARD/ward/WARD_NUM. Try both schemas so this works whether
-        // the data came from the inline city source or a hypothetical
-        // network fallback with different field names.
-        var num = props.DISTRICT || props.WARD || props.ward || props.WARD_NUM || props.WARD2020;
-        var label;
-        if (num != null) {
-          label = 'Ward ' + num;
-        } else if (typeof props.NAME === 'string') {
-          // Parse from "WARD 1" style NAME
-          var m = props.NAME.match(/(\d+)/);
-          label = m ? ('Ward ' + m[1]) : props.NAME;
-        } else {
-          label = '(ward)';
+        // Drop W.1: delegate to _wardLabelFromProps. If that returns
+        // null (no recognized field), fall back to NAME if present
+        // (city data: 'WARD 1') or '(ward)' as a last resort. The
+        // labelOptions.getText path skips features where the helper
+        // returns null entirely, but the popup should still render
+        // something for any tappable polygon — hence the extra fallback.
+        var label = _wardLabelFromProps(props);
+        if (!label) {
+          label = (typeof props.NAME === 'string') ? props.NAME : '(ward)';
         }
         return {
           address: '',
@@ -13846,6 +13859,15 @@ const MapLayerRenderer = (function() {
   function _removeOne(id) {
     var g = _rendered[id];
     if (g && typeof routeMap !== 'undefined' && routeMap) {
+      // Drop W.1: detach the zoomend listener installed by Drop W when
+      // boundary-label layers were rendered. Without this, every
+      // toggle off→on accumulates an orphan handler that walks the
+      // (stale) labelMarkers array on every zoom event. The handler
+      // reference was stashed on the group at render time.
+      if (typeof g._labelVisibilityHandler === 'function') {
+        try { routeMap.off('zoomend', g._labelVisibilityHandler); } catch(_) {}
+        g._labelVisibilityHandler = null;
+      }
       try { routeMap.removeLayer(g); } catch(_) {}
     }
     delete _rendered[id];
@@ -14097,62 +14119,74 @@ const MapLayerRenderer = (function() {
     // ── Drop W: permanent labels for boundary overlays ──────────────────
     // Layers that opt in via layer.labelOptions (currently wards and
     // neighborhoods) get a small bare-text tooltip placed at the visual
-    // center of each polygon. The labels add a separate L.marker per
+    // center of each polygon. The labels use a separate L.marker per
     // feature — a marker because it lets us position the tooltip at an
-    // arbitrary lat/lng (binding directly to the polygon places the
-    // tooltip at Leaflet's polygon-center which can be inside an empty
-    // "donut" gap or outside concave shapes).
+    // arbitrary lat/lng (binding to the polygon places the tooltip at
+    // Leaflet's polygon-center which can fall inside an empty "donut"
+    // gap or outside concave shapes).
+    //
+    // Drop W.1: cleaner zoom-toggle path. Originally we toggled
+    // tooltip._container.style.display on each zoom event, which reaches
+    // into Leaflet's private API. Replaced with bind/unbind via the
+    // public marker.bindTooltip / marker.unbindTooltip API. Slightly
+    // more allocation per zoom event but stays in supported territory.
     if (layer.labelOptions && typeof layer.labelOptions.getText === 'function') {
-      var labelMarkers = [];
+      var labelEntries = [];  // {marker, text, ttOpts} per labeled feature
+      var ttOpts = {
+        permanent: true,
+        direction: 'center',
+        className: layer.labelOptions.className || '',
+        opacity: 1
+      };
       for (var fi = 0; fi < features.length; fi++) {
         var feat = features[fi];
         var fprops = (feat && feat.properties) || {};
+        // Drop W.1 fix #4: check text BEFORE computing center. If
+        // getText returns empty, skip the (cheap but unnecessary)
+        // bbox-and-vertex-mean work entirely.
         var text;
         try { text = layer.labelOptions.getText(fprops); } catch(_) { text = ''; }
         if (!text) continue;
         var center = _featureLabelCenter(feat);
         if (!center) continue;
         // Invisible marker (zero-size icon) just to anchor the tooltip
-        // at the chosen lat/lng. Tooltip uses permanent: true so it
-        // displays without hover.
+        // at the chosen lat/lng.
         var m = L.marker([center.lat, center.lng], {
           icon: L.divIcon({ className: 'boundary-label-anchor', iconSize: [0, 0] }),
           interactive: false,  // taps fall through to polygon underneath
           keyboard: false
         });
-        m.bindTooltip(text, {
-          permanent: true,
-          direction: 'center',
-          className: layer.labelOptions.className || '',
-          opacity: 1
-        });
         group.addLayer(m);
-        labelMarkers.push(m);
+        labelEntries.push({ marker: m, text: text });
       }
 
-      // Min-zoom gating: hide all labels below the configured zoom, show
-      // them at or above. The Leaflet tooltip element lives on the
-      // marker's _tooltip property; toggling its display via CSS is the
-      // simplest approach and avoids re-creating tooltips on every zoom.
+      // Min-zoom gating: bind tooltips on all anchors when zoom is at
+      // or above the configured minZoom; unbind them when below. Using
+      // public API (bindTooltip / unbindTooltip) instead of mutating
+      // tooltip._container.style — survives Leaflet upgrades.
       var minZoom = layer.labelOptions.minZoom || 0;
+      var _labelsCurrentlyShown = null;  // tri-state: null = uninitialized
       function _updateLabelVisibility() {
         var z = routeMap.getZoom();
-        var show = (z >= minZoom);
-        for (var i = 0; i < labelMarkers.length; i++) {
-          var tt = labelMarkers[i].getTooltip();
-          if (tt && tt._container) {
-            tt._container.style.display = show ? '' : 'none';
+        var shouldShow = (z >= minZoom);
+        // Skip the bind/unbind churn if visibility hasn't changed since
+        // the last call. Common case: pan-only or small-zoom-no-cross
+        // events fire zoomend but don't cross the threshold.
+        if (shouldShow === _labelsCurrentlyShown) return;
+        _labelsCurrentlyShown = shouldShow;
+        for (var i = 0; i < labelEntries.length; i++) {
+          var entry = labelEntries[i];
+          if (shouldShow) {
+            entry.marker.bindTooltip(entry.text, ttOpts);
+          } else {
+            entry.marker.unbindTooltip();
           }
         }
       }
-      _updateLabelVisibility();  // initial
-      // Listen for zoom changes; store the handler so we can clean up
-      // when the layer is removed (currently the renderer doesn't
-      // explicitly clean up, but Leaflet's layerGroup.clearLayers()
-      // removes the markers and their tooltips — leaking the listener
-      // is mild but worth tracking for future cleanup).
+      _updateLabelVisibility();  // initial bind
       routeMap.on('zoomend', _updateLabelVisibility);
-      // Stash for potential future cleanup
+      // Stash on the group so _removeOne can detach the listener when
+      // the layer is toggled off (Drop W.1 fix #1).
       group._labelVisibilityHandler = _updateLabelVisibility;
     }
 
