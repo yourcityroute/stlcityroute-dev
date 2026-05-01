@@ -774,10 +774,10 @@ header{
 <!-- PIN MODAL -->
 
 <!-- SETTINGS MODAL -->
-<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
+<div id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
   <div style="background:white;border-radius:var(--radius);padding:20px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,0.4);margin:auto">
     <div class="settings-modal-header">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">⚙️ Settings</div>
+      <div id="settings-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">⚙️ Settings</div>
       <button data-fn="askCloseSettings" class="settings-close-x" aria-label="Close settings" title="Close">✕</button>
     </div>
     <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:14px">Tap any panel to expand. All changes save when you tap Save &amp; Close.</div>
@@ -1262,11 +1262,11 @@ header{
 </div>
 
 <!-- ===== PROFILE IMPORT CONFIRMATION MODAL ===== -->
-<div id="profile-import-modal" class="modal-overlay" style="display:none;z-index:9700" data-backdrop-close data-fn="closeProfileImportModal">
+<div id="profile-import-modal" class="modal-overlay" style="display:none;z-index:9700" role="dialog" aria-modal="true" aria-labelledby="profile-import-modal-title" data-backdrop-close data-fn="closeProfileImportModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📥 Import Profile</div>
+      <div id="profile-import-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📥 Import Profile</div>
       <button data-fn="closeProfileImportModal" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
     </div>
     <div id="profile-import-summary" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#444;background:#f5f5f1;padding:12px 14px;border-radius:9px;margin-bottom:12px;line-height:1.65;white-space:pre-wrap">Reading file…</div>
@@ -1295,11 +1295,11 @@ header{
 </div>
 
 <!-- ===== STOP ARCHIVE VIEWER MODAL ===== -->
-<div id="archive-modal" class="modal-overlay" style="display:none;z-index:9650" data-backdrop-close data-fn="closeArchiveModal">
+<div id="archive-modal" class="modal-overlay" style="display:none;z-index:9650" role="dialog" aria-modal="true" aria-labelledby="archive-modal-title" data-backdrop-close data-fn="closeArchiveModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto;width:100%;max-width:520px">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:0 4px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📦 Stop Archive</div>
+      <div id="archive-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📦 Stop Archive</div>
       <button data-fn="closeArchiveModal" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
     </div>
     <div id="archive-summary" style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:10px;padding:0 4px"></div>
@@ -1311,11 +1311,11 @@ header{
 <!-- A focused, friendly explainer + paste field for users who don't yet have
      an Anthropic API key. Triggered from the "✨ Supercharge with AI" link
      in the stop-count-bar (only visible when no key is set). -->
-<div id="supercharge-modal" class="modal-overlay" style="display:none;z-index:9700" data-backdrop-close data-fn="closeSuperchargeModal">
+<div id="supercharge-modal" class="modal-overlay" style="display:none;z-index:9700" role="dialog" aria-modal="true" aria-labelledby="supercharge-modal-title" data-backdrop-close data-fn="closeSuperchargeModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto;width:100%;max-width:520px">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 4px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
+      <div id="supercharge-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
         <span style="font-size:1.1rem">✨</span>
         <span>Supercharge with AI</span>
       </div>
@@ -1364,11 +1364,11 @@ header{
 <!-- Sends today's stops + completion notes to Claude with a structured prompt
      and renders the response. Triggered from the Info tab tile. Only useful
      when an API key is set; otherwise the tile re-routes to Supercharge. -->
-<div id="debrief-modal" class="modal-overlay" style="display:none;z-index:9650" data-backdrop-close data-fn="closeDebriefModal">
+<div id="debrief-modal" class="modal-overlay" style="display:none;z-index:9650" role="dialog" aria-modal="true" aria-labelledby="debrief-modal-title" data-backdrop-close data-fn="closeDebriefModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto;width:100%;max-width:540px">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 4px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
+      <div id="debrief-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
         <span style="font-size:1.1rem">🌅</span>
         <span>End-of-Day Debrief</span>
       </div>
@@ -1388,11 +1388,11 @@ header{
      Sends question + structured snapshot of stops/archive + schema doc to
      Claude, renders the answer plus a drill-down list of any matching
      stops the AI references by ID. Strict prompt to never invent data. -->
-<div id="ask-data-modal" class="modal-overlay" style="display:none;z-index:9650" data-backdrop-close data-fn="closeAskDataModal">
+<div id="ask-data-modal" class="modal-overlay" style="display:none;z-index:9650" role="dialog" aria-modal="true" aria-labelledby="ask-data-modal-title" data-backdrop-close data-fn="closeAskDataModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto;width:100%;max-width:540px;display:flex;flex-direction:column">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 4px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
+      <div id="ask-data-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--forest);display:flex;align-items:center;gap:6px">
         <span style="font-size:1.1rem">💬</span>
         <span>Ask Your Data</span>
       </div>
@@ -1420,10 +1420,10 @@ header{
 </div>
 
 <!-- DUPLICATE STOP MODAL -->
-<div id="dupe-stop-modal" class="modal-overlay" style="display:none" data-backdrop-close data-fn="closeDupeModal">
+<div id="dupe-stop-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="dupe-stop-modal-title" data-backdrop-close data-fn="closeDupeModal">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
-    <div class="modal-title">⚠️ Already in List</div>
+    <div class="modal-title" id="dupe-stop-modal-title">⚠️ Already in List</div>
     <div id="dupe-stop-addr" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#555;text-align:center;margin-bottom:6px;padding:0 16px"></div>
     <div style="font-size:0.6rem;color:#888;font-family:'Syne',sans-serif;text-align:center;margin-bottom:16px">This address is already on your stop list.</div>
     <div id="dupe-existing-info" style="background:#f8f8f6;border-radius:10px;padding:10px 13px;margin:0 4px 14px;font-size:0.6rem;font-family:'Space Mono',monospace;color:#555;line-height:1.7"></div>
@@ -1441,7 +1441,7 @@ header{
 </div>
 
 <!-- ===== CLOSE STOP MODAL (Complete vs Delete) ===== -->
-<div id="close-stop-modal" class="modal-overlay" data-backdrop-close data-fn="closeCloseModal">
+<div id="close-stop-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="close-stop-addr" data-backdrop-close data-fn="closeCloseModal">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div class="modal-title" id="close-stop-addr">Close Stop</div>
@@ -1493,13 +1493,13 @@ header{
 </div>
 
 <!-- ===== DELETE ALL CONFIRM MODAL ===== -->
-<div id="delete-all-modal" class="modal-overlay" data-backdrop-close>
+<div id="delete-all-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-all-modal-title" data-backdrop-close>
   <div class="modal-sheet" style="padding-bottom:24px">
     <div class="modal-handle"></div>
-    <div class="modal-title">🗑 Delete All Stops?</div>
+    <div class="modal-title" id="delete-all-modal-title">🗑 Delete All Stops?</div>
     <div style="font-size:0.65rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:16px;line-height:1.7">This will permanently remove ALL stops from the app.<br>Completed stops will also be removed.<br>This cannot be undone.</div>
     <div style="display:flex;gap:8px">
-      <button onclick="document.getElementById('delete-all-modal').style.display='none'" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:none;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
+      <button onclick="closeDeleteAllModal()" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:none;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
       <button data-fn="confirmDeleteAll" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--danger);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer">YES, DELETE ALL</button>
     </div>
   </div>
@@ -1517,10 +1517,10 @@ header{
 </div>
 
 <!-- ===== SPREADSHEET UPLOAD MODAL ===== -->
-<div id="spreadsheet-modal" class="modal-overlay" data-backdrop-close data-fn="closeSpreadsheetModal">
+<div id="spreadsheet-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="spreadsheet-modal-title" data-backdrop-close data-fn="closeSpreadsheetModal">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
-    <div class="modal-title">📊 Bulk Upload Addresses</div>
+    <div class="modal-title" id="spreadsheet-modal-title">📊 Bulk Upload Addresses</div>
     <div style="font-size:0.6rem;color:#666;font-family:'Space Mono',monospace;margin-bottom:12px;line-height:1.7">
       Upload a CSV or Excel (.xlsx) file.<br>
       The app will look for a column named <strong>address</strong>, <strong>Address</strong>, or <strong>Street</strong>.<br>
@@ -1551,14 +1551,14 @@ header{
 </div>
 
 <!-- ===== CSB NAVIGATOR MODAL ===== -->
-<div id="csb-nav-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9200;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="csb-nav-modal" role="dialog" aria-modal="true" aria-labelledby="csb-nav-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9200;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="background:white;border-radius:16px 16px 0 0;padding:0 0 32px;max-width:480px;margin:40px auto 0;min-height:calc(100vh - 40px);box-shadow:0 -4px 30px rgba(0,0,0,0.3);display:flex;flex-direction:column">
 
     <!-- Sticky header -->
     <div style="position:sticky;top:0;background:white;border-radius:16px 16px 0 0;padding:16px 18px 12px;border-bottom:1px solid #f0f0f0;z-index:10;flex-shrink:0">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📞 Citizens Service Bureau</div>
+          <div id="csb-nav-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📞 Citizens Service Bureau</div>
           <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-top:1px">311 · St. Louis City · csb@stlouis-mo.gov</div>
         </div>
         <button data-fn="closeCsbNav" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888;padding:4px;line-height:1">✕</button>
@@ -1594,7 +1594,7 @@ header{
 <!-- Keep legacy outcome modal as hidden stub so any residual calls don't throw -->
 
 <!-- PWA/GPS install prompt (shows only on file:// protocol) -->
-<div id="pwa-prompt" style="display:none;background:linear-gradient(135deg,#1a4a8c,#2980b9);padding:7px 14px;display:none;align-items:center;gap:10px;cursor:pointer" onclick="document.getElementById('gps-help-modal').style.display='flex';document.getElementById('pwa-prompt').style.display='none'">
+<div id="pwa-prompt" style="display:none;background:linear-gradient(135deg,#1a4a8c,#2980b9);padding:7px 14px;display:none;align-items:center;gap:10px;cursor:pointer" onclick="showGPSHelp();document.getElementById('pwa-prompt').style.display='none'">
   <span style="font-size:0.9rem">📱</span>
   <div style="flex:1">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:white">ADD TO HOME SCREEN for GPS</div>
@@ -1735,7 +1735,7 @@ header{
     <span class="section-title">Stops</span>
     <div style="display:flex;align-items:center;gap:7px">
       <span class="badge-count" id="stop-count">0</span>
-      <button onclick="document.getElementById('delete-all-modal').style.display='flex'" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 ALL</button>
+      <button onclick="openDeleteAllModal()" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 ALL</button>
     </div>
   </div>
   <div id="stops-list">
@@ -2005,7 +2005,7 @@ header{
 <!-- creds-customize-modal removed — content merged into #settings-modal -->
 
 <!-- ── TEXT EDITOR MODAL (shared for all editable panels) ── -->
-<div id="text-editor-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;overflow-y:auto;padding:16px">
+<div id="text-editor-modal" role="dialog" aria-modal="true" aria-labelledby="text-editor-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;overflow-y:auto;padding:16px">
   <div style="background:white;border-radius:16px;padding:20px;max-width:460px;margin:0 auto">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:var(--forest);margin-bottom:4px" id="text-editor-title">Edit Content</div>
     <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:10px" id="text-editor-sub"></div>
@@ -2019,9 +2019,9 @@ header{
 </div>
 
 <!-- ── DOCS UPLOADER MODAL ── -->
-<div id="docs-upload-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;padding:16px;overflow-y:auto">
+<div id="docs-upload-modal" role="dialog" aria-modal="true" aria-labelledby="docs-upload-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9800;padding:16px;overflow-y:auto">
   <div style="background:white;border-radius:16px;padding:20px;max-width:460px;margin:0 auto">
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:var(--forest);margin-bottom:4px">📄 Reference Documents</div>
+    <div id="docs-upload-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:var(--forest);margin-bottom:4px">📄 Reference Documents</div>
     <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:12px">Upload images to keep as scrollable reference thumbnails.</div>
     <div style="display:flex;gap:7px;margin-bottom:10px">
       <button onclick="document.getElementById('docs-file-input').click()" style="flex:1;padding:9px;border:1.5px solid var(--leaf);border-radius:9px;background:var(--sky);color:var(--moss);font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">📷 ADD IMAGE</button>
@@ -2480,7 +2480,7 @@ header{
 </div>
 
 <!-- STOP NOTES MODAL -->
-<div id="stop-notes-modal" class="modal-overlay" style="z-index:9996" data-backdrop-close data-fn="closeNotesModal">
+<div id="stop-notes-modal" class="modal-overlay" style="z-index:9996" role="dialog" aria-modal="true" aria-labelledby="stop-notes-addr" data-backdrop-close data-fn="closeNotesModal">
   <div class="modal-sheet" style="padding-bottom:28px;background:white;min-height:200px">
     <div class="modal-handle"></div>
     <div class="modal-title" id="stop-notes-addr" style="color:#0d2b6b">Notes</div>
@@ -2492,17 +2492,17 @@ header{
 </div>
 
 <!-- DATA EXPORT MODAL -->
-<div id="data-export-modal" class="modal-overlay" data-backdrop-close style="display:none">
+<div id="data-export-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="data-export-modal-title" data-backdrop-close style="display:none">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
-    <div class="modal-title">📤 Export Data</div>
+    <div class="modal-title" id="data-export-modal-title">📤 Export Data</div>
     <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:16px">Choose format and delivery method</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:white;letter-spacing:0.5px;margin-bottom:2px">DOWNLOAD</div>
-      <button onclick="_beacon('export',{format:'csv'});exportDataCSV();this.closest('.modal-overlay').style.display='none'" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
+      <button onclick="_beacon('export',{format:'csv'});exportDataCSV();closeDataExportModal()" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
         📊 CSV Spreadsheet<br><span style="font-size:0.55rem;font-weight:400;color:#888">All stops, dates, types, notes, duration — opens in Excel / Google Sheets</span>
       </button>
-      <button onclick="_beacon('export',{format:'text'});exportDataText();this.closest('.modal-overlay').style.display='none'" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
+      <button onclick="_beacon('export',{format:'text'});exportDataText();closeDataExportModal()" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
         📄 Text Summary<br><span style="font-size:0.55rem;font-weight:400;color:#888">Field worker, manager, and geographic sections — good for email</span>
       </button>
       <button onclick="_beacon('export',{format:'sheets'});pushToGoogleSheets()" style="padding:12px;border-radius:10px;border:1.5px solid rgba(16,163,74,0.4);background:rgba(16,163,74,0.06);font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;color:#0a7a38;cursor:pointer;text-align:left">
@@ -2510,10 +2510,10 @@ header{
       </button>
       <div style="height:1px;background:#eee;margin:4px 0"></div>
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:var(--forest);letter-spacing:0.5px;margin-bottom:2px">DELIVERY</div>
-      <button onclick="shareDataNative();this.closest('.modal-overlay').style.display='none'" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
+      <button onclick="shareDataNative();closeDataExportModal()" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
         📱 Share (Email / Text / AirDrop)<br><span style="font-size:0.55rem;font-weight:400;color:#888">Opens system share sheet</span>
       </button>
-      <button onclick="copyDataToClipboard();this.closest('.modal-overlay').style.display='none'" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
+      <button onclick="copyDataToClipboard();closeDataExportModal()" style="padding:12px;border-radius:10px;border:1.5px solid #ddd;background:#f9f9f9;font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;cursor:pointer;text-align:left">
         📋 Copy to Clipboard<br><span style="font-size:0.55rem;font-weight:400;color:#888">Paste into any app</span>
       </button>
     </div>
@@ -2528,10 +2528,10 @@ header{
 
 <!-- UNDO DELETE BAR -->
 <!-- GPS HELP MODAL -->
-<div id="gps-help-modal" class="modal-overlay" data-backdrop-close style="display:none">
+<div id="gps-help-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="gps-help-modal-title" data-backdrop-close style="display:none">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
-    <div class="modal-title">📡 Location Unavailable</div>
+    <div class="modal-title" id="gps-help-modal-title">📡 Location Unavailable</div>
     <div style="font-size:0.63rem;color:#666;font-family:'Space Mono',monospace;line-height:1.8;margin-bottom:14px">
       GPS requires either HTTPS or being saved as a PWA. Here are your options:
     </div>
@@ -2574,12 +2574,12 @@ header{
       </div>
     </div>
 
-    <button onclick="document.getElementById('gps-help-modal').style.display='none'" style="width:100%;padding:11px;border:none;border-radius:10px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer">GOT IT</button>
+    <button onclick="closeGPSHelp()" style="width:100%;padding:11px;border:none;border-radius:10px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;cursor:pointer">GOT IT</button>
   </div>
 </div>
 
 <!-- SCAN SOURCE MODAL -->
-<div id="scan-source-modal" class="modal-overlay" data-backdrop-close style="display:none">
+<div id="scan-source-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="scan-modal-title" data-backdrop-close style="display:none">
   <div class="modal-sheet" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div class="modal-title" id="scan-modal-title">📷 Import Addresses</div>
@@ -2588,21 +2588,21 @@ header{
 </div>
 
 <!-- SCAN GUIDE MODAL — platform-specific instructions when no AI/TextDetector available -->
-<div id="scan-guide-modal" class="modal-overlay" data-backdrop-close style="display:none">
+<div id="scan-guide-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="scan-guide-modal-title" data-backdrop-close style="display:none">
   <div class="modal-sheet" style="padding-bottom:28px;max-height:85vh;overflow-y:auto">
     <div class="modal-handle"></div>
-    <div class="modal-title">📋 How to Import Addresses</div>
+    <div class="modal-title" id="scan-guide-modal-title">📋 How to Import Addresses</div>
     <div id="scan-guide-content" style="font-size:0.63rem;font-family:'Space Mono',monospace;color:#444;line-height:1.9"></div>
-    <button onclick="document.getElementById('scan-guide-modal').style.display='none';openPastePanel()" style="width:100%;margin-top:14px;padding:14px;border-radius:12px;border:none;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer">📋 OPEN PASTE PANEL<br><span style="font-size:0.6rem;font-weight:400;opacity:0.7">Paste the copied text here</span></button>
-    <button onclick="document.getElementById('scan-guide-modal').style.display='none'" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1.5px solid #ddd;background:none;color:#888;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
+    <button onclick="closeScanGuide();openPastePanel()" style="width:100%;margin-top:14px;padding:14px;border-radius:12px;border:none;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;cursor:pointer">📋 OPEN PASTE PANEL<br><span style="font-size:0.6rem;font-weight:400;opacity:0.7">Paste the copied text here</span></button>
+    <button onclick="closeScanGuide()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1.5px solid #ddd;background:none;color:#888;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
   </div>
 </div>
 
 <!-- STOP TYPE CHANGE MODAL -->
-<div id="type-change-modal" class="modal-overlay" data-backdrop-close data-fn="closeTypeChange">
+<div id="type-change-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="type-change-modal-title" data-backdrop-close data-fn="closeTypeChange">
   <div class="modal-sheet" style="padding-bottom:24px">
     <div class="modal-handle"></div>
-    <div class="modal-title">Change Stop Type</div>
+    <div class="modal-title" id="type-change-modal-title">Change Stop Type</div>
     <div class="modal-addr" id="type-change-addr">—</div>
     <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px">
       <button data-fn="setStopType" data-arg="service_request" class="type-change-btn" id="tcb-service_request" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:#fde8e8;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer;text-align:left">📋 Service Request<br><span style="font-size:0.58rem;font-weight:400;color:#888">Citizen-reported issue from 311</span></button>
@@ -2615,11 +2615,11 @@ header{
 </div>
 
 <!-- PAYMENT MODAL -->
-<div id="payment-modal" class="modal-overlay" style="display:none;z-index:9998" data-backdrop-close data-fn="closePaymentModal">
+<div id="payment-modal" class="modal-overlay" style="display:none;z-index:9998" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title" data-backdrop-close data-fn="closePaymentModal">
   <div class="modal-sheet" style="padding-bottom:30px;background:white">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1b5e20">💰 Record Payment</div>
+      <div id="payment-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1b5e20">💰 Record Payment</div>
       <button data-fn="openPaymentSettings" style="background:#f0f4f0;border:1px solid #bcd6bf;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#1b5e20;cursor:pointer">⚙ Apps</button>
     </div>
     <div id="pay-modal-stop-label" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:#666;margin-bottom:10px">—</div>
@@ -2765,9 +2765,9 @@ header{
         <button data-fn="_setAnnotTool" data-arg="text"    id="annot-tool-text"    class="annot-tool-btn" title="Text">T</button>
         <button data-fn="_setAnnotTool" data-arg="redact"  id="annot-tool-redact"  class="annot-tool-btn" title="Redact (black bar)">▮</button>
         <span style="flex:1"></span>
-        <button data-fn="_setAnnotColor" data-arg="#dc2626" id="annot-color-red"   class="annot-color-btn annot-color-active" style="background:#dc2626" title="Red"></button>
-        <button data-fn="_setAnnotColor" data-arg="#f5c518" id="annot-color-yellow" class="annot-color-btn" style="background:#f5c518" title="Yellow"></button>
-        <button data-fn="_setAnnotColor" data-arg="#000000" id="annot-color-black"  class="annot-color-btn" style="background:#000" title="Black"></button>
+        <button data-fn="_setAnnotColor" data-arg="#dc2626" id="annot-color-red"   class="annot-color-btn annot-color-active" style="background:#dc2626" title="Red" aria-label="Red"></button>
+        <button data-fn="_setAnnotColor" data-arg="#f5c518" id="annot-color-yellow" class="annot-color-btn" style="background:#f5c518" title="Yellow" aria-label="Yellow"></button>
+        <button data-fn="_setAnnotColor" data-arg="#000000" id="annot-color-black"  class="annot-color-btn" style="background:#000" title="Black" aria-label="Black"></button>
       </div>
       <!-- Action row -->
       <div style="display:flex;gap:5px">
@@ -2853,10 +2853,10 @@ header{
 </div>
 
 <!-- EDIT STOP MODAL — address / type / notes all-in-one -->
-<div id="edit-stop-modal" class="modal-overlay" style="display:none;z-index:10002" data-backdrop-close data-fn="closeEditStop">
+<div id="edit-stop-modal" class="modal-overlay" style="display:none;z-index:10002" role="dialog" aria-modal="true" aria-labelledby="edit-stop-modal-title" data-backdrop-close data-fn="closeEditStop">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:90dvh;overflow-y:auto">
     <div class="modal-handle"></div>
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:4px">✎ Edit Stop</div>
+    <div id="edit-stop-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:4px">✎ Edit Stop</div>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Change the address, stop type, or initial notes on this stop.</div>
 
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Address</label>
@@ -2906,10 +2906,10 @@ header{
 </div>
 
 <!-- CUSTOM STOP TYPE CREATOR MODAL -->
-<div id="custom-type-modal" class="modal-overlay" style="display:none;z-index:10002" data-backdrop-close data-fn="closeCustomTypeModal">
+<div id="custom-type-modal" class="modal-overlay" style="display:none;z-index:10002" role="dialog" aria-modal="true" aria-labelledby="custom-type-modal-title" data-backdrop-close data-fn="closeCustomTypeModal">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:90dvh;overflow-y:auto">
     <div class="modal-handle"></div>
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:4px">＋ Create Custom Stop Type</div>
+    <div id="custom-type-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:4px">＋ Create Custom Stop Type</div>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Add a custom category to the stop type dropdown. Delete or edit any time from Settings.</div>
 
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Label (full name)</label>
@@ -2937,6 +2937,121 @@ header{
 <script>
 'use strict';
 
+// ============================================================================
+// TABLE OF CONTENTS — script2 navigation index
+// ============================================================================
+//
+// Line numbers below are RELATIVE TO THIS SCRIPT (script2 starts at line 1 here),
+// not relative to index.html. Use these to grep or jump within script2 only.
+//
+// Symbols:
+//   §  major section (boxed === header in source)
+//   ·  module / sub-section (single-dash header in source)
+//
+// Maintenance: when adding a new boxed-=== or named-module header, add a row
+// here too. A future test may enforce TOC <-> source consistency; for now this
+// is hand-maintained. See System Doc §2.1 for the IIFE-module convention that
+// determines whether a new feature warrants a TOC entry.
+//
+// §  L  121  APP CONSTANTS — all in one place
+// ·  L  217  Session-scoped AI usage counter
+// §  L  299  CORE UTILITIES
+// ·  L  306  Namespaced storage facade (LS prefix: stlcr:)
+// ·  L  314  fetchWithTimeout: AbortSignal-free network timeout
+// §  L  350  _tryLog — observable swallowed-error helper
+// §  L  399  _newClientId — collision-resistant string ID generator
+// §  L  425  Accessibility — modal focus management + Escape-to-close
+// §  L  427  PROFILES — state + storage (Drop I, Phase 1)
+// ·  L  829  Profile Backup & Restore
+// ·  L 1447  Fiscal-Day Stop Archive (StopArchive — IDB-backed)
+// §  L 1681  PROFILES — management UI handlers (Drop J)
+// ·  L 1896  Profile export / import UI handlers
+// §  L 2081  RESET — wipe everything, run setup wizard on next launch
+// §  L 2102  DIAGNOSTICS — Settings panel viewer for _swallowedLog ring buffer
+// ·  L 2235  Custom Stop Types
+// ·  L 2344  Custom Type Creator Modal
+// §  L 2625  CORE UTILITIES (recovered)
+// §  L 2635  DATE HELPERS
+// ·  L 2667  Caseload stubs (feature removed — kept for back-compat)
+// §  L 2675  STATE — top-level let variables (stops, route, origin, etc.)
+// §  L 2782  INIT — DOMContentLoaded entry point
+// ·  L 2807  Global delegated handler for data-fn dispatch
+// ·  L 2899  One-time data migrations
+// §  L 3166  STOPS
+// ·  L 3228  ADDRESS INPUT — structured number + street + suffix (Nominatim)
+// ·  L 3648  Related-stops detection
+// §  L 3793  CLOSE STOP MODAL (Complete vs Delete)
+// ·  L 4005  Stop Notes
+// ·  L 4034  Clock In / Out
+// §  L 4294  DELETE ALL
+// §  L 4312  SPREADSHEET / CSV UPLOAD
+// §  L 4474  CSB NAVIGATOR (header)
+// §  L 4477  CSB NAVIGATOR — confirmed STL CSB URLs + two-tap clipboard flow
+// ·  L 4785  CSB clipboard payload builder
+// §  L 4950  STOP TYPE CHANGE
+// ·  L 4986  Edit Stop (address / type / notes)
+// §  L 5308  ROUTE OPTIMIZATION
+// ·  L 5331  Drop Y: barrier-aware distance
+// ·  L 5501  Nearby-cluster detection
+// §  L 5700  PIN START STOP
+// §  L 5768  END LOCATION — retired in Drop X.2 (kept for back-compat)
+// ·  L 5964  Optimizer Step 1: resolve starting origin
+// ·  L 5992  Optimizer Step 2: geocode stops missing coordinates
+// ·  L 6165  Optimizer Step 3: sort stops (greedy / balanced / multi-start)
+// ·  L 6342  Optimizer orchestrator: UI state + calls the three steps
+// ·  L 6415  Drive time estimate
+// §  L 6746  GPS LOCATION FUNCTIONS
+// §  L 6876  VISUAL MAP — Leaflet markers + interactive popups (route tab)
+// §  L 7091  showStopOnMap — switch to map tab and pan to a stop
+// ·  L 7197  Analytics utilities
+// ·  L 7492  Advertise modal
+// ·  L 7509  Misc City Contacts & Resources modal
+// ·  L 7528  Detect device capabilities for scan routing
+// §  L 7763  PHOTO SCAN — Anthropic vision (primary) or TextDetector (fallback)
+// ·  L 7850  Image preprocessing for Anthropic API
+// ·  L 7966  Scan pipeline A: Anthropic vision API
+// ·  L 8003  Scan pipeline B: on-device TextDetector (Android Chrome)
+// ·  L 8016  Scan orchestrator: choose pipeline, manage UI state
+// ·  L 8239  Voice dictation for stop notes (with optional AI cleanup)
+// §  L 8553  VISUAL MAP — additional rendering (map tab)
+// §  L 8627  SETTINGS — open/close, display
+// §  L 8744  PAYMENT SYSTEM
+// §  L 9113  PHOTO STAMPING — native camera handoff + configurable canvas stamp
+// ·  L 9289  Photostamp drift detection
+// ·  L 9840  Photo Annotation + Redaction
+// ·  L 10481  PhotoCache module (IDB-backed, smart eviction, v2 schema)
+// ·  L 11031  Universal image-capture helpers
+// ·  L 11173  GeoCache module (cached neighborhood + ward polygons)
+// ·  L 11253  Drop V: inline neighborhoods + wards GeoJSON (city-authoritative)
+// ·  L 11477  MapLayers module (registry + storage for togglable overlays)
+// ·  L 11860  MapLayerRenderer (draws active layers onto routeMap)
+// §  L 12195  Map Layers UI — toggle panel + custom-layer creator
+// ·  L 13004  Photo log (metadata only, no photo bytes)
+// ·  L 13794  Fiscal-day cutoff + archive UI handlers
+// §  L 13927  SETTINGS MODAL — dirty tracking, forced-collapse, save prompt
+// ·  L 14462  Supercharge with AI modal handlers
+// ·  L 14512  End-of-Day Debrief (Phase 4b)
+// ·  L 14713  Ask Your Data — Conversational stop-data inquiry (Phase 4b)
+// §  L 15107  INSPECTOR ID
+// §  L 15112  SHARE APP LINK / CLIPBOARD
+// §  L 15147  INFO TAB — STATIC DATA
+// §  L 15887  INFO / CREDENTIALS TAB
+// ·  L 15936  Customize Modal
+// ·  L 16145  Text Editor Modal
+// ·  L 16177  Reference Docs
+// ·  L 16301  Rotate the stored ID photo
+// ·  L 16352  showFullscreen view renderers
+// ·  L 16766  Data tab: Settings load/save
+// ·  L 16774  Data tab: Metrics log (per-day session entries)
+// ·  L 16814  Data tab: Core metrics computation
+// ·  L 16902  Data tab: New rich metrics
+// ·  L 17001  Data tab: Render
+// ·  L 17435  Data tab: Export to CSV
+// ·  L 17440  Data tab: Google Sheets push
+// ·  L 17782  Data tab: Share text summary
+// ·  L 17863  Data tab: Init (schedule auto-send on app load)
+//
+// ============================================================================
 
 // ============================================================
 // APP CONSTANTS — all in one place
@@ -3241,6 +3356,187 @@ function _newClientId(prefix) {
   return p + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
 }
 window._newClientId = _newClientId;
+
+// ============================================================
+// Accessibility — modal focus management + Escape-to-close
+// ============================================================
+// Centralizes the keyboard- and screen-reader-friendly behavior
+// every modal in the app should have:
+//
+//   1. Move focus into the modal when it opens (so a screen reader
+//      announces the dialog and a keyboard user can interact with it).
+//   2. Remember what was focused *before* the modal opened, and
+//      restore that focus when the modal closes (so Tab order picks
+//      up where the user left off).
+//   3. Close the top-most modal on Escape.
+//
+// Modals stack: opening modal B over modal A pushes B onto the stack;
+// closing B pops it and restores focus to whatever was focused inside
+// A at the moment B opened. The Escape listener is a single
+// document-level handler that lives only while the stack is non-empty.
+//
+// What this module does NOT do (intentionally — keeps the surface small):
+//   - Focus trapping (cycling Tab inside the modal). The stop-gap is
+//     that most modals here are small enough that "Tab leaks to the
+//     background" is recoverable; aria-modal="true" + dialog markup
+//     still tells the screen reader about the dialog. Add a focus
+//     trap if a modal grows large enough that Tab leakage is harmful.
+//   - Calling display:none / display:flex on the modal element.
+//     The existing openers do that themselves. This module only
+//     handles focus + Escape.
+//
+// Usage from a modal opener:
+//   function openSuperchargeModal() {
+//     var modal = document.getElementById('supercharge-modal');
+//     modal.style.display = 'flex';
+//     Accessibility.modalOpened(modal, {
+//       initialFocus: '#supercharge-key-input',  // optional
+//       onEscape: closeSuperchargeModal           // optional; defaults to no-op
+//     });
+//   }
+//   function closeSuperchargeModal() {
+//     var modal = document.getElementById('supercharge-modal');
+//     modal.style.display = 'none';
+//     Accessibility.modalClosed(modal);
+//   }
+//
+// If onEscape is omitted, Escape just removes the modal from the
+// stack and restores focus, but does NOT hide the modal — the caller
+// is expected to wire Escape to its own close function via onEscape.
+
+const Accessibility = (function() {
+  // Stack of {modal, prevFocus, onEscape}
+  var _stack = [];
+  // The single document-level Escape listener (installed when stack is
+  // non-empty, removed when stack drains).
+  var _escListener = null;
+
+  var FOCUSABLE_SELECTOR = [
+    'button:not([disabled])',
+    '[href]',
+    'input:not([disabled]):not([type="hidden"])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',');
+
+  function _firstFocusable(modal) {
+    if (!modal || !modal.querySelector) return null;
+    try {
+      // Skip elements that are themselves not visible (display:none
+      // ancestors). We can't perfectly detect this, but offsetParent
+      // is null for display:none elements, so use that as a coarse
+      // filter.
+      var candidates = modal.querySelectorAll(FOCUSABLE_SELECTOR);
+      for (var i = 0; i < candidates.length; i++) {
+        var el = candidates[i];
+        if (el.offsetParent !== null || el === document.activeElement) {
+          return el;
+        }
+      }
+    } catch(_) {}
+    return null;
+  }
+
+  function _resolveInitialFocus(modal, initialFocus) {
+    if (!initialFocus) return _firstFocusable(modal);
+    if (typeof initialFocus === 'string') {
+      try {
+        // Selector is rooted in the document, not the modal, because
+        // some callers pass a global ID like '#supercharge-key-input'.
+        return document.querySelector(initialFocus) || _firstFocusable(modal);
+      } catch(_) {
+        return _firstFocusable(modal);
+      }
+    }
+    if (initialFocus && typeof initialFocus.focus === 'function') {
+      return initialFocus;
+    }
+    return _firstFocusable(modal);
+  }
+
+  function _installEscListener() {
+    if (_escListener) return;
+    _escListener = function(e) {
+      if (e.key !== 'Escape') return;
+      if (_stack.length === 0) return;
+      var top = _stack[_stack.length - 1];
+      if (top && typeof top.onEscape === 'function') {
+        try { top.onEscape(); } catch(_) {}
+      }
+    };
+    try { document.addEventListener('keydown', _escListener); } catch(_) {}
+  }
+
+  function _removeEscListener() {
+    if (!_escListener) return;
+    try { document.removeEventListener('keydown', _escListener); } catch(_) {}
+    _escListener = null;
+  }
+
+  // Public: call right after the modal element is displayed.
+  // options: { initialFocus, onEscape }
+  function modalOpened(modal, options) {
+    if (!modal) return;
+    options = options || {};
+    var prev = null;
+    try { prev = document.activeElement; } catch(_) {}
+    _stack.push({
+      modal: modal,
+      prevFocus: prev,
+      onEscape: options.onEscape || null
+    });
+    _installEscListener();
+
+    // Defer focus by one tick so any modal-show animation/layout
+    // settles first. This matches the pattern existing openers used
+    // (setTimeout 200ms before .focus()), but we use 0ms because the
+    // existing display:flex change is synchronous; the 200ms was
+    // historically over-cautious.
+    var target = _resolveInitialFocus(modal, options.initialFocus);
+    if (target) {
+      setTimeout(function() {
+        try { target.focus(); } catch(_) {}
+      }, 0);
+    }
+  }
+
+  // Public: call right after the modal element is hidden.
+  function modalClosed(modal) {
+    if (!modal) return;
+    // Pop the top entry whose modal matches (defensively — usually
+    // it's the literal top, but a caller could close out-of-order).
+    var idx = -1;
+    for (var i = _stack.length - 1; i >= 0; i--) {
+      if (_stack[i].modal === modal) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var entry = _stack.splice(idx, 1)[0];
+
+    if (_stack.length === 0) _removeEscListener();
+
+    // Restore focus to whatever was focused before this modal opened.
+    if (entry && entry.prevFocus && typeof entry.prevFocus.focus === 'function') {
+      // Defer one tick so the close animation/layout settles.
+      setTimeout(function() {
+        try { entry.prevFocus.focus(); } catch(_) {}
+      }, 0);
+    }
+  }
+
+  // Public: utility to read the current stack depth (for diagnostics
+  // and tests).
+  function _stackDepth() {
+    return _stack.length;
+  }
+
+  return {
+    modalOpened: modalOpened,
+    modalClosed: modalClosed,
+    _stackDepth: _stackDepth
+  };
+})();
+window.Accessibility = Accessibility;
 
 const LS_PREFIX = 'stlcr:';
 
@@ -4762,7 +5058,9 @@ function onProfileImportFile(evt) {
     var asNewBtn   = document.getElementById('profile-import-asnew-btn');
     var mergeBtn   = document.getElementById('profile-import-merge-btn');
     var mergePrev  = document.getElementById('profile-import-merge-preview');
-    document.getElementById('profile-import-modal').style.display = 'flex';
+    var importModal = document.getElementById('profile-import-modal');
+    importModal.style.display = 'flex';
+    Accessibility.modalOpened(importModal, { onEscape: closeProfileImportModal });
 
     function disable(btn) { if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; } }
     function enable(btn)  { if (btn) { btn.disabled = false; btn.style.opacity = '1'; } }
@@ -4807,11 +5105,13 @@ function onProfileImportFile(evt) {
 }
 
 function closeProfileImportModal() {
-  document.getElementById('profile-import-modal').style.display = 'none';
+  var modal = document.getElementById('profile-import-modal');
+  modal.style.display = 'none';
   _pendingImportBlob = null;
   // Reset preview state so the modal opens fresh next time
   var mergePrev = document.getElementById('profile-import-merge-preview');
   if (mergePrev) { mergePrev.textContent = ''; mergePrev.style.display = 'none'; }
+  Accessibility.modalClosed(modal);
 }
 
 // Drop K: Import as new profile — creates an isolated profile and switches.
@@ -5180,11 +5480,17 @@ function openCustomTypeModal(returnSelectId) {
   if (emEl)    emEl.value    = '';
   if (colorEl) colorEl.value = CUSTOM_TYPE_COLORS[0];
   renderCustomTypeColors();
-  document.getElementById('custom-type-modal').style.display = 'flex';
-  setTimeout(function(){ if (labelEl) labelEl.focus(); }, 120);
+  var modal = document.getElementById('custom-type-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#custom-type-label',
+    onEscape: closeCustomTypeModal
+  });
 }
 function closeCustomTypeModal() {
-  document.getElementById('custom-type-modal').style.display = 'none';
+  var modal = document.getElementById('custom-type-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 function renderCustomTypeColors() {
   var wrap = document.getElementById('custom-type-color-swatches');
@@ -5931,6 +6237,23 @@ function _initBody() {
     try { if (LS.get(k)) LS.remove(k); } catch(e) {}
   });
 
+  // Scrub retired built-in layer IDs from map-layers-active so they don't
+  // sit there forever as orphans. The renderer already ignores unknown IDs;
+  // this is just hygiene. Safe no-op if the key is absent or malformed.
+  try {
+    var _mlaRaw = LS.get('map-layers-active');
+    if (_mlaRaw) {
+      var _mla = JSON.parse(_mlaRaw);
+      if (Array.isArray(_mla)) {
+        var _retired = { 'stl-parcels': 1, 'stl-lra': 1 };
+        var _filtered = _mla.filter(function(id) { return !_retired[id]; });
+        if (_filtered.length !== _mla.length) {
+          LS.set('map-layers-active', JSON.stringify(_filtered));
+        }
+      }
+    }
+  } catch(_) {}
+
   // Drop X.2: sync the new Route Algorithm panel's radio inputs to the
   // current persisted prefs. Done after DOM ready so document.querySelector
   // can find the inputs.
@@ -5981,13 +6304,17 @@ function showDupeModal(addr, existing, newStop) {
     `Type: ${typeLabel(existing.type)}<br>` +
     (existing.notes ? `Notes: ${escHtml(existing.notes)}<br>` : '') +
     `Added: ${new Date(existing.addedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
-  document.getElementById('dupe-stop-modal').style.display = 'flex';
+  var modal = document.getElementById('dupe-stop-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeDupeModal });
 }
 
 function closeDupeModal() {
-  document.getElementById('dupe-stop-modal').style.display = 'none';
+  var modal = document.getElementById('dupe-stop-modal');
+  modal.style.display = 'none';
   _pendingDupeStop = null;
   _pendingDupeExisting = null;
+  Accessibility.modalClosed(modal);
 }
 
 function dupeAction(choice) {
@@ -6078,8 +6405,8 @@ async function _fetchNominatimHouses(raw, signal) {
       // fetchAddrSuggestions for debounce-cancellation when the user keeps
       // typing. Using fetchWithTimeout would lose that cancel contract, since
       // the helper doesn't accept a signal. Known carve-out — environments
-      // that proxy fetch via postMessage may still see DataCloneError here,
-      // but that surface is the typeahead, not the parcels/LRA layers.
+      // that proxy fetch via postMessage may still see DataCloneError on
+      // the typeahead surface; address suggestions degrade silently.
       const r = await fetch(base + view + '&q=' + encodeURIComponent(raw + ', St. Louis City, MO'),
         { headers: {'User-Agent':'STLCityRoute/1.0'}, signal });
       const data = await r.json();
@@ -6630,7 +6957,9 @@ function openCloseModal(id) {
     }
   }
 
-  document.getElementById('close-stop-modal').style.display = 'flex';
+  var closeStopModal = document.getElementById('close-stop-modal');
+  closeStopModal.style.display = 'flex';
+  Accessibility.modalOpened(closeStopModal, { onEscape: closeCloseModal });
 
   // Show "Email Summary + photos attached" only if (a) device supports file
   // sharing AND (b) PhotoCache has at least one entry for this stop. The
@@ -6677,9 +7006,11 @@ function _renderCloseModalElapsed() {
 }
 
 function closeCloseModal() {
-  document.getElementById('close-stop-modal').style.display = 'none';
+  var modal = document.getElementById('close-stop-modal');
+  modal.style.display = 'none';
   _closeStopId = null;
   if (_closeModalTimer) { clearInterval(_closeModalTimer); _closeModalTimer = null; }
+  Accessibility.modalClosed(modal);
 }
 
 function markStopArrived(stopId) {
@@ -6818,11 +7149,18 @@ function openNotesModal(id) {
     // Idempotent: only attaches once across modal opens.
     try { if (typeof _attachVoiceMic === 'function') _attachVoiceMic(notesEl); } catch(_) {}
   }
-  document.getElementById('stop-notes-modal').style.display = 'flex';
+  var modal = document.getElementById('stop-notes-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#stop-notes-textarea',
+    onEscape: closeNotesModal
+  });
 }
 function closeNotesModal() {
-  document.getElementById('stop-notes-modal').style.display = 'none';
+  var modal = document.getElementById('stop-notes-modal');
+  modal.style.display = 'none';
   _notesStopId = null;
+  Accessibility.modalClosed(modal);
 }
 function saveStopNotes() {
   const s = stops.find(x => x.id === _notesStopId);
@@ -7097,6 +7435,18 @@ function _initClock() {
 // ============================================================
 // DELETE ALL
 // ============================================================
+function openDeleteAllModal() {
+  var modal = document.getElementById('delete-all-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeDeleteAllModal });
+}
+
+function closeDeleteAllModal() {
+  var modal = document.getElementById('delete-all-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+
 function confirmDeleteAll() {
   stops = [];
   routeOrder = [];
@@ -7105,7 +7455,7 @@ function confirmDeleteAll() {
   saveStops();
   renderAll();
   markRouteChanged();
-  document.getElementById('delete-all-modal').style.display = 'none';
+  closeDeleteAllModal();
   showToast('All stops deleted');
 }
 
@@ -7118,7 +7468,8 @@ function deleteStop(id) { openCloseModal(id); }
 let _spreadsheetParsed = [];
 
 function openSpreadsheetModal() {
-  document.getElementById('spreadsheet-modal').style.display = 'flex';
+  var modal = document.getElementById('spreadsheet-modal');
+  modal.style.display = 'flex';
   document.getElementById('spreadsheet-preview').style.display = 'none';
   document.getElementById('spreadsheet-status').style.display = 'none';
   document.getElementById('spreadsheet-file-input').value = '';
@@ -7128,11 +7479,14 @@ function openSpreadsheetModal() {
     const sel = document.getElementById('spreadsheet-type-select');
     if (sel) sel.value = lastType;
   }
+  Accessibility.modalOpened(modal, { onEscape: closeSpreadsheetModal });
 }
 
 function closeSpreadsheetModal() {
-  document.getElementById('spreadsheet-modal').style.display = 'none';
+  var modal = document.getElementById('spreadsheet-modal');
+  modal.style.display = 'none';
   _spreadsheetParsed = [];
+  Accessibility.modalClosed(modal);
 }
 
 async function handleSpreadsheetUpload(event) {
@@ -7624,11 +7978,15 @@ function openCsbNav() {
     ).join('');
   }
 
-  document.getElementById('csb-nav-modal').style.display = 'block';
+  var modal = document.getElementById('csb-nav-modal');
+  modal.style.display = 'block';
+  Accessibility.modalOpened(modal, { onEscape: closeCsbNav });
 }
 
 function closeCsbNav() {
-  document.getElementById('csb-nav-modal').style.display = 'none';
+  var modal = document.getElementById('csb-nav-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function csbCopyDescription() {
@@ -7765,12 +8123,16 @@ function openTypeChange(id) {
     const btn = document.getElementById('tcb-' + t);
     if (btn) btn.style.borderColor = t === s.type ? 'var(--forest)' : '#ddd';
   });
-  document.getElementById('type-change-modal').style.display = 'flex';
+  var modal = document.getElementById('type-change-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeTypeChange });
 }
 
 function closeTypeChange() {
-  document.getElementById('type-change-modal').style.display = 'none';
+  var modal = document.getElementById('type-change-modal');
+  modal.style.display = 'none';
   activeTypeChangeId = null;
+  Accessibility.modalClosed(modal);
 }
 
 function setStopType(type) {
@@ -7817,11 +8179,18 @@ function openEditStop(id) {
   if (reasonField) reasonField.value  = s.followupReason || '';
   // Also close any open stop-card dropdowns
   try { closeStopDropdowns(s.id); toggleRouteStopDropdowns(s.id); } catch(_e) {}
-  document.getElementById('edit-stop-modal').style.display = 'flex';
+  var modal = document.getElementById('edit-stop-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#edit-stop-addr',
+    onEscape: closeEditStop
+  });
 }
 function closeEditStop() {
-  document.getElementById('edit-stop-modal').style.display = 'none';
+  var modal = document.getElementById('edit-stop-modal');
+  modal.style.display = 'none';
   _editStopId = null;
+  Accessibility.modalClosed(modal);
 }
 function saveEditStop() {
   const s = stops.find(x => x.id === _editStopId);
@@ -9576,7 +9945,15 @@ async function tryIPGeolocation() {
 // dedicated UI for setting a manual origin.
 
 function showGPSHelp() {
-  document.getElementById('gps-help-modal').style.display = 'flex';
+  var modal = document.getElementById('gps-help-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeGPSHelp });
+}
+
+function closeGPSHelp() {
+  var modal = document.getElementById('gps-help-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 let mapGPSMarker = null;
@@ -10289,23 +10666,33 @@ function openMiscLinks() {
     if (arrow) arrow.style.transform = open ? '' : 'rotate(90deg)';
   });
   body.innerHTML = html;
-  document.getElementById('misc-links-modal').style.display = 'block';
+  var modal = document.getElementById('misc-links-modal');
+  modal.style.display = 'block';
+  Accessibility.modalOpened(modal, { onEscape: closeMiscLinks });
+}
+
+function closeMiscLinks() {
+  var modal = document.getElementById('misc-links-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 // ── Advertise modal — in-app advertising info page ────────────────────────────
 function openAdvertiseModal() {
-  // Close the Misc modal first
+  // Close the Misc modal first (uses the named closer to clean up Accessibility stack)
   var miscModal = document.getElementById('misc-links-modal');
-  if (miscModal) miscModal.style.display = 'none';
+  if (miscModal && miscModal.style.display !== 'none') closeMiscLinks();
 
   var modal = document.getElementById('advertise-modal');
   if (!modal) return;
   modal.style.display = 'block';
+  Accessibility.modalOpened(modal, { onEscape: closeAdvertiseModal });
 }
 
 function closeAdvertiseModal() {
   var modal = document.getElementById('advertise-modal');
   if (modal) modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 
@@ -10345,6 +10732,12 @@ function openPastePanel() {
   setTimeout(() => { const ta = document.getElementById('paste-input'); if (ta) ta.focus(); }, 150);
 }
 
+function closeScanSource() {
+  var modal = document.getElementById('scan-source-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+
 function triggerScan() {
   const { isIOS, isAndroid, hasApiKey, hasTextDetector } = detectScanCapability();
   const modal = document.getElementById('scan-source-modal');
@@ -10365,18 +10758,18 @@ function triggerScan() {
     // Best path: Anthropic API
     html += btn('📸 SCAN WITH AI', 'Take a photo — AI reads addresses automatically',
       'var(--forest)', 'var(--lime)', 'none',
-      "document.getElementById('scan-source-modal').style.display='none';document.getElementById('scan-camera-input').click()");
+      "closeScanSource();document.getElementById('scan-camera-input').click()");
     html += btn('🖼️ CHOOSE PHOTO', 'Pick from gallery — AI reads addresses',
       'var(--sky)', 'var(--moss)', '1.5px solid var(--leaf)',
-      "document.getElementById('scan-source-modal').style.display='none';document.getElementById('scan-file-input').click()");
+      "closeScanSource();document.getElementById('scan-file-input').click()");
   } else if (hasTextDetector) {
     // Good path: on-device TextDetector
     html += btn('📸 SCAN (ON-DEVICE)', 'Take photo — reads addresses using device AI',
       'var(--forest)', 'var(--lime)', 'none',
-      "document.getElementById('scan-source-modal').style.display='none';document.getElementById('scan-camera-input').click()");
+      "closeScanSource();document.getElementById('scan-camera-input').click()");
     html += btn('🖼️ CHOOSE PHOTO', 'Pick from gallery — on-device reading',
       'var(--sky)', 'var(--moss)', '1.5px solid var(--leaf)',
-      "document.getElementById('scan-source-modal').style.display='none';document.getElementById('scan-file-input').click()");
+      "closeScanSource();document.getElementById('scan-file-input').click()");
     html += `<div style="font-size:0.54rem;color:#888;font-family:"Space Mono",monospace;text-align:center;padding:4px 0">
       Add an Anthropic API key in ⚙️ Settings for better accuracy
     </div>`;
@@ -10386,36 +10779,37 @@ function triggerScan() {
       html += btn('🔍 OPEN GOOGLE LENS',
         'Launches Google Lens — take photo, copy text, paste here',
         'linear-gradient(135deg,#1a6a4a,#27ae60)', 'white', 'none',
-        "document.getElementById('scan-source-modal').style.display='none';launchGoogleLens()");
+        "closeScanSource();launchGoogleLens()");
     } else if (isIOS) {
       html += btn('📷 USE iOS LIVE TEXT',
         'Open photo in iOS → tap Live Text → Copy → paste here',
         'linear-gradient(135deg,#1a4a8c,#2980b9)', 'white', 'none',
-        "document.getElementById('scan-source-modal').style.display='none';showScanGuide()");
+        "closeScanSource();showScanGuide()");
     } else {
       html += btn('📋 COPY & PASTE',
         'Copy addresses from Google Lens or any source, paste here',
         'linear-gradient(135deg,#555,#888)', 'white', 'none',
-        "document.getElementById('scan-source-modal').style.display='none';showScanGuide()");
+        "closeScanSource();showScanGuide()");
     }
     html += btn('📋 OPEN PASTE PANEL', 'I already copied the text',
       'var(--sky)', 'var(--moss)', '1.5px solid var(--leaf)',
-      "document.getElementById('scan-source-modal').style.display='none';openPastePanel()");
+      "closeScanSource();openPastePanel()");
     html += `<div style="font-size:0.54rem;color:#888;font-family:"Space Mono",monospace;text-align:center;padding:4px 0">
       Add an Anthropic API key in ⚙️ Settings to enable direct photo scanning
     </div>`;
   }
 
   html += btn('CANCEL', '', '#f5f5f5', '#888', '1.5px solid #ddd',
-    "document.getElementById('scan-source-modal').style.display='none'");
+    "closeScanSource()");
 
   body.innerHTML = html;
   modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeScanSource });
 }
 
 function launchGoogleLens() {
-  document.getElementById('scan-source-modal').style.display = 'none';
-  document.getElementById('scan-guide-modal').style.display = 'none';
+  closeScanSource();
+  closeScanGuide();
 
   let launched = false;
   const onBlur = () => { launched = true; };
@@ -10514,6 +10908,13 @@ function showScanGuide() {
   }
 
   modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeScanGuide });
+}
+
+function closeScanGuide() {
+  var modal = document.getElementById('scan-guide-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function navToStop(addr) {
@@ -11425,11 +11826,6 @@ function initRouteMap() {
     mapEl.addEventListener('touchstart', () => { contentEl.style.overflow = 'hidden'; }, { passive: true });
     mapEl.addEventListener('touchend', () => { setTimeout(() => { contentEl.style.overflow = 'auto'; }, 300); }, { passive: true });
   }
-
-  // Hook the map-layer renderer's move/zoom listeners so built-in layers
-  // (parcels, LRA) refetch when the user pans or zooms. Customs don't
-  // need this — they're static — but the bindMap call is idempotent.
-  try { if (typeof MapLayerRenderer !== 'undefined') MapLayerRenderer.bindMap(); } catch(_) {}
 }
 
 // ============================================================
@@ -11652,12 +12048,19 @@ function openPaymentModal(stopId) {
     if (csLbl) csLbl.style.display = 'none';
   }
   renderPaymentApps();
-  document.getElementById('payment-modal').style.display = 'flex';
+  var paymentModal = document.getElementById('payment-modal');
+  paymentModal.style.display = 'flex';
+  Accessibility.modalOpened(paymentModal, {
+    initialFocus: '#pay-amount',
+    onEscape: closePaymentModal
+  });
 }
 
 function closePaymentModal() {
-  document.getElementById('payment-modal').style.display = 'none';
+  var modal = document.getElementById('payment-modal');
+  modal.style.display = 'none';
   _paymentModalStopId = null;
+  Accessibility.modalClosed(modal);
 }
 
 function renderPaymentApps() {
@@ -14284,8 +14687,8 @@ const GeoCache = (function() {
 
 // ── MapLayers: registry + storage for togglable map overlays ─────────────────
 // Two kinds of layers:
-//   1. BUILT-IN — public datasets (parcels, vacancy, historic districts, etc.)
-//      defined statically below with endpoint URLs and style.
+//   1. BUILT-IN — static city boundary overlays (neighborhoods, wards) backed
+//      by GeoCache (inline-baked GeoJSON + IndexedDB).
 //   2. CUSTOM — user-created point layers from a paste/upload/scan of addresses.
 //      Each address is geocoded once (Nominatim), then stored in IndexedDB.
 //      Custom layers can be edited, renamed, recolored, deleted.
@@ -14300,13 +14703,13 @@ const GeoCache = (function() {
 //       id, kind:'custom', name, color, createdAt, updatedAt,
 //       addresses: [{ raw, lat?, lng?, status:'pending'|'ok'|'failed', meta? }, ...]
 //     }
-//   LS key 'map-layers-active' → ["parcels","custom-1729381928"]
+//   LS key 'map-layers-active' → ["stl-wards","custom-1729381928"]
 //
 // All methods are defensive: storage failures degrade to in-memory only.
 /**
  * MapLayers — registry + storage for built-in and custom map layers.
  *
- * Built-in layers (neighborhoods, wards, etc.) are statically declared and
+ * Built-in layers (neighborhoods, wards) are statically declared and
  * sourced from GeoCache. Custom layers are user-created sets of street
  * addresses that the inspector wants to see colored on the map (e.g. "all
  * vacancies in this district"). Custom layers are stored in IndexedDB
@@ -14343,18 +14746,11 @@ const MapLayers = (function() {
   var ACTIVE_KEY = 'map-layers-active';
 
   // ── Built-in layer registry ──────────────────────────────────────────────
-  // Each def is consumed by MapLayerRenderer. Built-ins fetch from STL's
-  // public ArcGIS REST endpoints; the renderer viewport-clips the query so
-  // we don't try to load 145,000 parcels at once.
+  // Each def is consumed by MapLayerRenderer. Built-ins read pre-fetched
+  // GeoJSON from the GeoCache module (boundary overlays for neighborhoods
+  // and wards). All polygon data is baked-inline + IndexedDB-cached, so
+  // toggling a layer is an instant local read — no network required.
   //
-  // Endpoint is an ArcGIS MapServer layer URL — the renderer appends
-  // /query?... and supplies the geometry filter, output format, and field
-  // list at request time. fields=* would return everything; we list only
-  // what the popup actually shows to keep payloads small.
-  //
-  // minZoom: lowest zoom level at which the layer fetches data. At lower
-  // zoom the polygons would be too dense to be useful and the response
-  // would exceed the server's MaxRecordCount=2000 limit anyway.
   // ── Drop W.1: shared helper for ward label/popup text ─────────────
   // The wards layer derives its display label from one of several
   // possible field names depending on the source. labelOptions.getText
@@ -14379,85 +14775,14 @@ const MapLayers = (function() {
   }
 
   var BUILTIN_LAYERS = [
-    {
-      id: 'stl-parcels',
-      kind: 'builtin',
-      label: 'Parcels',
-      group: 'Property',
-      defaultOn: false,
-      refreshDays: 30,
-      endpoint: 'https://maps6.stlouis-mo.gov/arcgis/rest/services/CITYWORKS/CW_BASE/MapServer/5',
-      geomType: 'polygon',
-      minZoom: 17,
-      fields: ['HANDLE', 'StName', 'StAddr', 'OWNER', 'ZONING', 'CDA_NHOOD', 'WARD'],
-      style: { color: '#3a7bd5', fillColor: '#3a7bd5', fillOpacity: 0.06, weight: 1 },
-      popup: function(props) {
-        var addr = props.StAddr || props.StName || '(no address)';
-        var owner = props.OWNER ? props.OWNER : '—';
-        var zoning = props.ZONING || '—';
-        var nh = props.CDA_NHOOD || '—';
-        var ward = props.WARD != null ? props.WARD : '—';
-        return {
-          address: addr,
-          html:
-            '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;color:#222;margin-bottom:4px">' +
-              _escHtmlBuiltin(addr) +
-            '</div>' +
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:#555;line-height:1.6">' +
-              '<div><b>Owner:</b> ' + _escHtmlBuiltin(owner) + '</div>' +
-              '<div><b>Zoning:</b> ' + _escHtmlBuiltin(zoning) + '</div>' +
-              '<div><b>Neighborhood:</b> ' + _escHtmlBuiltin(nh) + '</div>' +
-              '<div><b>Ward:</b> ' + _escHtmlBuiltin(ward) + '</div>' +
-            '</div>'
-        };
-      }
-    },
-    {
-      id: 'stl-lra',
-      kind: 'builtin',
-      label: 'LRA-owned',
-      group: 'Property',
-      defaultOn: false,
-      refreshDays: 7,  // LRA inventory updates nightly; weekly is fresh enough
-      endpoint: 'https://maps6.stlouis-mo.gov/arcgis/rest/services/SLDC/Available_LRA_Real_Estate/MapServer/0',
-      geomType: 'polygon',
-      minZoom: 14,  // LRA is ~10-15k parcels — can show at lower zoom than full parcels
-      fields: ['HANDLE', 'StAddr', 'PARCEL_STATUS', 'NEIGHBORHOOD', 'WARD', 'PROPERTY_TYPE'],
-      style: { color: '#d97706', fillColor: '#d97706', fillOpacity: 0.18, weight: 1.5 },
-      popup: function(props) {
-        var addr = props.StAddr || '(LRA parcel)';
-        var status = props.PARCEL_STATUS || '—';
-        var nh = props.NEIGHBORHOOD || '—';
-        var ward = props.WARD != null ? props.WARD : '—';
-        var ptype = props.PROPERTY_TYPE || '—';
-        return {
-          address: addr,
-          html:
-            '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;color:#222;margin-bottom:4px">' +
-              _escHtmlBuiltin(addr) +
-            '</div>' +
-            '<div style="display:inline-block;background:#fff3e0;color:#7a4a00;font-family:Syne,sans-serif;font-weight:700;font-size:0.5rem;padding:2px 7px;border-radius:4px;margin-bottom:4px">LRA</div>' +
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:#555;line-height:1.6">' +
-              '<div><b>Status:</b> ' + _escHtmlBuiltin(status) + '</div>' +
-              '<div><b>Property type:</b> ' + _escHtmlBuiltin(ptype) + '</div>' +
-              '<div><b>Neighborhood:</b> ' + _escHtmlBuiltin(nh) + '</div>' +
-              '<div><b>Ward:</b> ' + _escHtmlBuiltin(ward) + '</div>' +
-            '</div>'
-        };
-      }
-    },
-    // ── Phase 5: visual neighborhood + ward overlays ─────────────────────
-    // These read pre-fetched polygons from the GeoCache module rather than
-    // querying ArcGIS per-viewport. The same polygons drive the existing
-    // point-in-polygon stop-metadata lookup, so reusing them costs nothing.
+    // Boundary overlays. These read pre-fetched polygons from the GeoCache
+    // module — the same polygons drive the point-in-polygon stop-metadata
+    // lookup that auto-tags stops with neighborhood/ward, so reusing them
+    // costs nothing.
     //
-    // Source field marks them as geocache-backed. The renderer special-cases
-    // this so the fetch + viewport-clip code path is skipped — we just hand
-    // the stored GeoJSON FeatureCollection to L.geoJSON.
-    //
-    // No min-zoom: the polygons render fine at any zoom and are useful
-    // as context even when zoomed out (see the whole city's neighborhood
-    // boundaries at once).
+    // Source field marks them as geocache-backed. No min-zoom: the polygons
+    // render fine at any zoom and are useful as context even when zoomed
+    // out (see the whole city's boundaries at once).
     {
       id: 'stl-neighborhoods',
       kind: 'builtin',
@@ -14833,137 +15158,30 @@ const MapLayerRenderer = (function() {
     }
   }
 
-  // ── Built-in layer rendering with viewport-clipped fetch ──────────────
-  // STL's parcel endpoint serves ~145,000 polygons citywide; we'd hit the
-  // 2000-feature MaxRecordCount and blow memory if we tried to load all of
-  // it. The strategy: only fetch when zoom >= layer.minZoom, and pass the
-  // current viewport extent as a spatial filter to the ArcGIS query.
-  //
-  // Cache the most recent fetch keyed by layer id + bounds so panning
-  // within the cached extent doesn't refetch. Once the user pans more
-  // than ~30% beyond the cached bounds, we refetch.
-  var _builtinCache = {}; // id -> {bounds, features, fetchedAt}
-
+  // ── Built-in layer rendering ──────────────────────────────────────────
+  // Built-ins read pre-fetched polygons from the GeoCache module. The same
+  // polygons are used by the point-in-polygon stop-metadata lookup that
+  // auto-tags stops with neighborhood/ward, so they're already populated.
   async function _renderBuiltin(layer) {
     if (typeof routeMap === 'undefined' || !routeMap) return;
-
-    // ── Geocache source: read polygons from local IndexedDB cache ──────
-    // Used for boundary overlays (neighborhoods, wards) that don't change
-    // often. The polygons are also used by the point-in-polygon metadata
-    // lookup that auto-tags stops with neighborhood/ward, so they're
-    // already populated. This path skips the viewport-clip + per-zoom
-    // fetch logic entirely.
-    if (layer.source === 'geocache') {
-      try {
-        var fc = null;
-        if (layer.geocacheKind === 'neighborhoods' && typeof GeoCache !== 'undefined') {
-          fc = await GeoCache.getNeighborhoods();
-        } else if (layer.geocacheKind === 'wards' && typeof GeoCache !== 'undefined') {
-          fc = await GeoCache.getWards();
-        }
-        if (!fc || !Array.isArray(fc.features) || !fc.features.length) {
-          // No polygons available (offline + never cached, or no source URL configured)
-          _setBuiltinStatusBanner(layer, layer.label + ' boundaries unavailable offline');
-          return;
-        }
-        _drawBuiltinFeatures(layer, fc.features);
-        _clearBuiltinStatusBanner(layer);
-      } catch(err) {
-        console.warn('Geocache layer load failed:', layer.id, err);
-        _setBuiltinStatusBanner(layer, '⚠ ' + layer.label + ' failed to load');
-      }
-      return;
-    }
-
-    // ── Endpoint source: viewport-clipped ArcGIS REST query ────────────
-    var zoom = routeMap.getZoom();
-
-    // Min-zoom guard: at low zooms, polygons would be too dense AND the
-    // server would hit MaxRecordCount. Show a tiny status hint instead.
-    if (zoom < (layer.minZoom || 0)) {
-      _setBuiltinStatusBanner(layer, '🔍 Zoom in to see ' + layer.label);
-      return;
-    }
-
-    var bounds = routeMap.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
-
-    // Cache check: re-use prior features if still inside cached bounds
-    // and within the layer's refreshDays staleness window.
-    var cached = _builtinCache[layer.id];
-    var maxAgeMs = (layer.refreshDays || 30) * 24 * 60 * 60 * 1000;
-    var ageOk = cached && (Date.now() - cached.fetchedAt) < maxAgeMs;
-    var inBounds = cached && _boundsContainsBuffered(cached.bounds, bounds, 0.0);
-    if (cached && ageOk && inBounds) {
-      _drawBuiltinFeatures(layer, cached.features);
-      return;
-    }
-
-    // Show loading banner while fetching
-    _setBuiltinStatusBanner(layer, '⏳ Loading ' + layer.label + '…');
-
-    // Build the ArcGIS query URL. esriGeometryEnvelope w/ inSR=4326 lets us
-    // pass lat/lng directly. f=geojson returns clean GeoJSON we can hand
-    // to Leaflet without conversion. outFields= scopes payload size.
-    var bbox = [sw.lng, sw.lat, ne.lng, ne.lat].join(',');
-    var fields = (layer.fields && layer.fields.length) ? layer.fields.join(',') : '*';
-    var url = layer.endpoint + '/query'
-      + '?where=1=1'
-      + '&geometry=' + encodeURIComponent(bbox)
-      + '&geometryType=esriGeometryEnvelope'
-      + '&inSR=4326&outSR=4326'
-      + '&spatialRel=esriSpatialRelIntersects'
-      + '&outFields=' + encodeURIComponent(fields)
-      + '&returnGeometry=true'
-      + '&f=geojson';
-
-    var features = [];
-    var truncated = false;
+    if (layer.source !== 'geocache') return;
     try {
-      var resp = await fetchWithTimeout(url, {}, 20000);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      var data = await resp.json();
-      if (data && Array.isArray(data.features)) features = data.features;
-      // ArcGIS returns exceededTransferLimit:true when the result hit the
-      // server's MaxRecordCount cap (2000 for STL parcels). Without this
-      // check we'd silently show a partial set — the user could be looking
-      // at half the parcels in their viewport with no indication. Surface
-      // it via the status banner so they know to zoom in for completeness.
-      if (data && data.exceededTransferLimit === true) truncated = true;
-      // Some ArcGIS deployments return the flag inside a `properties` envelope
-      // (GeoJSON spec extension). Check there too.
-      if (data && data.properties && data.properties.exceededTransferLimit === true) truncated = true;
-    } catch(err) {
-      _setBuiltinStatusBanner(layer, '⚠ ' + layer.label + ' failed to load');
-      // Stringify the error before logging. Some DevTools/extensions
-      // intercept console output and try to structuredClone() the args
-      // for transport (e.g. via postMessage). Error objects whose stack
-      // references an AbortSignal — which fetch creates internally on
-      // timeout — fail to clone with DataCloneError. Passing the message
-      // string keeps the log useful without the cloning hazard.
-      var errMsg = (err && err.message) ? err.message : String(err);
-      console.warn('Builtin layer fetch failed:', layer.id, errMsg);
-      return;
-    }
-
-    // Cache the result with the bounds we fetched — used to decide on
-    // next refresh whether we can re-use this batch. Don't cache truncated
-    // results aggressively — if we did, panning slightly would re-use the
-    // truncated set without giving the user another chance to zoom in.
-    // Setting a shorter fetchedAt makes the cache expire on next pan.
-    _builtinCache[layer.id] = {
-      bounds: bounds,
-      features: features,
-      fetchedAt: truncated ? 0 : Date.now(),
-      truncated: truncated
-    };
-
-    _drawBuiltinFeatures(layer, features);
-    if (truncated) {
-      _setBuiltinStatusBanner(layer, '⚠ Showing first ' + features.length + ' ' + layer.label.toLowerCase() + ' — zoom in for full coverage');
-    } else {
+      var fc = null;
+      if (layer.geocacheKind === 'neighborhoods' && typeof GeoCache !== 'undefined') {
+        fc = await GeoCache.getNeighborhoods();
+      } else if (layer.geocacheKind === 'wards' && typeof GeoCache !== 'undefined') {
+        fc = await GeoCache.getWards();
+      }
+      if (!fc || !Array.isArray(fc.features) || !fc.features.length) {
+        // No polygons available (offline + never cached, or no source URL configured)
+        _setBuiltinStatusBanner(layer, layer.label + ' boundaries unavailable offline');
+        return;
+      }
+      _drawBuiltinFeatures(layer, fc.features);
       _clearBuiltinStatusBanner(layer);
+    } catch(err) {
+      console.warn('Geocache layer load failed:', layer.id, err);
+      _setBuiltinStatusBanner(layer, '⚠ ' + layer.label + ' failed to load');
     }
   }
 
@@ -14983,32 +15201,7 @@ const MapLayerRenderer = (function() {
           var pop;
           try { pop = layer.popup(props); } catch(_) { pop = null; }
           if (pop && pop.html) {
-            var html = pop.html;
-            // Only render the "+ Add as Stop" button when the layer feature
-            // is associated with a real street address (parcels, LRA). For
-            // boundary overlays (neighborhoods, wards) the address is empty
-            // and the button would be meaningless.
-            // Build an inline onclick handler that calls
-            // addBuiltinLayerPinAsStop(layerId, address). Inside an
-            // onclick="..." attribute, two layers of decoding apply:
-            //   1. HTML attribute parser decodes entities (&quot; → ")
-            //   2. JS engine parses the resulting source (string literal → string)
-            // To get the address through correctly we must:
-            //   a) JSON.stringify(addr) → produces a valid JS string literal
-            //      with proper escaping of quotes, backslashes, control chars
-            //   b) escHtml(...) → encodes the result for safe placement inside
-            //      a double-quoted HTML attribute (turns " into &quot;)
-            // Skipping step (b) breaks the attribute when the address contains
-            // any character — JSON.stringify always emits surrounding double
-            // quotes which collide with the attribute's double quotes, causing
-            // a SyntaxError "Unexpected end of input" when the handler fires.
-            // After both encodings, commitStopWithAddr receives the original
-            // address verbatim — no double-encoding of ampersands or apostrophes.
-            if (pop.address) {
-              html += '<button onclick="addBuiltinLayerPinAsStop(\'' + layer.id + '\',' + _escHtml(JSON.stringify(pop.address)) + ')" '
-                + 'style="width:100%;margin-top:8px;padding:6px 10px;background:linear-gradient(135deg,#1a4a9c,#2563eb);color:white;border:none;border-radius:6px;font-family:Syne,sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">+ Add as Stop</button>';
-            }
-            leafletLayer.bindPopup(html, { closeButton: true, autoPan: true });
+            leafletLayer.bindPopup(pop.html, { closeButton: true, autoPan: true });
           }
         }
       }
@@ -15165,30 +15358,13 @@ const MapLayerRenderer = (function() {
     if (existing) existing.remove();
   }
 
-  // True iff `inner` bounds are contained within `outer` bounds, with an
-  // optional buffer expressed as a fraction of the outer extent. This is
-  // the cache-hit check: if the user pans within the cached envelope, no
-  // refetch needed; if they pan outside it, refetch.
-  function _boundsContainsBuffered(outer, inner, bufferFrac) {
-    if (!outer || !inner) return false;
-    var bw = outer.getEast() - outer.getWest();
-    var bh = outer.getNorth() - outer.getSouth();
-    var pad = bufferFrac || 0;
-    return outer.getWest()  - bw * pad <= inner.getWest()
-        && outer.getEast()  + bw * pad >= inner.getEast()
-        && outer.getSouth() - bh * pad <= inner.getSouth()
-        && outer.getNorth() + bh * pad >= inner.getNorth();
-  }
-
   // Re-render all currently-active layers. Idempotent — safe to call
-  // whenever the active list might have changed.
+  // whenever the active list might have changed (toggle, profile switch).
   async function refresh() {
     if (typeof routeMap === 'undefined' || !routeMap) return;
     var active = MapLayers.getActive();
 
-    // For built-ins: ALWAYS re-evaluate on refresh because the viewport may
-    // have changed and we may need to refetch. For customs: skip if already
-    // rendered (they're static).
+    // Drop any rendered layers that are no longer active.
     Object.keys(_rendered).forEach(function(id) {
       if (active.indexOf(id) === -1) _removeOne(id);
     });
@@ -15198,6 +15374,8 @@ const MapLayerRenderer = (function() {
       // Try built-in first (cheap synchronous lookup)
       var bi = MapLayers.getBuiltin ? MapLayers.getBuiltin(id) : null;
       if (bi) {
+        // Skip if already rendered — built-ins are now static (geocache-backed).
+        if (_rendered[id]) continue;
         await _renderLayer(bi);
         continue;
       }
@@ -15208,38 +15386,6 @@ const MapLayerRenderer = (function() {
     }
   }
 
-  // Throttled refresh on map move/zoom. We don't want to fire a fetch on
-  // every pixel of pan; debouncing 350ms after the user stops feels right.
-  var _moveDebounceTimer = null;
-  function _onMapMoveEnd() {
-    if (_moveDebounceTimer) clearTimeout(_moveDebounceTimer);
-    _moveDebounceTimer = setTimeout(function() {
-      // Only refetch if any active layer is a viewport-driven built-in
-      // (an endpoint source). Geocache-source builtins (neighborhoods,
-      // wards) don't need refetching on pan — they're already loaded.
-      // Customs are static too.
-      var active = MapLayers.getActive();
-      var needsRefresh = active.some(function(id) {
-        var bi = MapLayers.getBuiltin && MapLayers.getBuiltin(id);
-        return bi && bi.source !== 'geocache';
-      });
-      if (!needsRefresh) return;
-      refresh().catch(function(_) {});
-    }, 350);
-  }
-
-  // Attach the move/zoom listeners once routeMap is ready. The map can be
-  // re-created over the app's lifetime (e.g., tab switches), so we expose
-  // an explicit bindMap() callable for the map-init code to invoke.
-  function bindMap() {
-    if (typeof routeMap === 'undefined' || !routeMap) return;
-    // Avoid duplicate handlers if bindMap is called twice
-    routeMap.off('moveend', _onMapMoveEnd);
-    routeMap.off('zoomend', _onMapMoveEnd);
-    routeMap.on('moveend', _onMapMoveEnd);
-    routeMap.on('zoomend', _onMapMoveEnd);
-  }
-
   // tiny escape helper, scoped to this module
   function _escHtml(s) {
     return String(s == null ? '' : s)
@@ -15247,7 +15393,7 @@ const MapLayerRenderer = (function() {
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  return { refresh: refresh, removeAll: removeAll, bindMap: bindMap };
+  return { refresh: refresh, removeAll: removeAll };
 })();
 
 // Expose modules on window so the data-fn dispatcher and console debugging can
@@ -15272,7 +15418,8 @@ try {
 
 // Open the layer-toggle panel
 async function openMapLayersPanel() {
-  document.getElementById('map-layers-modal').style.display = 'flex';
+  var modal = document.getElementById('map-layers-modal');
+  modal.style.display = 'flex';
   // Wire the ArcGIS link icon. Done lazily here rather than at init() time
   // because the modal markup is positioned later in the document — the
   // img element doesn't exist when boot wiring runs. Idempotent: setting
@@ -15282,9 +15429,12 @@ async function openMapLayersPanel() {
     if (_agi && !_agi.src) _agi.src = ARCGIS_ICON_URI;
   } catch(_e) {}
   await renderMapLayersList();
+  Accessibility.modalOpened(modal, { onEscape: closeMapLayersPanel });
 }
 function closeMapLayersPanel() {
-  document.getElementById('map-layers-modal').style.display = 'none';
+  var modal = document.getElementById('map-layers-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 // Render the toggle list inside the layers modal
@@ -15951,24 +16101,6 @@ async function addCustomLayerPinAsStop(layerId, rawAddress) {
   // Dismiss any open Leaflet popup so the user sees the toast
   try { if (typeof routeMap !== 'undefined' && routeMap) routeMap.closePopup(); } catch(_) {}
 }
-
-// Add a built-in layer pin (parcel or LRA polygon) as a real stop. Same
-// pipeline as addCustomLayerPinAsStop — uses commitStopWithAddr so dedup,
-// metadata lookup, and route ordering all behave consistently. We don't
-// have lat/lng directly from the click (the popup builder doesn't pass
-// them), so we let the geocoder resolve coordinates after commit.
-async function addBuiltinLayerPinAsStop(layerId, rawAddress) {
-  if (!rawAddress) return;
-  if (typeof commitStopWithAddr !== 'function') {
-    showToast('⚠ Could not add stop');
-    return;
-  }
-  var type = 'inspection';
-  try { type = LS.get('last-stop-type') || 'inspection'; } catch(_) {}
-  commitStopWithAddr(rawAddress, rawAddress, type, '', false, null, null, null);
-  try { if (typeof routeMap !== 'undefined' && routeMap) routeMap.closePopup(); } catch(_) {}
-}
-window.addBuiltinLayerPinAsStop = addBuiltinLayerPinAsStop;
 
 //
 // GeoJSON convention: coordinates are [longitude, latitude] (note the order!).
@@ -16921,12 +17053,16 @@ function _renderArchiveStats() {
 
 function openArchiveModal() {
   if (typeof StopArchive === 'undefined') return;
-  document.getElementById('archive-modal').style.display = 'flex';
+  var modal = document.getElementById('archive-modal');
+  modal.style.display = 'flex';
   _renderArchiveModalBody();
+  Accessibility.modalOpened(modal, { onEscape: closeArchiveModal });
 }
 
 function closeArchiveModal() {
-  document.getElementById('archive-modal').style.display = 'none';
+  var modal = document.getElementById('archive-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function _renderArchiveModalBody() {
@@ -17041,7 +17177,8 @@ function _attachSettingsDirtyListeners() {
 }
 
 function openSettings() {
-  document.getElementById('settings-modal').style.display = 'flex';
+  var modal = document.getElementById('settings-modal');
+  modal.style.display = 'flex';
   _openSettingsPanel();
   _closeSettingsPanelsAll();  // always open collapsed
   _attachSettingsDirtyListeners();
@@ -17077,12 +17214,16 @@ function openSettings() {
     const _lhcb = document.getElementById('pref-left-hand-mode-toggle');
     if (_lhcb) _lhcb.checked = (LS.get('pref-left-hand-mode') === '1');
   } catch(_) {}
+  // Escape goes through askCloseSettings (NOT closeSettings) so the dirty-prompt fires
+  Accessibility.modalOpened(modal, { onEscape: askCloseSettings });
 }
 
 function closeSettings() {
-  document.getElementById('settings-modal').style.display = 'none';
+  var modal = document.getElementById('settings-modal');
+  modal.style.display = 'none';
   _pinEntry = '';
   _settingsDirty = false;
+  Accessibility.modalClosed(modal);
 }
 
 // Close X handler: if dirty, offer Save / Discard / Cancel.
@@ -17553,13 +17694,18 @@ function openSuperchargeModal() {
   var pinInput = document.getElementById('supercharge-key-pin');
   if (keyInput) keyInput.value = '';
   if (pinInput) pinInput.value = '';
-  document.getElementById('supercharge-modal').style.display = 'flex';
-  // Defer focus so the modal animation finishes first
-  setTimeout(function() { if (keyInput) keyInput.focus(); }, 200);
+  var modal = document.getElementById('supercharge-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#supercharge-key-input',
+    onEscape: closeSuperchargeModal
+  });
 }
 
 function closeSuperchargeModal() {
-  document.getElementById('supercharge-modal').style.display = 'none';
+  var modal = document.getElementById('supercharge-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 async function submitSuperchargeKey() {
@@ -17658,7 +17804,9 @@ async function openEndOfDayDebrief() {
   _debriefInFlight = true;
   try {
   // Open modal with loading state
-  document.getElementById('debrief-modal').style.display = 'flex';
+  var debriefModal = document.getElementById('debrief-modal');
+  debriefModal.style.display = 'flex';
+  Accessibility.modalOpened(debriefModal, { onEscape: closeDebriefModal });
   var sumLine = document.getElementById('debrief-summary-line');
   var bodyEl  = document.getElementById('debrief-body');
   var emailBtn = document.getElementById('debrief-email-btn');
@@ -17764,7 +17912,9 @@ async function openEndOfDayDebrief() {
 }
 
 function closeDebriefModal() {
-  document.getElementById('debrief-modal').style.display = 'none';
+  var modal = document.getElementById('debrief-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function emailDebrief() {
@@ -17825,19 +17975,22 @@ async function openAskYourData() {
     openSuperchargeModal();
     return;
   }
-  document.getElementById('ask-data-modal').style.display = 'flex';
+  var modal = document.getElementById('ask-data-modal');
+  modal.style.display = 'flex';
   // Clear conversation on each fresh open
   _askDataConversation = [];
   _renderAskDataThread();
-  setTimeout(function() {
-    var input = document.getElementById('ask-data-input');
-    if (input) input.focus();
-  }, 200);
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#ask-data-input',
+    onEscape: closeAskDataModal
+  });
   _updateAskDataSummary();
 }
 
 function closeAskDataModal() {
-  document.getElementById('ask-data-modal').style.display = 'none';
+  var modal = document.getElementById('ask-data-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function _updateAskDataSummary() {
@@ -19236,13 +19389,20 @@ function openTextEdit(title, sub, headingKey, bodyKey) {
   document.getElementById('text-editor-sub').textContent = sub || '';
   document.getElementById('text-editor-heading').value = getCredsVal(headingKey);
   document.getElementById('text-editor-body').value = getCredsVal(bodyKey);
-  document.getElementById('text-editor-modal').style.display = 'block';
+  var modal = document.getElementById('text-editor-modal');
+  modal.style.display = 'block';
+  Accessibility.modalOpened(modal, {
+    initialFocus: '#text-editor-body',
+    onEscape: cancelTextEdit
+  });
 }
 
 function saveTextEdit() {
   if (_textEditKey) setCredsVal(_textEditKey, document.getElementById('text-editor-body').value);
   if (_textEditHeadingKey) setCredsVal(_textEditHeadingKey, document.getElementById('text-editor-heading').value);
-  document.getElementById('text-editor-modal').style.display = 'none';
+  var modal = document.getElementById('text-editor-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
   _textEditKey = null; _textEditHeadingKey = null;
   showToast('Saved ✓');
   // Refresh if authority overlay is open
@@ -19253,13 +19413,27 @@ function saveTextEdit() {
 }
 
 function cancelTextEdit() {
-  document.getElementById('text-editor-modal').style.display = 'none';
+  var modal = document.getElementById('text-editor-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
   _textEditKey = null; _textEditHeadingKey = null;
 }
 
 // ── Reference Docs ────────────────────────────────────────────
+function openDocsModal() {
+  // Called from the fullscreen "REFERENCE DOCUMENTS" view's MANAGE button.
+  // Closes the fullscreen overlay first, then shows the upload modal.
+  closeFullscreen();
+  var modal = document.getElementById('docs-upload-modal');
+  modal.style.display = 'block';
+  renderDocsThumbs();
+  Accessibility.modalOpened(modal, { onEscape: closeDocsModal });
+}
+
 function closeDocsModal() {
-  document.getElementById('docs-upload-modal').style.display = 'none';
+  var modal = document.getElementById('docs-upload-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 function handleDocsUpload(event) {
@@ -19585,7 +19759,7 @@ const docs = safeParseLS('creds-ref-docs', []);
     let html = '<div style="padding:10px 0 30px">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'
       + '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:1rem;color:var(--lime)">REFERENCE DOCUMENTS</div>'
-      + '<button onclick="closeFullscreen();document.getElementById(\'docs-upload-modal\').style.display=\'block\';renderDocsThumbs()" style="padding:7px 12px;border:1px solid rgba(126,200,80,0.3);border-radius:8px;background:rgba(126,200,80,0.1);color:var(--lime);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer">+ MANAGE</button>'
+      + '<button onclick="openDocsModal()" style="padding:7px 12px;border:1px solid rgba(126,200,80,0.3);border-radius:8px;background:rgba(126,200,80,0.1);color:var(--lime);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer">+ MANAGE</button>'
       + '</div>';
 
     if (!docs.length) {
@@ -20517,7 +20691,15 @@ function triggerAutoSend(cadence) {
 
 // ── Export: CSV ───────────────────────────────────────────────────────────────
 function openDataExportModal() {
-  document.getElementById('data-export-modal').style.display = 'flex';
+  var modal = document.getElementById('data-export-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeDataExportModal });
+}
+
+function closeDataExportModal() {
+  var modal = document.getElementById('data-export-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 // ── Google Sheets smart push ──────────────────────────────────────────────────
@@ -20545,7 +20727,7 @@ function pushToGoogleSheets() {
       showToast('Invalid URL — must start with https://');
     } else {
       // User cancelled — switch to help
-      document.getElementById('data-export-modal').style.display = 'none';
+      closeDataExportModal();
       switchTab('help');
     }
     return;
@@ -20595,7 +20777,7 @@ function pushToGoogleSheets() {
     body: JSON.stringify(payload)
   }).then(() => {
     showToast('✅ Pushed to Google Sheets ✓');
-    document.getElementById('data-export-modal').style.display = 'none';
+    closeDataExportModal();
   }).catch(() => {
     // Save payload for retry when connection returns
     LS.set('sheets-pending-push', JSON.stringify(payload));
@@ -20963,12 +21145,17 @@ var WIZARD_STEPS = ['welcome', 'sector', 'name', 'apikey', 'done'];
 function openSetupWizard() {
   _wizardStep = 0;
   renderWizardStep();
-  document.getElementById('setup-wizard').style.display = 'flex';
+  var modal = document.getElementById('setup-wizard');
+  modal.style.display = 'flex';
+  // No onEscape — the wizard is a guided flow, user dismisses via Skip/Finish, not Escape.
+  Accessibility.modalOpened(modal);
 }
 
 function closeSetupWizard() {
   LS.set('setup-complete', '1');
-  document.getElementById('setup-wizard').style.display = 'none';
+  var modal = document.getElementById('setup-wizard');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
 }
 
 async function wizardNext() {
@@ -21189,11 +21376,11 @@ function wizSaveRole() {
 </script>
 
 <!-- ===== MAP LAYERS MODAL — toggle list of all layers (built-in + custom) ===== -->
-<div id="map-layers-modal" class="modal-overlay" style="display:none;z-index:9700" data-backdrop-close data-fn="closeMapLayersPanel">
+<div id="map-layers-modal" class="modal-overlay" style="display:none;z-index:9700" role="dialog" aria-modal="true" aria-labelledby="map-layers-modal-title" data-backdrop-close data-fn="closeMapLayersPanel">
   <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:88dvh;overflow-y:auto">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:#7c3aed">🗺️ Map Layers</div>
+      <div id="map-layers-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:#7c3aed">🗺️ Map Layers</div>
       <button data-fn="closeMapLayersPanel" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
     </div>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">
@@ -21323,14 +21510,14 @@ function wizSaveRole() {
 </div>
 
 <!-- ===== MISC LINKS MODAL ===== -->
-<div id="misc-links-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9300;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="misc-links-modal" role="dialog" aria-modal="true" aria-labelledby="misc-links-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9300;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="background:white;border-radius:16px 16px 0 0;padding:0 0 40px;max-width:480px;margin:40px auto 0;min-height:calc(100vh - 40px);box-shadow:0 -4px 40px rgba(0,0,0,0.3)">
     <div style="position:sticky;top:0;background:white;border-radius:16px 16px 0 0;padding:16px 16px 10px;border-bottom:1px solid #f0f0f0;z-index:2">
       <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📋 Resources</div>
+        <div id="misc-links-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📋 Resources</div>
         <div style="display:flex;align-items:center;gap:8px">
           <a href="https://patreon.com/user?u=210452278&utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_fan&utm_content=copyLink" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.52rem;color:#c0392b;text-decoration:none;background:rgba(255,66,77,0.08);border:1px solid rgba(255,66,77,0.2);border-radius:7px;padding:4px 8px;white-space:nowrap" title="Support STLCityRoute on Patreon">❤ Patreon</a>
-          <button onclick="document.getElementById('misc-links-modal').style.display='none'" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
+          <button onclick="closeMiscLinks()" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
         </div>
       </div>
       <div style="font-size:0.54rem;color:#999;font-family:'Space Mono',monospace;margin-top:3px">Tap any link to open · Phone numbers dial directly</div>
@@ -21343,13 +21530,13 @@ function wizSaveRole() {
 </div>
 
 <!-- ===== ADVERTISE MODAL ===== -->
-<div id="advertise-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9400;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="advertise-modal" role="dialog" aria-modal="true" aria-labelledby="advertise-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9400;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="background:white;border-radius:16px 16px 0 0;padding:0 0 40px;max-width:480px;margin:40px auto 0;min-height:calc(100vh - 40px);box-shadow:0 -4px 40px rgba(0,0,0,0.3)">
     
     <!-- Sticky title -->
     <div style="position:sticky;top:0;background:#1F4E79;padding:14px 16px 12px;z-index:2;display:flex;align-items:flex-start;justify-content:space-between">
       <div>
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:white">📣 List Your Business in Resources</div>
+        <div id="advertise-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:white">📣 List Your Business in Resources</div>
         <div style="font-size:0.54rem;color:rgba(255,255,255,0.65);font-family:'Space Mono',monospace;margin-top:3px">Reach city field workers exactly when they need your service</div>
       </div>
       <button data-fn="closeAdvertiseModal" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:8px;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;padding:6px 12px;cursor:pointer;white-space:nowrap;margin-left:10px">‹ Back</button>
@@ -21450,7 +21637,7 @@ function wizSaveRole() {
 </div>
 
 <!-- ===== SETUP WIZARD ===== -->
-<div id="setup-wizard" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:center;align-items:flex-end">
+<div id="setup-wizard" role="dialog" aria-modal="true" aria-label="Setup wizard" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:center;align-items:flex-end">
   <div style="background:linear-gradient(135deg,var(--moss),var(--leaf));border-radius:24px 24px 0 0;padding:0 0 40px;width:100%;max-width:480px;box-shadow:0 -8px 60px rgba(0,0,0,0.5)">
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0">
