@@ -1302,9 +1302,10 @@ header{
     <div style="background:#f8f8f6;border-left:3px solid var(--moss);border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:14px;font-size:0.6rem;color:#444;font-family:'Space Mono',monospace;line-height:1.7">
       <b style="color:var(--forest)">How to get a key:</b><br>
       1. Visit <a href="https://console.anthropic.com" target="_blank" rel="noopener" style="color:#7c3aed;font-weight:700;text-decoration:underline">console.anthropic.com</a> in your browser<br>
-      2. Sign up (free) and add a small starting balance ($5 lasts most users a long time)<br>
+      2. Sign up — account is free, but to use a key you must <b>prepay a $5 minimum credit balance</b> (Settings → Billing → Buy credits). New accounts also get $5 free trial credits up front.<br>
       3. Tap "API Keys" → "Create Key" → copy the <code style="background:#fff;padding:1px 4px;border-radius:3px">sk-ant-…</code> string<br>
-      4. Paste it below with a 4+ digit PIN to encrypt it
+      4. Paste it below with a 4+ digit PIN to encrypt it<br><br>
+      <b style="color:var(--forest)">What it costs:</b> ~$0.004 per photo scan on Claude Haiku 4.5 vision. <b>$5 covers ~1,250 scans</b> = ~125 days at 10/day (a very liberal estimate). Text-only features cost a fraction of that. No monthly fee, no auto-charge.
     </div>
 
     <div style="margin-bottom:10px">
@@ -2237,7 +2238,7 @@ header{
         <b>1. Set up your profile</b> — Tap ⚙️ (top right) → enter your name, title, division, department, and contact info. This appears on your ID card and in all exports.<br><br>
         <b>2. Select your position</b> — In the same Settings screen, choose your role from the "Select Your Position" dropdown. This auto-fills your profile and pre-loads your Roles, Ordinances, and Summary pages.<br><br>
         <b>3. Add your first stop</b> — Go to the STOPS tab, type an address, and tap ADD. The app will geocode it and add it to your list.<br><br>
-        <b>4. Optimize your route</b> — Go to the ROUTE tab and tap ⚡ OPTIMIZE. The app uses your GPS location and a barrier-aware nearest-neighbor algorithm tuned for STL geography (knows about the river, Forest Park, the railroad cut, and irregular grids in far-south and far-north city). A drive time estimate appears after.<br><br>
+        <b>4. Optimize your route</b> — Go to the ROUTE tab and tap ⚡ OPTIMIZE. The app uses your GPS location and runs nearest-neighbor + 2-opt + or-opt over real road distances from OSRM (an open-source routing engine), with a barrier-aware fallback when OSRM is offline (knows about the river, Forest Park, the railroad cut, and the irregular grids in far-south and far-north city). A drive time estimate appears after.<br><br>
         <b>5. Clock in</b> — Tap ⏱ IN at the top of the screen when your shift starts. This enables shift tracking, break time, and accurate metrics.
       </div>
     </details>
@@ -2245,17 +2246,19 @@ header{
     <details class="help-panel">
       <summary>🤖 AI Features (Optional)</summary>
       <div class="help-panel-body">
-        Six features unlock when you add a free Anthropic API key in Settings:<br><br>
+        Six features unlock when you add an Anthropic API key in Settings:<br><br>
         · <b>📷 Photo scan</b> — Photograph a printed route sheet, dispatch list, or whiteboard. AI reads the addresses and adds them to your stop list.<br>
         · <b>Address smart-complete</b> — When you type a partial or ambiguous address, AI suggests the most likely full St. Louis address.<br>
         · <b>Address list cleanup</b> — When pasting or scanning a batch of addresses, AI normalizes formatting and corrects obvious typos.<br>
         · <b>Route narrative</b> — Plain-English description of your optimized route after you tap ⚡ OPTIMIZE.<br>
         · <b>Ask Your Data</b> — Natural-language queries against your local stop history (see Ask Your Data section).<br>
         · <b>End-of-Day Debrief</b> — AI-generated summary of your day's work (see End-of-Day Debrief section).<br><br>
-        <b>Get a key:</b> Visit <b>console.anthropic.com</b>, create a free account, and generate a key. Paste it into Settings → Anthropic API Key with a 4+ character PIN.<br><br>
+        <b>What it actually costs (be aware up front):</b> Creating an Anthropic account and the API key itself are free, but to use the key you have to <b>prepay a minimum $5 credit balance</b> at console.anthropic.com that the key draws against. New accounts also get $5 in free trial credits up front, so your first $5 prepay is effectively your second $5 of usage.<br><br>
+        At the model+image rates this app uses (Claude Haiku 4.5 vision, ~$0.004 per photo scan including the response), <b>$5 covers roughly 1,250 photo scans</b> — about <b>125 working days at 10 scans/day</b>, which is an extremely liberal estimate of inspector usage. Most users will go many months on $5. Text-only features (smart-complete, route narrative, debrief) cost a fraction of a photo scan. There is no monthly fee and no auto-charge unless you turn on auto-reload yourself.<br><br>
+        <b>Get a key:</b> Visit <b>console.anthropic.com</b>, create an account, prepay $5 in credits (Settings → Billing → Buy credits), then create an API key (Settings → API Keys → Create Key). Paste it into this app's Settings → Anthropic API Key with a 4+ character PIN.<br><br>
         <b>Security:</b> Your key is encrypted on-device with AES-GCM using your PIN as the password. The encrypted blob lives in this app's private storage — it never leaves your phone unencrypted, and other apps on your phone can't see it.<br><br>
-        <b>Model:</b> All AI requests use Claude Haiku (the fastest, cheapest tier). The app intentionally won't use more expensive models — this gives you predictable costs and limits damage if your key is ever leaked.<br><br>
-        <b>Usage tracking:</b> Settings → 📊 AI Usage shows per-feature call counts and token usage for the current session, so you can see what your key has spent. Resets when you reload the app.
+        <b>Model:</b> All AI requests use Claude Haiku 4.5 (the fastest, cheapest current-generation tier — $1 per million input tokens, $5 per million output). The app intentionally won't use more expensive models like Sonnet or Opus — this gives you predictable costs and limits damage if your key is ever leaked.<br><br>
+        <b>Usage tracking:</b> Settings → 📊 AI Usage shows per-feature call counts and token usage for the current session, so you can see what your key has spent. Resets when you reload the app. To check your real money balance, go to console.anthropic.com → Billing.
       </div>
     </details>
 
@@ -2335,7 +2338,7 @@ header{
         · Quick mental wrap-up before you clock out<br>
         · Send to a supervisor as an end-of-day status update<br><br>
         <b>The debrief is regeneratable</b> — tap 🌅 again later in the day for an updated version. The AI sees your full local stop log for context but doesn't store anything about your day on Anthropic's servers beyond the standard API call.<br><br>
-        Requires Anthropic API key. Uses Claude Haiku.
+        Requires Anthropic API key. Uses Claude Haiku 4.5 (cheapest current-generation model). Typical debrief costs a fraction of a cent.
       </div>
     </details>
 
@@ -2489,12 +2492,12 @@ header{
     <details class="help-panel">
       <summary>🛣️ ROUTE Tab</summary>
       <div class="help-panel-body">
-        <b>⚡ Optimize Route Order</b> — Sorts your pending stops using your current GPS location + nearest-neighbor + 2-opt + or-opt improvement passes. The distance metric is barrier-aware: knows the Mississippi, Forest Park, the Mill Creek Valley railroad cut, the interstates, and that far-south and far-north city have irregular grids. A drive-time estimate appears after.<br><br>
+        <b>⚡ Optimize Route Order</b> — Sorts your pending stops using your current GPS location + nearest-neighbor + 2-opt + or-opt improvement passes. Distances come from <b>OSRM</b> (an open-source road-routing engine) so the optimizer follows real streets, not straight-line crow-flies estimates — that's a big deal in a city with the Mississippi, Forest Park, the Mill Creek Valley railroad cut, the interstates, and irregular grids in far-south and far-north city. If OSRM is unreachable (offline or rate-limited) the app falls back to a barrier-aware Haversine model that approximates the same constraints. A drive-time estimate appears after.<br><br>
         <b>📌 Pin start / 📌 Pin end</b> — Lock a stop as your first or last stop regardless of optimization. Tap 📌 in the route card or in the map popup. Useful when you have a scheduled appointment at a specific address.<br><br>
-        <b>🔒 Lock position</b> — Lock a specific number for a stop. The optimizer will keep that stop at that index and reroute around it.<br><br>
+        <b>🔒 Lock position (waypoint lock)</b> — Lock a specific stop at a specific position number in the route. The optimizer keeps that stop at that index and reroutes the surrounding stops around it. You can lock multiple stops; the optimizer respects all of them simultaneously. Tap 🔒 again on a locked stop to unlock.<br><br>
         <b>↺ Reset Order</b> — Returns stops to the order they were added.<br><br>
         <b>▲▼ Reorder</b> — Tap the arrows on any route card to manually bump a stop up or down in priority.<br><br>
-        <b>Route AI Narrative</b> — After optimizing, if you have an Anthropic API key set, the app generates a brief plain-English description of the route sequence (e.g., "Start downtown, swing through Tower Grove, finish in Carondelet").<br><br>
+        <b>Route AI Narrative</b> — After optimizing, if you have an Anthropic API key set, the app generates a brief plain-English description of the route sequence (e.g., "Start downtown, swing through Tower Grove, finish in Carondelet"). Cheap text-only call.<br><br>
         <b>Navigate all</b> — Tap 🗺️ in the route tab header to open the full multi-stop route in Google Maps (up to 10 waypoints).
       </div>
     </details>
@@ -2537,7 +2540,7 @@ header{
         · <b>Install the app</b> to your home screen via Settings → App Install for offline access and a faster experience.<br>
         · <b>The map auto-updates</b> when you switch to it after making changes — no need to refresh.<br>
         · <b>Completed stops save permanently</b> until you clear them. Your history is available under "All Time" in the DATA tab.<br>
-        · <b>Watch your AI spend</b> in Settings → 📊 AI Usage if you're using photo scan heavily — image inputs are the most expensive type of request.<br>
+        · <b>Watch your AI spend</b> in Settings → 📊 AI Usage if you're using photo scan heavily — image inputs are the most expensive type of request (~$0.004 each on Claude Haiku 4.5 vision). Check your real money balance at console.anthropic.com → Billing.<br>
         · <b>Photo gallery is the permanent record.</b> The app's 48-hour cache is convenience only. Photos in your phone's Photos / Downloads folder never expire.
       </div>
     </details>
@@ -2551,6 +2554,7 @@ header{
         · <b>🔍 Search</b> — City of St. Louis property lookup by address<br>
         · <b>📷 Photostamp</b> — Opens your camera with stop-aware overlay. Stamped photos save to your gallery and to the 48-hour cache (see Photo Stamping &amp; Cache section)<br>
         · <b>⚙️</b> (top right) — Opens your Settings / profile editor<br><br>
+        <b>✨ Supercharge with AI</b> — Appears as a small link in the stop-count bar only when no API key is set. Opens the Supercharge modal that walks you through getting an Anthropic key and the real cost (~$0.004 per photo scan, $5 lasts ~1,250 scans). Once a key is saved, the link disappears.<br><br>
         Other resources (city departments, wildlife rescue, pest control, property lookup tools) are available in the Info tab under the <b>📋 RESOURCES</b> button.
       </div>
     </details>
@@ -22577,10 +22581,16 @@ function renderWizardStep() {
   } else if (step === 'apikey') {
     body.innerHTML =
       '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;color:var(--lime);margin-bottom:12px">Step 3 of 3 — Photo Scan (Optional)</div>' +
-      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(200,230,201,0.55);margin-bottom:12px">The 📷 photo scan feature uses AI to read address lists from photos. It requires a free Anthropic API key. You can skip this and add it later in Settings.</div>' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(200,230,201,0.55);margin-bottom:10px;line-height:1.7">The 📷 photo scan feature uses AI to read address lists from photos. It needs an Anthropic API key. <b style="color:rgba(200,230,201,0.75)">Skip this and add it later — recommended on a first run.</b></div>' +
+      '<div style="background:rgba(255,255,255,0.06);border-left:2px solid var(--lime);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:12px">' +
+      '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:rgba(200,230,201,0.7);line-height:1.75">' +
+      '<b style="color:var(--lime)">Real cost (be aware):</b><br>' +
+      'The key itself is free, but you have to <b>prepay $5 minimum</b> at console.anthropic.com for the key to draw against. New accounts get $5 free trial credits, so first prepay is effectively your second $5.<br><br>' +
+      'At ~$0.004 per photo scan (Claude Haiku 4.5 vision), <b>$5 lasts ~1,250 scans</b> — roughly <b>125 days at 10 scans/day</b> (a very liberal estimate). Most inspectors go many months on $5. No monthly fee, no auto-charge.' +
+      '</div></div>' +
       '<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;margin-bottom:12px">' +
       '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(200,230,201,0.6);line-height:1.7">' +
-      '1. Go to console.anthropic.com<br>2. Sign up (free)<br>3. Create an API key<br>4. Paste it below' +
+      '1. Go to console.anthropic.com<br>2. Sign up (account is free)<br>3. Settings → Billing → buy $5 in credits<br>4. Settings → API Keys → Create Key<br>5. Paste it below' +
       '</div></div>' +
       wizField('Anthropic API Key', 'wiz-apikey-input', 'password', '', 'sk-ant-api03-...') +
       wizField('PIN to unlock key (min 4 chars)', 'wiz-apikey-pin', 'password', '', '••••') +
