@@ -348,17 +348,20 @@ header{
    shape, plus an outer soft glow so the highlight reads at a glance even
    in a dense list. The left-edge accent stripe widens and brightens too
    so the cluster member is recognizable from the addr-row alone. */
-/* Nearby-cluster highlight — Drop AP.3 (2026-05-09) tiered.
-   The count of OTHER pending stops within the cluster radius drives the
-   color: 1 neighbor → orange, 2 → purple, 3+ → red. The legacy
+/* Nearby-cluster highlight — Drop AP.3 tiered (orange/purple/red);
+   Drop AP.6 (2026-05-14) increases visibility: thicker box-shadow ring (5px
+   instead of 3px), wider glow, and a soft tier-colored background tint so
+   the card reads as "clustered" even in peripheral vision. Tints are
+   tuned to stay legible against the existing card text colors. The legacy
    .nearby-cluster class (gold) is kept as a fallback in case any older
    render path still adds it without picking a tier. */
 .card.nearby-cluster,
 .route-card.nearby-cluster{
   box-shadow:
-    0 0 0 3px #f5c518,
-    0 0 14px 2px rgba(245,197,24,0.55),
+    0 0 0 5px #f5c518,
+    0 0 18px 3px rgba(245,197,24,0.6),
     var(--shadow);
+  background:#fff8d6;
   border-radius:var(--radius);
 }
 .card.nearby-cluster::before{
@@ -370,9 +373,10 @@ header{
 .card.nearby-cluster-1,
 .route-card.nearby-cluster-1{
   box-shadow:
-    0 0 0 3px #e67e22,
-    0 0 14px 2px rgba(230,126,34,0.55),
+    0 0 0 5px #e67e22,
+    0 0 18px 3px rgba(230,126,34,0.6),
     var(--shadow);
+  background:#fdebd0;
   border-radius:var(--radius);
 }
 .card.nearby-cluster-1::before{
@@ -384,9 +388,10 @@ header{
 .card.nearby-cluster-2,
 .route-card.nearby-cluster-2{
   box-shadow:
-    0 0 0 3px #8e44ad,
-    0 0 14px 2px rgba(142,68,173,0.55),
+    0 0 0 5px #8e44ad,
+    0 0 18px 3px rgba(142,68,173,0.6),
     var(--shadow);
+  background:#f1e4f7;
   border-radius:var(--radius);
 }
 .card.nearby-cluster-2::before{
@@ -398,9 +403,10 @@ header{
 .card.nearby-cluster-3,
 .route-card.nearby-cluster-3{
   box-shadow:
-    0 0 0 3px #c0392b,
-    0 0 14px 2px rgba(192,57,43,0.55),
+    0 0 0 5px #c0392b,
+    0 0 18px 3px rgba(192,57,43,0.6),
     var(--shadow);
+  background:#fadbd8;
   border-radius:var(--radius);
 }
 .card.nearby-cluster-3::before{
@@ -2567,20 +2573,22 @@ header{
         <b>Note on OpenAI:</b> Not currently compatible with this app's no-server architecture (OpenAI doesn't reliably support direct browser API calls). If that changes, OpenAI support will be added.<br><br>
         <b>Security:</b> Your keys are encrypted on-device with AES-GCM using a PIN as the password (one PIN unlocks all your keys). The encrypted blob lives in this app's private storage — it never leaves your phone unencrypted, and other apps on your phone can't see it.<br><br>
         <b>Models:</b> Gemini calls use gemini-2.5-flash; Anthropic calls use Claude Haiku 4.5. Both are the fast, cheap tier of their respective lineups. The app intentionally won't use more expensive models — this gives you predictable costs and limits damage if your key is ever leaked.<br><br>
-        <b>Usage tracking:</b> Settings → 📊 AI Usage shows per-feature call counts and token usage for the current session, so you can see what your keys have spent. Resets when you reload the app. To check your real money balance, go to console.anthropic.com → Billing (Anthropic only — Gemini's free tier doesn't bill).
+        <b>Usage tracking:</b> Settings → 📊 AI Usage shows per-feature call counts and token usage, with window pills for Session · Today · 7 days · 30 days. The Session view resets when you reload the app; Today / 7d / 30d views persist (up to 365 days of daily rollups stored locally). Each window also shows a per-provider breakdown so you can see how much of your AI work landed on Gemini vs Anthropic. To check your real money balance, go to console.anthropic.com → Billing (Anthropic only — Gemini's free tier doesn't bill).
       </div>
     </details>
 
     <details class="help-panel">
       <summary>💬 Ask Your Data</summary>
       <div class="help-panel-body">
-        <b>Plain-English queries against your stop history.</b> In the DATA tab, tap 💬 ASK to open a question box. Type a natural-language question and the AI uses your local stop data (never sent verbatim to the model — only aggregate stats and structure) to compose an answer.<br><br>
+        <b>Plain-English queries against your stop history.</b> On the INFO tab, tap the 💬 <b>Ask Your Data</b> tile to open the conversation modal. Type a natural-language question and the AI uses your local stop data (never sent verbatim to the model — only aggregate stats and structure) to compose an answer.<br><br>
         <b>Examples that work well:</b><br>
         · "Which neighborhood did I visit most this week?"<br>
         · "What's my average dwell time on inspections vs service requests?"<br>
         · "How many follow-up flags do I have open?"<br>
-        · "What time of day am I closing the most stops?"<br>
+        · "Which ward had the most stops this week?"<br>
         · "Which addresses have I returned to in the last month?"<br><br>
+        <b>Conversations persist.</b> Past conversations are saved on this device — tap <b>📚 HISTORY</b> in the modal header to scroll through everything you've asked. Each row shows the first question, when it happened, and how many messages were exchanged. Tap a row to load that thread; tap <b>＋ NEW</b> to start fresh.<br><br>
+        <b>Archive and delete.</b> Each row has 📥 (archive — moves it to a collapsed section below) and 🗑 (permanent delete). Use Archive for "finished thinking about this for now" — restore later if needed. The footer shows storage usage; cap is ~5 MB or 500 conversations, after which oldest archived items get pruned automatically.<br><br>
         <b>What it can't do:</b><br>
         · Won't fabricate data it doesn't have — if you only have one shift logged, "compare last week to this week" returns "not enough data."<br>
         · Won't predict future routes or assign work — it analyzes what already happened.<br>
@@ -2610,9 +2618,18 @@ header{
     <details class="help-panel">
       <summary>📊 Data &amp; Exports</summary>
       <div class="help-panel-body">
-        Open the DATA tab from the INFO screen to see today's metrics and your shift history.<br><br>
-        <b>Date ranges:</b> Today · 7 Days · 30 Days · All Time · Custom.<br><br>
-        <b>Export formats:</b><br>
+        Open the DATA tab from the INFO screen to see today's metrics, share your data, and explore historical periods.<br><br>
+        <b>📅 Period Reports</b> — The headline panel. Pick a period kind (Day / Week / Month / Year) and an anchor date. Each report shows:<br>
+        · Stop count · completed · close rate · followups<br>
+        · First stop / last stop / average minutes per stop<br>
+        · Top wards, top neighborhoods, top streets, by stop type<br>
+        Tap ‹ and › to navigate back and forward in time. Tap <b>NOW</b> to return to the current period. The status badge tells you if a report is <b>● IN PROGRESS</b> (the current period — still updating) or <b>✓ COMPLETED</b> (a closed historical period — frozen in time). The ⚙ icon opens a settings panel where you can pick which day the week starts on (default Monday).<br><br>
+        <b>Share a period report:</b><br>
+        · <b>📋 Copy</b> — plain-text summary copied to clipboard, ready to paste into Slack, email, or a chat<br>
+        · <b>📥 CSV</b> — download a spreadsheet with one row per stop, including address, type, status, dates, ward, neighborhood, followup, and notes<br>
+        · <b>🌐 HTML report</b> — download a fully-styled standalone HTML file. Opens in any browser and prints to PDF (Cmd/Ctrl+P) for clean shareable reports<br><br>
+        <b>Rolling-window metrics</b> still live above the period reports panel: Today · 7 Days · 30 Days · All Time · Custom. Use these for "rolling 30 days" style snapshots that aren't tied to calendar boundaries.<br><br>
+        <b>Other exports:</b><br>
         · <b>CSV Spreadsheet</b> — One row per stop. Columns: #, Inspector, Address, Type, Status, AddedAt, CompletedAt, DurationMins, Lat, Lng, Notes. Opens in Excel or Google Sheets.<br>
         · <b>Text Summary</b> — Three-section plain-text report (Field Worker, Manager, Geographic). Good for email.<br>
         · <b>Push to Sheets</b> — Sends data directly to a Google Sheet you control. Requires one-time Apps Script setup (see below).<br><br>
@@ -2749,6 +2766,7 @@ header{
         · The trail connects: origin → done1 → done2 → ... → pending1 → pending2 → ...<br>
         · The transition from your last-done stop to your first-pending stop is part of the pending layer (it's your next move). After completing a stop, the road-network overlay reverts to dashed straight-line until the next Optimize — the geometry is fetched per optimize run.<br><br>
         <b>Pin colors</b> match the stop type — red for Service Requests, blue for Inspections, gold for general — and pending pins show their route number.<br><br>
+        <b>Cluster outlines on pins:</b> If a pending stop sits within range of other pending stops, its map pin gets a colored ring matching the same tier system as the stop cards — <b style="color:#e67e22">orange</b> for 1 neighbor, <b style="color:#8e44ad">purple</b> for 2, <b style="color:#c0392b">red</b> for 3+. The ring sits outside the pin's white border so it doesn't change the click target. Adjust the cluster radius (or turn it off) in Settings → ✨ Nearby-Stops Highlight Radius.<br><br>
         <b>Boundary layers</b> (Neighborhoods, Wards) toggle on via the LAYERS button. Neighborhoods now show their official city number after the name (e.g., "Southwest Garden #13") and are drawn with a heavier purple dashed border. Wards are drawn with a thick solid teal border, so the two layers stay distinguishable when both are on.<br><br>
         <b>Tap a pin</b> to open the map popup card. From the popup you can: ▲▼ reorder, 📌 pin as start/end, 🔒 lock position, 📍 mark arrived, 🔍 lookup, 🧭 navigate, and ✓ close. The map redraws after each action with a brief pause so you can see the markers and trail update.<br><br>
         <b>The "you" marker</b> is the blue dot with a halo at your origin. By default this is the city center; tap 📡 in the map header to update it to your current GPS location.<br><br>
@@ -2820,9 +2838,14 @@ header{
         <b>Adding stops:</b><br>
         · Type an address in the input field and tap ADD (or press Enter)<br>
         · 🎤 Voice — speak addresses one at a time; pause between each<br>
-        · 📷 Photo scan — photograph a printed route sheet; AI reads the addresses (requires Anthropic API key in Settings)<br>
+        · 📷 Photo scan — photograph a printed route sheet; AI reads the addresses (requires a Gemini OR Anthropic API key in Settings — Gemini's free tier works)<br>
         · 📋 Paste — copy a list of addresses from any source and paste it<br>
         · 📊 Spreadsheet — upload a CSV or Excel file with addresses in the first column<br><br>
+        <b>Cluster highlighting:</b> Stops within range of other stops get a colored border + tinted background so you can spot batches at a glance:<br>
+        · <b style="color:#e67e22">Orange</b> — 1 other stop nearby<br>
+        · <b style="color:#8e44ad">Purple</b> — 2 other stops nearby<br>
+        · <b style="color:#c0392b">Red</b> — 3+ other stops nearby (worth planning a swing)<br>
+        Set the "nearby" radius in Settings → ✨ Nearby-Stops Highlight Radius. Set radius to 0 to turn cluster highlighting off entirely.<br><br>
         <b>Stop types:</b> Tap the color badge on any stop to cycle through Inspection · Service Request · Work Order · General. You can also create your own custom types with custom colors and icons via Settings → Custom Stop Types.<br><br>
         <b>Stop buttons (left to right):</b><br>
         · 📝 Notes — add or view field notes for this stop<br>
@@ -2833,7 +2856,7 @@ header{
         · 🧭 (round, right) — navigate to this address via Google Maps<br><br>
         <b>Photo capture per stop:</b> Tap and hold the photostamp button (📷 in the top header) while a stop is active to start a photo session linked to that stop. Each stamped photo is saved to your phone gallery AND cached in the app for 48 hours so you can email them with the stop summary later. See the <b>Photo Stamping &amp; Cache</b> and <b>Email Stop Summaries</b> sections below for details.<br><br>
         <b>Completed stops</b> collapse to a separate "Completed" section at the bottom. Use ↩ to restore or 🗑 to delete permanently.<br><br>
-        <b>Duplicate detection:</b> Adding an address already on the list shows a prompt — tap to confirm or cancel.
+        <b>Duplicate detection:</b> Adding an address already on the list shows a prompt — tap to confirm or cancel. The detector ignores ZIP codes, so "1234 N Grand" and "1234 N Grand 63106" are recognized as the same address.
       </div>
     </details>
 
@@ -2858,6 +2881,27 @@ header{
     </details>
 
     <details class="help-panel">
+      <summary>🙏 Anonymous Usage Data</summary>
+      <div class="help-panel-body">
+        <b>What you saw on first launch.</b> The first time you open the app — or the first time you open a new version with updated data-collection scope — a prompt asks whether you'd like to share anonymous usage data with the developer. Your choice is saved on your device; you won't be asked again unless you clear app memory or a new consent version ships.<br><br>
+        <b>What gets sent (if you opt in):</b><br>
+        · Anonymous device ID (a random string — not tied to you, your name, or your phone)<br>
+        · App version and basic browser info (e.g. "iOS 17, Safari")<br>
+        · Which features you use (e.g. "photo scan", "optimize route") and how often<br>
+        · Crash reports (error message + where it happened, no data context)<br><br>
+        <b>What never gets sent:</b><br>
+        · No addresses, photos, or notes<br>
+        · No GPS coordinates or location data<br>
+        · No personal info — name, title, ID number, phone, email — nothing<br>
+        · No login info (there isn't a login)<br><br>
+        <b>How to change your choice.</b> Settings → 🙏 Help Improve the App has a checkbox. Flip it any time. Changes apply to all future telemetry; events that were already sent can't be unsent (but they had no identifying info anyway).<br><br>
+        <b>How to audit what's been collected on this device.</b> Use the Diagnostics panel (Settings → 🛠 Diagnostics) to view the local event log. Every event the app would send is recorded there first, so you can see exactly what telemetry looks like before it ever leaves your phone.<br><br>
+        <b>Where data goes.</b> Telemetry posts to a Google Apps Script endpoint controlled by the developer of this app — not Google's own analytics service, not Facebook, not anyone else. A single tiny POST per event, then discarded after being appended to a spreadsheet for the developer to review trends.<br><br>
+        <b>Why we ask.</b> This app is free and has no business model. Anonymous usage data helps the developer see which features matter, where crashes happen, and what's worth building next. Sharing is optional and you can use the app fully without sharing anything.
+      </div>
+    </details>
+
+    <details class="help-panel">
       <summary>🔧 Toolbar Buttons</summary>
       <div class="help-panel-body">
         These appear at the top of every screen:<br><br>
@@ -2866,7 +2910,7 @@ header{
         · <b>🔍 Search</b> — City of St. Louis property lookup by address<br>
         · <b>📷 Photostamp</b> — Opens your camera with stop-aware overlay. Stamped photos save to your gallery and to the 48-hour cache (see Photo Stamping &amp; Cache section)<br>
         · <b>⚙️</b> (top right) — Opens your Settings / profile editor<br><br>
-        <b>✨ Supercharge with AI</b> — Appears as a small link in the stop-count bar only when no API key is set. Opens the Supercharge modal that walks you through getting an Anthropic key and the real cost (~$0.004 per photo scan, $5 lasts ~1,250 scans). Once a key is saved, the link disappears.<br><br>
+        <b>✨ Supercharge with AI</b> — Appears as a small link in the stop-count bar only when no AI key is set. Opens the Supercharge modal that walks you through getting a free <b>Gemini</b> key (recommended — no credit card required, ~500 requests/day free) or a paid <b>Anthropic</b> key. The modal leads with Gemini since the free tier covers normal inspector use indefinitely. Once any key is saved, the link disappears.<br><br>
         Other resources (city departments, wildlife rescue, pest control, property lookup tools) are available in the Info tab under the <b>📋 RESOURCES</b> button.
       </div>
     </details>
@@ -4073,9 +4117,23 @@ const SHARED_LS_KEYS = new Set([
   'profile-list',
   '_migrated_v1',
   '_migrated_v2_profiles',
+  '_migrated_v3_shared_analytics',
   'pwa-installed',
   'pwa-prompt-dismissed',
-  'swipe-hint-shown'
+  'swipe-hint-shown',
+  // Drop AP.6 (2026-05-14) — analytics consent is per-device, not per-profile.
+  // A user with two profiles should not be re-prompted on each profile switch,
+  // and _beacon (which runs at boot before the active profile is settled) needs
+  // a consistent answer regardless of which profile is loaded.
+  'pref-app-analytics-opt-in',
+  'pref-app-analytics-decision-version',
+  // The remote beacon URL also makes sense device-wide — it's the same endpoint
+  // for every profile on this device. Was already shared in spirit (the merge-
+  // skip list had it) but never reflected in actual LS namespacing.
+  'analytics-beacon-url',
+  // Drop AP.6: tracks whether the default-URL seeding has run for the
+  // currently-shipped _DEFAULT_BEACON_VERSION. Also device-wide.
+  'analytics-beacon-default-version'
 ]);
 function _isSharedKey(k) { return SHARED_LS_KEYS.has(k); }
 
@@ -4311,6 +4369,54 @@ function _migrateToProfiles() {
   } catch(e) { console.warn('[Profiles] migration failed:', e); }
 }
 
+// Drop AP.6 (2026-05-14) — promote three analytics keys from profile-scoped
+// to device-shared. Pre-AP.6 these were per-profile (because they were just
+// regular keys flowing through the LS wrapper). Now they're in
+// SHARED_LS_KEYS, but existing installs still have their values under
+// `stlcr:p:<profile>:`. This migration copies the value from the *active*
+// profile's scoped slot into the shared slot, then removes the scoped copies
+// from every profile. Idempotent — guarded by `_migrated_v3_shared_analytics`.
+//
+// Why copy from the *active* profile specifically: every profile probably
+// has the same value (the user answered the prompt once at most). But if
+// they did manage to diverge, the active profile's choice is the freshest
+// and most representative. After the migration, all profiles share the same
+// value going forward.
+function _migrateAnalyticsToShared() {
+  try {
+    if (localStorage.getItem(LS_PREFIX + '_migrated_v3_shared_analytics') === '1') return;
+    var KEYS_TO_PROMOTE = ['pref-app-analytics-opt-in', 'pref-app-analytics-decision-version', 'analytics-beacon-url'];
+    var activeProfile = localStorage.getItem(LS_PREFIX + 'profile-active') || DEFAULT_PROFILE_ID;
+    // Phase 1: copy active profile's value (if any) up to the shared slot,
+    // unless a shared value already exists.
+    KEYS_TO_PROMOTE.forEach(function(key) {
+      try {
+        var sharedFull = LS_PREFIX + key;
+        if (localStorage.getItem(sharedFull) !== null) return; // already set, don't clobber
+        var scopedFull = LS_PREFIX + 'p:' + activeProfile + ':' + key;
+        var v = localStorage.getItem(scopedFull);
+        if (v !== null) localStorage.setItem(sharedFull, v);
+      } catch(_) {}
+    });
+    // Phase 2: sweep ALL profiles' scoped copies of these keys and remove
+    // them (after the shared copy is established). Walk localStorage once.
+    var toRemove = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var fullKey = localStorage.key(i);
+      if (!fullKey) continue;
+      // Match stlcr:p:<anything>:<one of our keys>
+      KEYS_TO_PROMOTE.forEach(function(key) {
+        if (fullKey.indexOf(LS_PREFIX + 'p:') === 0 && fullKey.endsWith(':' + key)) {
+          toRemove.push(fullKey);
+        }
+      });
+    }
+    toRemove.forEach(function(k) { try { localStorage.removeItem(k); } catch(_) {} });
+    localStorage.setItem(LS_PREFIX + '_migrated_v3_shared_analytics', '1');
+    if (toRemove.length) console.info('[Profiles] AP.6 analytics consent: promoted to device-shared, cleaned ' + toRemove.length + ' scoped copies');
+  } catch(e) { console.warn('[AP.6] analytics migration failed:', e); }
+}
+
 // LS wrapper — profile-aware. Most call sites use LS.get(k)/set(k,v) and
 // don't know or care whether `k` is profile-scoped or shared; the wrapper
 // resolves the full storage key based on _isSharedKey(k) and the active
@@ -4437,6 +4543,10 @@ window.LS = LS;
 // _migrated_v1 / _migrated_v2_profiles markers respectively), so subsequent
 // boots are no-ops.
 _migrateToProfiles();
+// Drop AP.6 — promote analytics consent keys to device-shared. Must run
+// AFTER _migrateToProfiles since that establishes the default profile id
+// we read from.
+_migrateAnalyticsToShared();
 
 // ── Profile Backup & Restore ─────────────────────────────────────────────────
 // Export every persistent piece of user data into a single JSON file the user
@@ -6465,8 +6575,17 @@ function markRouteChanged() {
 function init() {
   try {
     _initBody();
-    // Show setup wizard on first install
-    if (!LS.get('setup-complete')) {
+    // Drop AP.6: Consent prompt for anonymous usage data takes priority
+    // over the setup wizard. New users see consent first, then wizard.
+    // Existing users (who already cleared the wizard) see consent on
+    // first launch of this build, then return to their normal app state.
+    // showAnalyticsConsentIfNeeded() chains to the wizard internally if
+    // both are needed; if consent is already answered, it's a no-op and
+    // we fall through to the wizard check directly.
+    if (typeof showAnalyticsConsentIfNeeded === 'function' && _needsAnalyticsConsent()) {
+      // Will trigger wizard later via _afterConsentNext()
+      setTimeout(showAnalyticsConsentIfNeeded, 400);
+    } else if (!LS.get('setup-complete')) {
       setTimeout(openSetupWizard, 400);
     }
   } catch(e) {
@@ -8122,7 +8241,12 @@ function toggleClock() {
     _updateClockDisplay();
     showToast('Clocked in ✓');
     _logClockEvent('in');
-    _beacon('clock_in', { inspector: (typeof getInspectorId==='function'?getInspectorId():'').slice(0,30)||'anon' });
+    // Drop AP.6 (2026-05-14): removed `inspector` field from this beacon.
+    // Even truncated, sending a user-chosen name string with telemetry is
+    // PII — it identifies the user across pings. The local clock log
+    // (_logClockEvent) keeps the inspector name for the user's own
+    // records, but it never leaves the device.
+    _beacon('clock_in', null);
   } else {
     // CLOCK OUT — end shift (works whether or not you're currently on break)
     _endShift('shift_end');
@@ -12980,14 +13104,23 @@ function _getDeviceId() {
 }
 
 // Fire-and-forget analytics beacon. URL stored in localStorage['analytics-beacon-url']
-// Never sends PII — only event name, metadata, timestamp, anonymous deviceId
+// Never sends PII — only event name, metadata, timestamp, anonymous deviceId.
+//
+// Drop AP.6 (2026-05-14) — REMOTE transmission is now gated on the user's
+// 'pref-app-analytics-opt-in' consent flag. Before this drop, _beacon
+// would fire remote pings regardless of the Settings toggle — a bug that
+// also bypassed the new consent prompt at app launch. Local event-log
+// retention is unchanged (kept for the user's own ability to see what
+// the app has recorded). If a beaconUrl is configured but the user has
+// not opted in, the URL is silently ignored.
 function _beacon(event, meta) {
   // Wrapped entirely — never throws, never blocks UI
   try {
     const deviceId = _getDeviceId();
     const ts = new Date().toISOString();
     const payload = JSON.stringify(Object.assign({ event, deviceId, ts }, meta||{}));
-    // Local event log — capped at 1000 entries, pruned on overflow
+    // Local event log — capped at 1000 entries, pruned on overflow.
+    // Kept regardless of consent so a user can inspect what would be sent.
     try {
       const key = 'analytics-event-log';
       const log = JSON.parse(LS.get(key)||'[]');
@@ -12996,7 +13129,8 @@ function _beacon(event, meta) {
       try { LS.set(key, JSON.stringify(log.slice(-1000))); }
       catch(quota) { LS.set(key, JSON.stringify(log.slice(-200))); }
     } catch(e) {}
-    // Remote beacon — only if URL configured
+    // Remote beacon — only if URL configured AND user has opted in
+    if (LS.get('pref-app-analytics-opt-in') !== '1') return;
     const beaconUrl = LS.get('analytics-beacon-url') || '';
     if (beaconUrl) {
       try {
@@ -19973,10 +20107,56 @@ async function emailStopWithPhotos(stopIdArg) {
 // Google Apps Script endpoint so usage can be tracked without
 // collecting any PII. Configure APP_ANALYTICS_URL below.
 // ============================================================
-// TODO: paste your Google Apps Script Web App URL here to activate pings.
-// Deploy an Apps Script with doPost(e) that appends e.postData.contents
-// to a sheet, then set this constant to the deployed Web App URL.
-const APP_ANALYTICS_URL = '';
+// Drop AP.6 (2026-05-14): wired to the Google Apps Script Web App URL
+// the developer deployed. Both the sendAppPing path (this const) and
+// the _beacon path (the analytics-beacon-url LS key, defaulted below)
+// flow to the same endpoint. Switching to a different endpoint later
+// means changing this constant AND running through the analytics-beacon-url
+// reset on each device (or bumping the default-version sentinel below
+// so the new default wins).
+//
+// To redeploy the script, see the Apps Script project — the Web app URL
+// stays stable across script-edits as long as you re-deploy as the SAME
+// deployment (Manage deployments → ✏ → New version). Creating a brand
+// new deployment changes the URL and would require a new release of this
+// HTML file.
+const APP_ANALYTICS_URL = 'https://script.google.com/macros/s/AKfycbyiif5p93ZPXEmMfuZI9dInUUT_233FiQtKUBlCixxUC-9BqIchPtN0b-VDqBTah_9vHw/exec';
+
+// Default value for the _beacon path's per-device URL slot. Set on first
+// boot if no value exists yet, so out-of-the-box installs send to the
+// same endpoint as sendAppPing without the developer needing to flip a
+// Diagnostics setting per device. Users (and the developer on a dev
+// device) can override via Diagnostics — this only fills an empty slot,
+// never clobbers an existing value.
+//
+// The sentinel `analytics-beacon-default-version` lets the developer push
+// a new default URL to all installs in a future release: bump the constant
+// here, and any device whose stored sentinel is older will get the new
+// default written (still skipping if the user has manually overridden —
+// we only update when the stored URL matches a PREVIOUSLY-defaulted URL).
+const _DEFAULT_BEACON_URL = APP_ANALYTICS_URL;
+const _DEFAULT_BEACON_VERSION = 1;
+
+(function _seedDefaultBeaconUrl() {
+  try {
+    var existing = LS.get('analytics-beacon-url');
+    var seenVersion = parseInt(LS.get('analytics-beacon-default-version') || '0', 10);
+    if (isNaN(seenVersion)) seenVersion = 0;
+
+    if (!existing) {
+      // First boot (or user cleared it) — write the default
+      LS.set('analytics-beacon-url', _DEFAULT_BEACON_URL);
+      LS.set('analytics-beacon-default-version', String(_DEFAULT_BEACON_VERSION));
+    } else if (seenVersion < _DEFAULT_BEACON_VERSION) {
+      // Existing user with a stored URL. Don't touch — they may have
+      // intentionally overridden it. Just stamp the version so this
+      // branch only fires once. Future default-URL bumps will need a
+      // more sophisticated migration if you actually want to push a new
+      // URL to existing devices.
+      LS.set('analytics-beacon-default-version', String(_DEFAULT_BEACON_VERSION));
+    }
+  } catch(_e) {}
+})();
 
 // Per-install anonymous id — random, no PII, generated once per device.
 function _appAnonId() {
@@ -20023,9 +20203,79 @@ function sendAppPing(eventName, detail) {
 
 function toggleAppAnalytics(on) {
   LS.set('pref-app-analytics-opt-in', on ? '1' : '0');
+  // Drop AP.6: also record consent decision version so changing the toggle
+  // counts as "the user has answered" even if they never saw the modal.
+  // Prevents the consent prompt from re-firing for someone who set their
+  // preference via Settings before the prompt was added.
+  LS.set('pref-app-analytics-decision-version', String(ANALYTICS_CONSENT_VERSION));
   // Send an immediate opt-in ping so the first event after enabling is captured.
   if (on) sendAppPing('opt_in', null);
 }
+
+// ============================================================
+// ANALYTICS CONSENT PROMPT (Drop AP.6, 2026-05-14)
+// ============================================================
+// Versioned consent flow. The user is prompted once for the current
+// ANALYTICS_CONSENT_VERSION. If the version is later bumped — e.g.
+// because the data-collection scope materially changed — every user is
+// re-prompted on next launch. The toggle in Settings still works the
+// same; flipping it also stamps the consent version so a user who set
+// their pref proactively never sees the modal.
+//
+// Storage:
+//   pref-app-analytics-opt-in          '0' | '1'
+//   pref-app-analytics-decision-version  integer (current version)
+const ANALYTICS_CONSENT_VERSION = 1;
+
+function _needsAnalyticsConsent() {
+  try {
+    var v = parseInt(LS.get('pref-app-analytics-decision-version') || '0', 10);
+    if (isNaN(v)) v = 0;
+    return v < ANALYTICS_CONSENT_VERSION;
+  } catch(_e) { return false; }
+}
+
+function showAnalyticsConsentIfNeeded() {
+  if (!_needsAnalyticsConsent()) return false;
+  var modal = document.getElementById('analytics-consent-modal');
+  if (!modal) return false;
+  modal.style.display = 'flex';
+  // Accessibility focus management — match how other modals are opened
+  try { if (typeof Accessibility !== 'undefined' && Accessibility.modalOpened) Accessibility.modalOpened(modal); } catch(_e) {}
+  return true;
+}
+
+function answerAnalyticsConsent(answer) {
+  var optIn = (answer === 'yes');
+  LS.set('pref-app-analytics-opt-in', optIn ? '1' : '0');
+  LS.set('pref-app-analytics-decision-version', String(ANALYTICS_CONSENT_VERSION));
+  // Sync the Settings checkbox so it reflects the choice immediately
+  // if the user goes there next.
+  var cb = document.getElementById('settings-toggle-analytics');
+  if (cb) cb.checked = optIn;
+  // Close the consent modal
+  var modal = document.getElementById('analytics-consent-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    try { if (typeof Accessibility !== 'undefined' && Accessibility.modalClosed) Accessibility.modalClosed(modal); } catch(_e) {}
+  }
+  // If they opted in, fire an immediate opt-in ping (the very first
+  // event after consent — useful to confirm wiring end-to-end without
+  // having to wait for the user to do something).
+  if (optIn) {
+    try { sendAppPing('opt_in', null); } catch(_e) {}
+  }
+  // Continue to the setup wizard for users who haven't completed it yet.
+  // Existing users who already completed setup just see their normal
+  // app from here.
+  try {
+    if (!LS.get('setup-complete')) {
+      setTimeout(openSetupWizard, 250);
+    }
+  } catch(_e) {}
+}
+window.answerAnalyticsConsent = answerAnalyticsConsent;
+window.showAnalyticsConsentIfNeeded = showAnalyticsConsentIfNeeded;
 
 // Voice-note cleanup toggle — when ON, dictated stop notes get a quick AI
 // pass for punctuation / number expansion / street-name correction. The
@@ -26622,6 +26872,53 @@ function wizSaveRole() {
         <a href="mailto:support@yourcityroute.com?subject=STLCityRoute Resources Listing Inquiry" style="display:inline-block;background:white;color:#1F4E79;font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;text-decoration:none;padding:10px 22px;border-radius:8px">📧 support@yourcityroute.com</a>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- ===== ANALYTICS CONSENT MODAL (Drop AP.6, 2026-05-14) =====
+     Shown on first launch (new install) AND on first launch of a new
+     analytics-consent version for existing users. The user's decision is
+     saved to LS along with the consent version stamp, so they're not
+     re-prompted unless the version increments or they clear app memory.
+
+     Two outcomes:
+       - YES → pref-app-analytics-opt-in = '1' + consent-version recorded
+       - NO  → pref-app-analytics-opt-in = '0' + consent-version recorded
+
+     The wizard never opens until consent is answered (the answer-handlers
+     call into the normal setup flow). -->
+<div id="analytics-consent-modal" role="dialog" aria-modal="true" aria-label="Anonymous usage data" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:10000;overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:center;align-items:flex-end">
+  <div style="background:linear-gradient(135deg,var(--moss),var(--leaf));border-radius:24px 24px 0 0;padding:24px 22px 32px;width:100%;max-width:480px;box-shadow:0 -8px 60px rgba(0,0,0,0.5)">
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:2.2rem;margin-bottom:6px">📊</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--lime);letter-spacing:-0.3px;line-height:1.3">Share anonymous usage data?</div>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:rgba(255,255,255,0.92);line-height:1.65;margin-bottom:14px">
+      Help keep YourCityRoute free and improving by sharing anonymous usage data with the developer.
+    </div>
+    <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:var(--lime);letter-spacing:0.5px;margin-bottom:7px;text-transform:uppercase">What gets sent</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(255,255,255,0.85);line-height:1.7">
+        · Anonymous device ID (random — not tied to you)<br>
+        · App version &amp; basic browser info<br>
+        · Which features get used (e.g. "photo scan", "optimize")<br>
+        · Crash reports (without your data)
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:#ffd6a0;letter-spacing:0.5px;margin:11px 0 7px;text-transform:uppercase">What does NOT get sent</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(255,255,255,0.85);line-height:1.7">
+        · No addresses, photos, or notes<br>
+        · No GPS coordinates<br>
+        · No personal info or identifiers<br>
+        · No login (there isn't one — there's no account)
+      </div>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:14px">
+      You can change this any time in Settings → 🙏 Help Improve the App.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button data-fn="answerAnalyticsConsent" data-arg="yes" style="background:white;border:none;border-radius:11px;padding:13px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:var(--forest);cursor:pointer;letter-spacing:0.3px">✓ Yes, share anonymous data</button>
+      <button data-fn="answerAnalyticsConsent" data-arg="no" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.25);border-radius:11px;padding:13px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.78rem;color:white;cursor:pointer;letter-spacing:0.3px">✕ No, keep my data private</button>
     </div>
   </div>
 </div>
