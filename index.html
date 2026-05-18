@@ -7763,8 +7763,13 @@ function _showRelatedStopsHint(newStop, related) {
   if (existing) existing.remove();
   var banner = document.createElement('div');
   banner.id = 'related-stops-hint';
+  // Drop AP.6.2 (2026-05-15): position at top:8px (was 60px) so the
+  // notice overlays the header instead of landing on the tabs row,
+  // where it was easy to miss. z-index sits above the header (which is
+  // unpositioned, default z-index:auto) and below the modal layer
+  // (z-index:9999+).
   banner.style.cssText =
-    'position:fixed;top:60px;left:10px;right:10px;z-index:9990;' +
+    'position:fixed;top:8px;left:10px;right:10px;z-index:9990;' +
     'background:linear-gradient(135deg,#e8f4fd,#d6e9f7);' +
     'border-left:4px solid #2563eb;border-radius:8px;' +
     'padding:9px 12px;font-family:Syne,sans-serif;font-weight:700;' +
@@ -10837,17 +10842,30 @@ const AIProvider = (function() {
   // ── Drop AP.2.1: 'safety' = provider's safety filter withheld output.
   // ── Falling through is exactly the right move — the user's request
   // ── may go through fine on a different provider with different filters.
+  // Drop AP.6.2 (2026-05-15): broadened from the prior conservative rule
+  // set ("only retry on transient errors") to "retry on anything that
+  // isn't a deliberate skip." User-stated intent: if Gemini fails for ANY
+  // reason, try Anthropic before showing an error.
+  //
+  // The only path that doesn't fall through is `no-key` — that's not a
+  // failure, it's "skip this provider, the user hasn't configured it."
+  // _attempt's caller handles that separately so we don't even reach this
+  // function with reason='no-key' in the normal flow.
+  //
+  // The trade-off: a `parse` error (HTTP 200 OK but response wasn't valid
+  // JSON when expectJson=true) now retries on the next provider. We're
+  // willingly paying for two AI calls to avoid the user seeing a broken-
+  // looking error when one provider's output formatting was just slightly
+  // off. Empirically: when one model returns malformed JSON, the other
+  // usually gets it right — different prompt-following biases.
+  //
+  // The 400-error case is the photoscan case the user actually reported:
+  // Gemini sometimes 400s on certain image payloads where Anthropic
+  // succeeds. We now retry instead of failing.
   function _shouldFallThrough(reason, status) {
-    if (reason === 'network') return true;
-    if (reason === 'safety')  return true;
-    if (reason === 'parse')   return false; // got an answer, just unparseable
-    if (reason === 'http') {
-      if (status === 429) return true;
-      if (status >= 500)  return true;
-      if (status === 401 || status === 403) return true; // bad key — try other provider
-      return false; // 400 etc — broken request
-    }
-    return false;
+    if (reason === 'no-key') return true; // handled by caller, but be explicit
+    // Everything else — network, safety, parse, http 4xx/5xx — retry.
+    return true;
   }
 
   // ── Single-provider call (one attempt). Internal — not exposed.
@@ -10945,17 +10963,36 @@ const AIProvider = (function() {
       return { ok: false, reason: 'no-key', provider: null };
     }
 
+    // Track the first provider that produced a real (non-no-key) failure,
+    // so if a later provider succeeds we can tell the user about it.
+    // We use 'firstRealFailure' (not 'first provider in priority') because
+    // a no-key skip isn't really a failure — if the user has Gemini but
+    // not Anthropic, we don't want a toast saying "Gemini failed, used
+    // Anthropic" when actually only Gemini was ever tried.
     var lastFailure = null;
+    var firstRealFailureProvider = null;
     for (var i = 0; i < priority.length; i++) {
       var providerId = priority[i];
       var attempt = await _attempt(providerId, opts);
-      if (attempt.ok) return attempt;
+      if (attempt.ok) {
+        // If we successfully completed on a provider AFTER another
+        // provider had a real (non-no-key) failure, notify the user.
+        // This makes the fallback visible — the user knows Anthropic
+        // was used (which costs real money) instead of Gemini.
+        if (firstRealFailureProvider && firstRealFailureProvider !== providerId) {
+          try { _notifyFallback(firstRealFailureProvider, providerId, opts.operation); } catch(_e) {}
+        }
+        return attempt;
+      }
 
       lastFailure = attempt;
       // If THIS provider had no key, skip to next silently (don't burn a PIN
       // prompt on a provider the user hasn't set up). Other failure reasons:
       // ask _shouldFallThrough whether it's worth trying the next provider.
       if (attempt.reason === 'no-key') continue;
+      // Real failure — remember which provider it was so we can mention
+      // it in the fallback toast if a later provider succeeds.
+      if (!firstRealFailureProvider) firstRealFailureProvider = providerId;
       if (!_shouldFallThrough(attempt.reason, attempt.status)) {
         // Hard failure — return immediately. e.g. parse error means we DID
         // get an answer but couldn't read it; trying another provider
@@ -10968,6 +11005,27 @@ const AIProvider = (function() {
     // All providers exhausted. Return the last failure so callers see the
     // most-recent error (typically more informative than the first).
     return lastFailure || { ok: false, reason: 'no-key', provider: null };
+  }
+
+  // Drop AP.6.2 (2026-05-15): user-visible fallback notification. Fires
+  // when a real failure on one provider was rescued by a later provider.
+  // Kept inside the AIProvider module so it's centralized — every feature
+  // that calls AIProvider.complete gets the same notification behavior.
+  function _notifyFallback(failedProvider, usedProvider, operation) {
+    var failedLabel = (PROVIDERS[failedProvider] && PROVIDERS[failedProvider].label) || failedProvider;
+    var usedLabel   = (PROVIDERS[usedProvider]   && PROVIDERS[usedProvider].label)   || usedProvider;
+    // Match showToast call style elsewhere — non-blocking, auto-dismisses
+    if (typeof showToast === 'function') {
+      showToast(failedLabel + ' failed — used ' + usedLabel + ' instead');
+    }
+    // Also log to the analytics event log so the developer can spot
+    // provider-failure patterns from opted-in users. _beacon is gated by
+    // consent already, so this only goes remote if the user opted in.
+    try {
+      if (typeof _beacon === 'function') {
+        _beacon('ai_fallback', { from: failedProvider, to: usedProvider, op: operation || 'unknown' });
+      }
+    } catch(_e) {}
   }
 
   // ── Public surface ──────────────────────────────────────────────────
