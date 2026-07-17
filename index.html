@@ -2444,71 +2444,6 @@ header{
       </div>
     </div>
 
-    <!-- Auto-send settings -->
-    <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest);margin-bottom:10px">📧 Auto-Send Summary</div>
-
-      <!-- Daily -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;padding:6px 8px;background:#fafafa;border-radius:7px">
-        <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#555;display:flex;align-items:center;gap:5px">
-          <input type="checkbox" id="data-autosend-enabled" onchange="updateAutoSendSettings()" style="width:14px;height:14px">
-          Daily
-        </label>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-          <label style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#999">Time:</label>
-          <input type="time" id="data-autosend-time" value="17:00" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.6rem;border:1px solid #ddd;border-radius:6px;padding:3px 6px;color:#333">
-        </div>
-      </div>
-
-      <!-- Weekly -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;padding:6px 8px;background:#fafafa;border-radius:7px">
-        <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#555;display:flex;align-items:center;gap:5px">
-          <input type="checkbox" id="data-autosend-weekly-enabled" onchange="updateAutoSendSettings()" style="width:14px;height:14px">
-          Weekly
-        </label>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-          <label style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#999">Day:</label>
-          <select id="data-autosend-weekly-dow" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.6rem;border:1px solid #ddd;border-radius:6px;padding:3px 5px;color:#333;background:white">
-            <option value="0">Sun</option>
-            <option value="1">Mon</option>
-            <option value="2">Tue</option>
-            <option value="3">Wed</option>
-            <option value="4">Thu</option>
-            <option value="5" selected>Fri</option>
-            <option value="6">Sat</option>
-          </select>
-          <input type="time" id="data-autosend-weekly-time" value="17:00" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.6rem;border:1px solid #ddd;border-radius:6px;padding:3px 6px;color:#333">
-        </div>
-      </div>
-
-      <!-- Monthly -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;padding:6px 8px;background:#fafafa;border-radius:7px">
-        <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#555;display:flex;align-items:center;gap:5px">
-          <input type="checkbox" id="data-autosend-monthly-enabled" onchange="updateAutoSendSettings()" style="width:14px;height:14px">
-          Monthly
-        </label>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-          <label style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#999">Day:</label>
-          <select id="data-autosend-monthly-dom" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.6rem;border:1px solid #ddd;border-radius:6px;padding:3px 5px;color:#333;background:white">
-            <option value="1" selected>1st</option>
-            <option value="15">15th</option>
-            <option value="last">Last</option>
-          </select>
-          <input type="time" id="data-autosend-monthly-time" value="17:00" onchange="updateAutoSendSettings()" style="font-family:'Space Mono',monospace;font-size:0.6rem;border:1px solid #ddd;border-radius:6px;padding:3px 6px;color:#333">
-        </div>
-      </div>
-
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;color:var(--forest);margin-bottom:5px">Recipients</div>
-      <div id="data-recipients-list" style="margin-bottom:6px"></div>
-      <div style="display:flex;gap:6px">
-        <input type="email" id="data-recipient-input" placeholder="email@example.com" style="flex:1;font-family:'Space Mono',monospace;font-size:0.62rem;border:1.5px solid #ddd;border-radius:7px;padding:6px 10px;min-width:0">
-        <button data-fn="addDataRecipient" style="background:var(--forest);color:var(--lime);border:none;border-radius:7px;padding:6px 12px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer;white-space:nowrap">+ ADD</button>
-      </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:#aaa;margin-top:5px;line-height:1.6">
-        Opens your email app with a pre-filled summary at the scheduled time. Note: PWA can't run in the background — schedules trigger when you open the app and the time has passed.
-      </div>
-    </div>
-
     <!-- Storage usage -->
     <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -3112,9 +3047,12 @@ header{
        overflow-y so the whole modal scrolls as one column on small phones. -->
   <div class="modal-sheet" style="padding:18px 18px 24px;background:white;width:100%;max-width:none;height:100dvh;max-height:100dvh;border-radius:0;overflow-y:auto">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:6px">
       <div id="photo-setup-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#8c4a00">📷 Prepare Photo</div>
-      <button data-fn="openPhotoSettings" style="background:#fff4e0;border:1px solid #ead3b0;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#8c4a00;cursor:pointer">⚙ Stamp</button>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <button data-fn="openPhotoSettings" style="background:#fff4e0;border:1px solid #ead3b0;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#8c4a00;cursor:pointer">⚙ Stamp</button>
+        <button data-fn="closePhotoSetup" title="Exit" aria-label="Exit Prepare Photo" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:4px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#666;cursor:pointer">✕ Exit</button>
+      </div>
     </div>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Set the details that will be stamped onto this photo. You can edit them again after the shot.<br><span style="color:#8c4a00"><b>Tip:</b> tap <b>Pick Existing</b> and select multiple photos to stamp all of them with the same address.</span></div>
 
@@ -3134,8 +3072,11 @@ header{
     </div>
 
     <!-- Tappable nearby-parcel address candidates — filled by
-         _refreshPhotoSetupParcels(), hidden when empty. -->
-    <div id="photo-setup-addr-candidates" style="display:none;flex-direction:column;gap:4px;margin-bottom:10px"></div>
+         _refreshPhotoSetupParcels(), hidden when empty. Horizontal padding
+         here (beyond the modal's own edge padding) is deliberate — leaves a
+         thumb-sized dead zone on both sides so scrolling this list one-
+         handed doesn't land on a button by accident. -->
+    <div id="photo-setup-addr-candidates" style="display:none;flex-direction:column;gap:4px;margin-bottom:10px;padding:0 22px"></div>
 
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Notes on this photo (optional)</label>
     <textarea id="photo-setup-notes" placeholder="e.g. front of property, hail damage north side" rows="2" style="width:100%;padding:9px 10px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.66rem;color:#222;background:#fff;resize:vertical;margin-bottom:12px"></textarea>
@@ -3295,8 +3236,9 @@ header{
       <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:8px;line-height:1.5">Stamped photos upload in the background to a "STLCityRoute Photos" folder in your Drive — no cable, no manual transfer.</div>
 
       <div id="drive-sync-clientid-row" style="margin-bottom:8px">
-        <label style="display:block;font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:4px">Google OAuth Client ID (one-time setup — see Version Notes)</label>
+        <label style="display:block;font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:4px">Google OAuth Client ID (one-time setup)</label>
         <input type="text" id="drive-sync-clientid" placeholder="xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" style="width:100%;padding:8px 9px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.6rem;color:#222;background:#fff" onchange="_saveDriveClientId(this.value)">
+        <a href="https://support.google.com/googleapi/answer/6158849" target="_blank" rel="noopener" style="display:inline-block;margin-top:4px;font-family:'Space Mono',monospace;font-size:0.52rem;color:#1a73e8;text-decoration:underline">📖 How to get a Client ID (Google's setup guide) ↗</a>
       </div>
 
       <div id="drive-sync-status" style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:8px;padding:8px 10px;background:#f8f8f6;border-radius:8px;line-height:1.5">Not connected</div>
@@ -8954,16 +8896,13 @@ function openPropertySearch(addr, lat, lng) {
       _clipboardFallback(copyAddr);
     }
   }
-
-  // If stop has geocoded coordinates, open GIS viewer centered on the parcel
-  if (lat && lng) {
-    showToast('📋 Address copied — opening GIS parcel view');
-    openGISMap(lat, lng);
-    return;
-  }
-
-  // No coords — open the address search (user can paste the copied address)
-  showToast('📋 Address copied — paste into search bar');
+  // Drop AK (2026-07-16): this used to branch to openGISMap(lat,lng) whenever
+  // coordinates were available — which meant "Property Search" and "ArcGIS
+  // Viewer" did the exact same thing for almost every stop (nearly all have
+  // lat/lng). Property Search now always does what its name says: copy the
+  // address, open the City's address-search page. ArcGIS Viewer (a separate
+  // recon button) remains the way to jump straight to the GIS parcel map.
+  showToast(copyAddr ? '📋 Address copied — paste into search bar' : 'Opening address search');
   window.open('https://www.stlouis-mo.gov/data/address-search/index.cfm', '_blank', 'noopener');
 }
 
@@ -9321,10 +9260,17 @@ const StopCard = (function() {
       ? r.replace('cursor:pointer"', 'cursor:pointer;border-bottom:1px solid #eee"')
       : r).join('');
 
+    // Map-tab popups sit low in the viewport (map fills most of the screen
+    // above them) — opening the menu downward there routinely clips off the
+    // bottom edge. Stops/Route tab cards live in a normal scrollable list
+    // where downward is the expected, unclipped direction. Only the 'map'
+    // prefix flips to opening upward.
+    const opensUp = menuIdPrefix.indexOf('map') === 0;
+    const menuPos = opensUp ? 'bottom:56px' : 'top:56px';
     return '<div class="action-btn-wrap">' +
       '<button data-action="util" data-id="' + s.id + '" title="Utility menu" class="action-btn-icon" aria-label="Utility">' +
       '<img src="' + UTILITY_ICON_URI + '" alt="Utility"></button>' +
-      '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;top:56px;left:0;background:white;' +
+      '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;' + menuPos + ';left:0;background:white;' +
       'border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);' +
       'z-index:90;min-width:210px;overflow:hidden">' + html + '</div></div>';
   }
@@ -9342,10 +9288,12 @@ const StopCard = (function() {
       _reconRow('gis',         '#0d47a1', ARCGIS_ICON_URI,   'ArcGIS Viewer',   ' data-lat="' + lat + '" data-lng="' + lng + '" data-addr="' + addr + '"'),
       _reconRow('show-on-map', '#1b5e20', MAP_CARDS_ICON_URI,'Show on Map',     ' data-id="' + s.id + '"').replace(';border-bottom:1px solid #eee', '')
     ];
+    const opensUp = menuIdPrefix.indexOf('map') === 0;
+    const menuPos = opensUp ? 'bottom:56px' : 'top:56px';
     return '<div class="action-btn-wrap">' +
       '<button data-action="recon" data-id="' + s.id + '" title="Recon — Property Search, CSB, Case.net, GIS, Map" class="action-btn-icon" aria-label="Recon">' +
       '<img src="' + RECON_ICON_URI + '" alt="Recon"></button>' +
-      '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;top:56px;left:0;background:white;' +
+      '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;' + menuPos + ';left:0;background:white;' +
       'border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);' +
       'z-index:90;min-width:210px;overflow:hidden">' + rows.join('') + '</div></div>';
   }
@@ -15843,7 +15791,13 @@ function _geoJsonLineToLatLngs(geom) {
 // at the top of the setup modal. Lazily created on first Photostamp open,
 // then just recentered/invalidated on later opens.
 var _photoSetupMap = null;
-var _photoSetupMapLayers = []; // parcel polygons + labels + street lines + pin — cleared each refresh
+var _photoSetupPinMarker = null;   // the inspector's GPS position — persists across zoom/pan redraws
+var _photoSetupMapLayers = [];     // parcel polygons + labels + street lines ONLY — cleared/rebuilt on every redraw
+var _photoSetupParcelMarkers = {}; // address -> Leaflet marker, so the candidate list can highlight one on tap
+var _photoSetupHighlightedAddr = null;
+var _photoSetupViewChangeTimer = null;
+var _photoSetupListenersAttached = false;
+var _photoSetupLastDrawnRadiusM = null; // avoids redundant re-queries on trivial view changes
 
 function _initPhotoSetupMap() {
   if (_photoSetupMap) {
@@ -15859,6 +15813,19 @@ function _initPhotoSetupMap() {
       subdomains: 'abcd', maxZoom: 20, minZoom: 12
     }).addTo(_photoSetupMap);
     setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch(_e) {} }, 60);
+
+    // Zoom out (or pan) → show more of what's around, not just the fixed
+    // radius from the original GPS fix. Debounced so a drag/zoom gesture
+    // doesn't fire a query per frame; only redraws parcels/streets, never
+    // touches the pin or the tappable candidate list below (that stays
+    // anchored to the actual GPS fix from when the screen opened).
+    if (!_photoSetupListenersAttached) {
+      _photoSetupListenersAttached = true;
+      _photoSetupMap.on('moveend', function() {
+        if (_photoSetupViewChangeTimer) clearTimeout(_photoSetupViewChangeTimer);
+        _photoSetupViewChangeTimer = setTimeout(_onPhotoSetupMapViewChange, 450);
+      });
+    }
   } catch(_e) { _photoSetupMap = null; }
 }
 
@@ -15866,39 +15833,46 @@ function _clearPhotoSetupMapLayers() {
   if (!_photoSetupMap) return;
   _photoSetupMapLayers.forEach(function(l) { try { _photoSetupMap.removeLayer(l); } catch(_e) {} });
   _photoSetupMapLayers = [];
+  _photoSetupParcelMarkers = {};
 }
 
-// Pull nearby parcels + streets around the given GPS fix, draw them on the
-// setup map (pin + parcel outlines/address labels + street-name lines), and
-// populate the tappable address-candidate list above. Best-effort: any
-// network failure just leaves the base map showing with no candidates —
-// the free-text Address field and the single-best-guess "📍 GPS" button
-// both still work independently of this.
-async function _refreshPhotoSetupParcels(gps) {
-  var statusEl = document.getElementById('photo-setup-map-status');
-  var listEl = document.getElementById('photo-setup-addr-candidates');
-  if (!gps) { if (statusEl) statusEl.textContent = '⚠ GPS unavailable — enter address manually'; return; }
-  _initPhotoSetupMap();
-  if (!_photoSetupMap) { if (statusEl) statusEl.textContent = ''; return; }
-  _photoSetupMap.setView([gps.lat, gps.lng], 19);
+// Radius (meters) to search, derived from what's actually visible on
+// screen right now — center-to-corner distance with a small buffer so
+// parcels right at the edge aren't missed. Floor keeps a fully-zoomed-in
+// view from querying an unhelpfully tiny area; ceiling keeps a zoomed-out
+// view from flooding the map with more labels than are readable or the
+// ArcGIS query needs to return.
+function _photoSetupViewRadiusM() {
+  if (!_photoSetupMap) return ParcelLookup.RADIUS_M;
+  try {
+    var bounds = _photoSetupMap.getBounds();
+    var center = _photoSetupMap.getCenter();
+    var ne = bounds.getNorthEast();
+    var r = ParcelLookup.haversineM(center.lat, center.lng, ne.lat, ne.lng);
+    return Math.min(Math.max(Math.round(r * 1.15), 40), 500);
+  } catch(_e) { return ParcelLookup.RADIUS_M; }
+}
+
+function _parcelLabelHtml(addr, highlighted) {
+  return highlighted
+    ? '<div style="background:#ffd54a;border:2px solid #8c4a00;border-radius:5px;padding:2px 6px;font-family:\'Space Mono\',monospace;font-size:0.58rem;color:#5c3400;white-space:nowrap;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,0.4)">' + escHtml(addr) + '</div>'
+    : '<div style="background:rgba(255,255,255,0.92);border:1px solid #e8a020;border-radius:4px;padding:1px 4px;font-family:\'Space Mono\',monospace;font-size:0.5rem;color:#8c4a00;white-space:nowrap;font-weight:700">' + escHtml(addr) + '</div>';
+}
+
+// Fetches + draws parcels/streets for the given center + radius. Does NOT
+// touch the pin marker and does NOT touch the candidate list — this is the
+// piece shared by both the initial GPS-driven load and later zoom/pan
+// redraws, which have different needs around those two things.
+async function _drawPhotoSetupParcelsAndStreets(centerLat, centerLng, radiusM) {
+  if (!_photoSetupMap) return { parcels: [] };
   _clearPhotoSetupMapLayers();
-
-  // Pin at the inspector's current position
-  var pinIcon = L.divIcon({
-    className: '',
-    html: '<div style="width:16px;height:16px;border-radius:50%;background:#1a4a8c;border:3px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.5)"></div>',
-    iconSize: [16,16], iconAnchor: [8,8]
-  });
-  _photoSetupMapLayers.push(L.marker([gps.lat, gps.lng], { icon: pinIcon, zIndexOffset: 1000, interactive: false }).addTo(_photoSetupMap));
-
-  if (statusEl) statusEl.textContent = '📡 Loading nearby parcels…';
-  if (listEl) { listEl.style.display = 'none'; listEl.innerHTML = ''; }
+  _photoSetupLastDrawnRadiusM = radiusM;
 
   var parcels = [], streets = [];
   try {
     var results = await Promise.allSettled([
-      ParcelLookup.queryParcels(gps.lat, gps.lng),
-      ParcelLookup.queryStreets(gps.lat, gps.lng)
+      ParcelLookup.queryParcels(centerLat, centerLng, radiusM),
+      ParcelLookup.queryStreets(centerLat, centerLng, radiusM)
     ]);
     if (results[0].status === 'fulfilled') parcels = results[0].value;
     if (results[1].status === 'fulfilled') streets = results[1].value;
@@ -15922,31 +15896,92 @@ async function _refreshPhotoSetupParcels(gps) {
         var poly = L.geoJSON(p.geometry, { style: { color:'#e8a020', weight:1.5, fillOpacity:0.08 }, interactive:false }).addTo(_photoSetupMap);
         _photoSetupMapLayers.push(poly);
       }
-      var label = L.divIcon({
-        className: '',
-        html: '<div style="background:rgba(255,255,255,0.92);border:1px solid #e8a020;border-radius:4px;padding:1px 4px;font-family:\'Space Mono\',monospace;font-size:0.5rem;color:#8c4a00;white-space:nowrap;font-weight:700">' + escHtml(p.address) + '</div>',
-        iconSize: null
-      });
-      _photoSetupMapLayers.push(L.marker([p.lat, p.lng], { icon: label, interactive: false }).addTo(_photoSetupMap));
+      var highlighted = (p.address === _photoSetupHighlightedAddr);
+      var marker = L.marker([p.lat, p.lng], {
+        icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted), iconSize: null }),
+        interactive: false,
+        zIndexOffset: highlighted ? 500 : 0
+      }).addTo(_photoSetupMap);
+      _photoSetupMapLayers.push(marker);
+      _photoSetupParcelMarkers[p.address] = marker;
     } catch(_e) {}
   });
 
+  return { parcels: parcels };
+}
+
+// Debounced handler for map pan/zoom — redraws parcels/streets around the
+// CURRENT map center (wherever the user has panned/zoomed to), at a radius
+// derived from what's now visible. Only fires once the map + candidate
+// list have already been through their initial GPS-driven load.
+function _onPhotoSetupMapViewChange() {
+  if (!_photoSetupMap || _photoSetupLastDrawnRadiusM == null) return;
+  var radius = _photoSetupViewRadiusM();
+  // Skip redundant redraws for trivial nudges — only re-query when the
+  // visible radius has actually changed meaningfully (~15%+).
+  if (Math.abs(radius - _photoSetupLastDrawnRadiusM) / _photoSetupLastDrawnRadiusM < 0.15) return;
+  var center = _photoSetupMap.getCenter();
+  var statusEl = document.getElementById('photo-setup-map-status');
+  if (statusEl) statusEl.textContent = '📡 Loading nearby parcels…';
+  _drawPhotoSetupParcelsAndStreets(center.lat, center.lng, radius).then(function(res) {
+    if (statusEl) statusEl.textContent = res.parcels.length ? ('📍 ' + res.parcels.length + ' nearby parcel' + (res.parcels.length===1?'':'s')) : '⚠ No parcel data found nearby';
+  });
+}
+
+// Pull nearby parcels + streets around the given GPS fix, draw them on the
+// setup map (pin + parcel outlines/address labels + street-name lines), and
+// populate the tappable address-candidate list above. Best-effort: any
+// network failure just leaves the base map showing with no candidates —
+// the free-text Address field and the single-best-guess "📍 GPS" button
+// both still work independently of this.
+async function _refreshPhotoSetupParcels(gps) {
+  var statusEl = document.getElementById('photo-setup-map-status');
+  var listEl = document.getElementById('photo-setup-addr-candidates');
+  if (!gps) { if (statusEl) statusEl.textContent = '⚠ GPS unavailable — enter address manually'; return; }
+  _initPhotoSetupMap();
+  if (!_photoSetupMap) { if (statusEl) statusEl.textContent = ''; return; }
+  _photoSetupHighlightedAddr = null;
+  _photoSetupMap.setView([gps.lat, gps.lng], 19);
+
+  // Pin at the inspector's current position — separate from
+  // _photoSetupMapLayers so zoom/pan redraws never touch it.
+  if (_photoSetupPinMarker) { try { _photoSetupMap.removeLayer(_photoSetupPinMarker); } catch(_e) {} }
+  var pinIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:16px;height:16px;border-radius:50%;background:#1a4a8c;border:3px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.5)"></div>',
+    iconSize: [16,16], iconAnchor: [8,8]
+  });
+  _photoSetupPinMarker = L.marker([gps.lat, gps.lng], { icon: pinIcon, zIndexOffset: 1000, interactive: false }).addTo(_photoSetupMap);
+
+  if (statusEl) statusEl.textContent = '📡 Loading nearby parcels…';
+  if (listEl) { listEl.style.display = 'none'; listEl.innerHTML = ''; }
+
+  var draw = await _drawPhotoSetupParcelsAndStreets(gps.lat, gps.lng, ParcelLookup.RADIUS_M);
+  var parcels = draw.parcels;
+
   if (statusEl) statusEl.textContent = parcels.length ? ('📍 ' + parcels.length + ' nearby parcel' + (parcels.length===1?'':'s')) : '⚠ No parcel data found nearby';
 
-  // Tappable candidate list — nearest first, deduped by address text, top 5 only
+  // Tappable candidate list — nearest first, deduped by address text, top 10.
+  // Deliberately still scoped to the original GPS fix radius, not whatever
+  // radius the map is currently showing after a zoom/pan redraw — this list
+  // is "addresses near where I'm actually standing," not "addresses
+  // currently visible on screen."
   var seen = {};
   var candidates = parcels
     .map(function(p) { return { address: p.address, dist: ParcelLookup.haversineM(gps.lat, gps.lng, p.lat, p.lng) }; })
     .filter(function(c) { if (seen[c.address]) return false; seen[c.address] = true; return true; })
     .sort(function(a,b) { return a.dist - b.dist; })
-    .slice(0, 5);
+    .slice(0, 10);
 
   if (listEl) {
     if (candidates.length) {
       listEl.style.display = 'flex';
-      listEl.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.52rem;color:#999;margin-bottom:2px">Tap the address you\'re photographing:</div>' +
+      listEl.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.52rem;color:#999;margin-bottom:2px">Tap an address to use it, or 🔍 to look it up on the City site:</div>' +
         candidates.map(function(c) {
-          return '<button data-fn="_selectPhotoSetupAddr" data-arg="' + escHtml(c.address) + '" style="text-align:left;padding:7px 10px;background:#fff8ee;border:1px solid #ead3b0;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;color:#8c4a00;cursor:pointer">📍 ' + escHtml(c.address) + ' <span style="font-weight:400;color:#999;font-family:\'Space Mono\',monospace;font-size:0.5rem">(' + Math.round(c.dist) + 'm)</span></button>';
+          return '<div style="display:flex;gap:6px;align-items:stretch">' +
+            '<button data-fn="_selectPhotoSetupAddr" data-arg="' + escHtml(c.address) + '" style="flex:1;min-width:0;text-align:left;padding:7px 10px;background:#fff8ee;border:1px solid #ead3b0;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;color:#8c4a00;cursor:pointer">📍 ' + escHtml(c.address) + ' <span style="font-weight:400;color:#999;font-family:\'Space Mono\',monospace;font-size:0.5rem">(' + Math.round(c.dist) + 'm)</span></button>' +
+            '<button data-fn="openPropertySearch" data-arg="' + escHtml(c.address) + '" title="Property Search — copies address, opens City address-search site" style="flex-shrink:0;padding:7px 10px;background:#fff;border:1px solid #9cbbd4;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;font-size:0.58rem;color:#1a5276;cursor:pointer;white-space:nowrap">🔍 Property Search</button>' +
+            '</div>';
         }).join('');
     } else {
       listEl.style.display = 'none';
@@ -15954,11 +15989,38 @@ async function _refreshPhotoSetupParcels(gps) {
   }
 }
 
+// Highlights the map label for the given address (gold background, raised
+// z-index) and un-highlights whatever was previously highlighted. No-op if
+// that address isn't currently drawn on the map (e.g. it scrolled out of
+// the visible parcel set after a zoom/pan redraw) — the address still gets
+// set in the field either way, this is a visual bonus, not load-bearing.
+function _highlightPhotoSetupParcel(addr) {
+  if (_photoSetupHighlightedAddr && _photoSetupHighlightedAddr !== addr) {
+    var prev = _photoSetupParcelMarkers[_photoSetupHighlightedAddr];
+    if (prev) {
+      try {
+        prev.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(_photoSetupHighlightedAddr, false), iconSize: null }));
+        prev.setZIndexOffset(0);
+      } catch(_e) {}
+    }
+  }
+  _photoSetupHighlightedAddr = addr;
+  var marker = _photoSetupParcelMarkers[addr];
+  if (marker) {
+    try {
+      marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true), iconSize: null }));
+      marker.setZIndexOffset(500);
+    } catch(_e) {}
+  }
+}
+
 function _selectPhotoSetupAddr(addr) {
   var addrField = document.getElementById('photo-setup-addr');
   if (addrField) addrField.value = addr;
   showToast('📍 Address set');
+  _highlightPhotoSetupParcel(addr);
 }
+
 
 // Continue from setup → open camera
 function photoSetupContinue(source) {
@@ -25000,7 +25062,6 @@ var DATA_SETTINGS_KEY = 'cityroute-data-settings';
 var _dataRange = 'today'; // today | week | month | all | custom
 var _dataCustomStart = null;
 var _dataCustomEnd = null;
-var _dataAutoSendTimer = null;
 
 // ── Settings: load/save ───────────────────────────────────────────────────────
 function loadDataSettings() {
@@ -25785,28 +25846,6 @@ function renderDataTab() {
   var logChk = document.getElementById('data-logging-enabled');
   if (logChk) logChk.checked = (settings.loggingEnabled !== false);
 
-  // Daily auto-send
-  var sendChk = document.getElementById('data-autosend-enabled');
-  if (sendChk) sendChk.checked = !!settings.autoSendEnabled;
-  var timeInput = document.getElementById('data-autosend-time');
-  if (timeInput) timeInput.value = settings.autoSendTime || '17:00';
-
-  // Weekly auto-send
-  var wkChk = document.getElementById('data-autosend-weekly-enabled');
-  if (wkChk) wkChk.checked = !!settings.autoSendWeeklyEnabled;
-  var wkDow = document.getElementById('data-autosend-weekly-dow');
-  if (wkDow) wkDow.value = String(settings.autoSendWeeklyDow != null ? settings.autoSendWeeklyDow : 5);
-  var wkTime = document.getElementById('data-autosend-weekly-time');
-  if (wkTime) wkTime.value = settings.autoSendWeeklyTime || '17:00';
-
-  // Monthly auto-send
-  var moChk = document.getElementById('data-autosend-monthly-enabled');
-  if (moChk) moChk.checked = !!settings.autoSendMonthlyEnabled;
-  var moDom = document.getElementById('data-autosend-monthly-dom');
-  if (moDom) moDom.value = String(settings.autoSendMonthlyDom != null ? settings.autoSendMonthlyDom : '1');
-  var moTime = document.getElementById('data-autosend-monthly-time');
-  if (moTime) moTime.value = settings.autoSendMonthlyTime || '17:00';
-
   // Stat cards
   var cards = document.getElementById('data-stat-cards');
   if (cards) {
@@ -25888,9 +25927,6 @@ function renderDataTab() {
     storageEl.innerHTML = log2.length + ' days stored &nbsp;·&nbsp; ~' + approxKB + ' KB used' +
       (log2.length ? '<br><span style="color:#999">Oldest: ' + log2[0].date + ' &nbsp;·&nbsp; Newest: ' + log2[log2.length-1].date + '</span>' : '');
   }
-
-  // Recipients
-  renderRecipients();
 
   // Range label
   var rangeLabel = document.getElementById('data-range-label');
@@ -26259,249 +26295,6 @@ function toggleDataLogging(enabled) {
     showToast('History logging enabled — daily sessions will be saved.');
   }
   renderDataTab();
-}
-
-// ── Recipients ────────────────────────────────────────────────────────────────
-function addDataRecipient() {
-  var input = document.getElementById('data-recipient-input');
-  if (!input) return;
-  var email = input.value.trim();
-  if (!email || !email.includes('@')) { showToast('Enter a valid email address'); return; }
-  var s = loadDataSettings();
-  s.recipients = s.recipients || [];
-  if (s.recipients.includes(email)) { showToast('Already added'); return; }
-  s.recipients.push(email);
-  saveDataSettings(s);
-  input.value = '';
-  renderRecipients();
-  showToast('Recipient added ✓');
-}
-
-function removeDataRecipient(email) {
-  var s = loadDataSettings();
-  s.recipients = (s.recipients || []).filter(function(e) { return e !== email; });
-  saveDataSettings(s);
-  renderRecipients();
-}
-
-function renderRecipients() {
-  var el = document.getElementById('data-recipients-list');
-  if (!el) return;
-  var s = loadDataSettings();
-  var recs = s.recipients || [];
-  if (!recs.length) {
-    el.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:#bbb;padding:3px 0">No recipients added yet.</div>';
-    return;
-  }
-  el.innerHTML = recs.map(function(e) {
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5">' +
-      '<span style="font-family:\'Space Mono\',monospace;font-size:0.62rem;color:#444">' + escHtml(e) + '</span>' +
-      '<button onclick="removeDataRecipient(\'' + escHtml(e) + '\')" style="background:none;border:none;color:#c0392b;font-size:0.9rem;cursor:pointer;padding:0 4px">✕</button>' +
-      '</div>';
-  }).join('');
-}
-
-// ── Auto-send settings ────────────────────────────────────────────────────────
-function updateAutoSendSettings() {
-  var s = loadDataSettings();
-
-  // Daily
-  s.autoSendEnabled = !!document.getElementById('data-autosend-enabled')?.checked;
-  s.autoSendTime = document.getElementById('data-autosend-time')?.value || '17:00';
-
-  // Weekly
-  s.autoSendWeeklyEnabled = !!document.getElementById('data-autosend-weekly-enabled')?.checked;
-  var wkDow = document.getElementById('data-autosend-weekly-dow')?.value;
-  s.autoSendWeeklyDow = wkDow != null ? parseInt(wkDow, 10) : 5;
-  s.autoSendWeeklyTime = document.getElementById('data-autosend-weekly-time')?.value || '17:00';
-
-  // Monthly
-  s.autoSendMonthlyEnabled = !!document.getElementById('data-autosend-monthly-enabled')?.checked;
-  var moDom = document.getElementById('data-autosend-monthly-dom')?.value;
-  s.autoSendMonthlyDom = (moDom === 'last') ? 'last' : (moDom != null ? parseInt(moDom, 10) : 1);
-  s.autoSendMonthlyTime = document.getElementById('data-autosend-monthly-time')?.value || '17:00';
-
-  saveDataSettings(s);
-  scheduleAutoSend();
-
-  // User-facing toast describes what just changed
-  var lines = [];
-  if (s.autoSendEnabled) lines.push('Daily @ ' + s.autoSendTime);
-  if (s.autoSendWeeklyEnabled) {
-    var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    lines.push('Weekly ' + DOW[s.autoSendWeeklyDow] + ' @ ' + s.autoSendWeeklyTime);
-  }
-  if (s.autoSendMonthlyEnabled) {
-    var domLabel = s.autoSendMonthlyDom === 'last' ? 'last day' : ('day ' + s.autoSendMonthlyDom);
-    lines.push('Monthly ' + domLabel + ' @ ' + s.autoSendMonthlyTime);
-  }
-  showToast(lines.length ? '✓ Auto-send: ' + lines.join(' · ') : 'Auto-send disabled');
-}
-
-// Schedule the NEXT daily fire via setTimeout (covers the case where the
-// app stays open through the scheduled time). Weekly and monthly cadences
-// are checked on every app open via _checkOverdueAutoSends() rather than
-// timer-based — a PWA can't run in the background reliably, so timer-only
-// would routinely miss fires.
-function scheduleAutoSend() {
-  if (_dataAutoSendTimer) clearTimeout(_dataAutoSendTimer);
-  var s = loadDataSettings();
-  if (!s.autoSendEnabled || !(s.recipients||[]).length) return;
-
-  var parts = (s.autoSendTime || '17:00').split(':');
-  var now = new Date();
-  var target = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-    parseInt(parts[0],10), parseInt(parts[1],10), 0, 0);
-  if (target <= now) target.setDate(target.getDate() + 1); // next occurrence
-
-  var ms = target.getTime() - now.getTime();
-  _dataAutoSendTimer = setTimeout(function() {
-    triggerAutoSend('daily');
-    scheduleAutoSend(); // reschedule for next day
-  }, ms);
-}
-
-// On every app open, check whether any cadence is overdue (its scheduled
-// fire time has passed since the last successful fire). If so, prompt the
-// user via banner — we don't auto-fire silently because opening the email
-// app on launch would be jarring. The user taps the banner to confirm.
-function _checkOverdueAutoSends() {
-  var s = loadDataSettings();
-  if (!(s.recipients||[]).length) return;
-  var now = new Date();
-  var pending = [];
-
-  // Daily: due if today's scheduled time has passed and we haven't sent today
-  if (s.autoSendEnabled && _isCadenceDue('daily', s, now)) {
-    pending.push({ cadence: 'daily', range: 'today', label: 'Daily summary' });
-  }
-  // Weekly: due if it's the scheduled DOW and time has passed and we haven't sent this week
-  if (s.autoSendWeeklyEnabled && _isCadenceDue('weekly', s, now)) {
-    pending.push({ cadence: 'weekly', range: 'week', label: 'Weekly summary' });
-  }
-  // Monthly: similar
-  if (s.autoSendMonthlyEnabled && _isCadenceDue('monthly', s, now)) {
-    pending.push({ cadence: 'monthly', range: 'month', label: 'Monthly summary' });
-  }
-
-  if (pending.length) _showAutoSendBanner(pending);
-}
-
-function _isCadenceDue(cadence, s, now) {
-  var lastSentKey = 'autosend-last-' + cadence;
-  var lastSent = LS.get(lastSentKey);
-  var lastSentDate = lastSent ? new Date(lastSent) : null;
-
-  if (cadence === 'daily') {
-    var parts = (s.autoSendTime || '17:00').split(':');
-    var todayTarget = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-      parseInt(parts[0],10), parseInt(parts[1],10), 0, 0);
-    if (now < todayTarget) return false;
-    if (!lastSentDate) return true;
-    // Already sent today?
-    return lastSentDate < todayTarget;
-  }
-
-  if (cadence === 'weekly') {
-    var dow = s.autoSendWeeklyDow != null ? s.autoSendWeeklyDow : 5;
-    var parts2 = (s.autoSendWeeklyTime || '17:00').split(':');
-    // Find the most recent occurrence of this dow at the scheduled time
-    var daysBack = (now.getDay() - dow + 7) % 7;
-    var thisWeekTarget = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysBack,
-      parseInt(parts2[0],10), parseInt(parts2[1],10), 0, 0);
-    // If today is the scheduled day but hasn't reached the time, the most
-    // recent occurrence is last week
-    if (daysBack === 0 && now < thisWeekTarget) {
-      thisWeekTarget.setDate(thisWeekTarget.getDate() - 7);
-    }
-    if (!lastSentDate) return true;
-    return lastSentDate < thisWeekTarget;
-  }
-
-  if (cadence === 'monthly') {
-    var dom = s.autoSendMonthlyDom != null ? s.autoSendMonthlyDom : 1;
-    var parts3 = (s.autoSendMonthlyTime || '17:00').split(':');
-    var lastDayOfThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    var actualDom = (dom === 'last') ? lastDayOfThisMonth : Math.min(dom, lastDayOfThisMonth);
-    var thisMonthTarget = new Date(now.getFullYear(), now.getMonth(), actualDom,
-      parseInt(parts3[0],10), parseInt(parts3[1],10), 0, 0);
-    if (now < thisMonthTarget) {
-      // Most recent target was last month
-      var lastDayOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-      var lastDom = (dom === 'last') ? lastDayOfLastMonth : Math.min(dom, lastDayOfLastMonth);
-      thisMonthTarget = new Date(now.getFullYear(), now.getMonth() - 1, lastDom,
-        parseInt(parts3[0],10), parseInt(parts3[1],10), 0, 0);
-    }
-    if (!lastSentDate) return true;
-    return lastSentDate < thisMonthTarget;
-  }
-
-  return false;
-}
-
-// Show a non-blocking banner near the top of the screen; user can dismiss
-// or tap to confirm. We keep it at the top of <body> so it's visible
-// regardless of which tab the user is on.
-function _showAutoSendBanner(pending) {
-  // Avoid stacking multiple banners
-  var existing = document.getElementById('autosend-banner');
-  if (existing) existing.remove();
-
-  var banner = document.createElement('div');
-  banner.id = 'autosend-banner';
-  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9500;background:linear-gradient(135deg,#1a4a8c,#2563eb);color:white;padding:10px 14px;font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.2)';
-
-  var labels = pending.map(function(p) { return p.label; }).join(' + ');
-  banner.innerHTML =
-    '<span style="flex:1">📧 Scheduled email ready: <b>' + labels + '</b></span>' +
-    '<button onclick="_confirmAutoSendBatch()" style="background:white;color:#1a4a8c;border:none;border-radius:6px;padding:6px 12px;font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer">SEND</button>' +
-    '<button onclick="_dismissAutoSendBanner()" style="background:none;border:1px solid rgba(255,255,255,0.5);color:white;border-radius:6px;padding:6px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer">Later</button>';
-
-  document.body.insertBefore(banner, document.body.firstChild);
-  window._pendingAutoSends = pending;
-}
-
-function _dismissAutoSendBanner() {
-  var b = document.getElementById('autosend-banner');
-  if (b) b.remove();
-  window._pendingAutoSends = null;
-  // Don't update lastSent — we'll re-prompt next open
-}
-
-function _confirmAutoSendBatch() {
-  var pending = window._pendingAutoSends || [];
-  // Fire each in sequence — but emailing on the web is single-shot (mailto
-  // opens one email). We'll fire the most-coarse cadence (monthly > weekly
-  // > daily), since it includes the others' data.
-  var priority = { monthly: 3, weekly: 2, daily: 1 };
-  pending.sort(function(a, b) { return priority[b.cadence] - priority[a.cadence]; });
-  var first = pending[0];
-  if (!first) { _dismissAutoSendBanner(); return; }
-  triggerAutoSend(first.cadence);
-  // Mark all the cadences in the batch as sent — the coarse one covers them
-  pending.forEach(function(p) {
-    LS.set('autosend-last-' + p.cadence, new Date().toISOString());
-  });
-  _dismissAutoSendBanner();
-}
-
-// Trigger an auto-send for the given cadence. Cadence determines:
-//   - the date range used for metrics
-//   - the email subject line
-function triggerAutoSend(cadence) {
-  cadence = cadence || 'daily';
-  logDaySession();
-  // Set the data range so shareDataSummary scopes to the right period
-  var prevRange = _dataRange;
-  _dataRange = (cadence === 'weekly') ? 'week'
-             : (cadence === 'monthly') ? 'month'
-             : 'today';
-  try {
-    shareDataSummary({ cadence: cadence });
-    LS.set('autosend-last-' + cadence, new Date().toISOString());
-  } finally {
-    _dataRange = prevRange;
-  }
 }
 
 // ── Export: CSV ───────────────────────────────────────────────────────────────
@@ -26939,15 +26732,6 @@ function _incrementOptimizeCounter() {
   var n = parseInt(sessionStorage.getItem('data-optimize-runs') || '0', 10);
   sessionStorage.setItem('data-optimize-runs', String(n + 1));
 }
-
-// ── Init: schedule auto-send on app load ──────────────────────────────────────
-scheduleAutoSend();
-// Also check whether any cadence (daily/weekly/monthly) is overdue and prompt
-// the user. Defer slightly so the rest of the app finishes initializing first
-// — banner showing during the splash would be noisy.
-setTimeout(function() {
-  try { _checkOverdueAutoSends(); } catch(e) { console.warn('overdue auto-send check failed:', e); }
-}, 1200);
 
 
 // ══════════════════════════════════════════════════════════════════════════════
