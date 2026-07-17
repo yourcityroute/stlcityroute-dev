@@ -3113,11 +3113,24 @@ header{
     </div>
     <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Set the details that will be stamped onto this photo. You can edit them again after the shot.<br><span style="color:#8c4a00"><b>Tip:</b> tap <b>Pick Existing</b> and select multiple photos to stamp all of them with the same address.</span></div>
 
+    <!-- Situational-awareness map — parcels + street names near the GPS fix,
+         populated by _refreshPhotoSetupParcels() as soon as the modal opens.
+         Independent Leaflet instance from the Map tab's routeMap; lazily
+         created on first open, reused (recentered) on subsequent opens. -->
+    <div id="photo-setup-map-wrap" style="margin-bottom:10px">
+      <div id="photo-setup-map" style="width:100%;height:190px;border-radius:10px;overflow:hidden;border:1.5px solid #ead3b0;background:#eee"></div>
+      <div id="photo-setup-map-status" style="font-family:'Space Mono',monospace;font-size:0.52rem;color:#999;margin-top:4px;text-align:center">📡 Getting your location…</div>
+    </div>
+
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Address</label>
-    <div style="display:flex;gap:6px;margin-bottom:10px">
+    <div style="display:flex;gap:6px;margin-bottom:8px">
       <input type="text" id="photo-setup-addr" placeholder="Street address (optional)" style="flex:1;padding:9px 10px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#222;background:#fff">
       <button data-fn="photoReverseLookup" title="Use GPS to find address" style="background:#fff4e0;border:1.5px solid #ead3b0;border-radius:8px;padding:6px 10px;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;color:#8c4a00;cursor:pointer;white-space:nowrap">📍 GPS</button>
     </div>
+
+    <!-- Tappable nearby-parcel address candidates — filled by
+         _refreshPhotoSetupParcels(), hidden when empty. -->
+    <div id="photo-setup-addr-candidates" style="display:none;flex-direction:column;gap:4px;margin-bottom:10px"></div>
 
     <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Notes on this photo (optional)</label>
     <textarea id="photo-setup-notes" placeholder="e.g. front of property, hail damage north side" rows="2" style="width:100%;padding:9px 10px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.66rem;color:#222;background:#fff;resize:vertical;margin-bottom:12px"></textarea>
@@ -15621,11 +15634,27 @@ function openStampedCameraForStop(stopId) {
   setupModal.style.display = 'flex';
   Accessibility.modalOpened(setupModal, { onEscape: closePhotoSetup });
 
+  // Reset the candidate list + map status from any previous open before the
+  // fresh GPS fix comes back — avoids showing stale addresses from the last
+  // stop for the second or two it takes to re-fix.
+  var _candList = document.getElementById('photo-setup-addr-candidates');
+  if (_candList) { _candList.style.display = 'none'; _candList.innerHTML = ''; }
+  var _mapStatus = document.getElementById('photo-setup-map-status');
+  if (_mapStatus) _mapStatus.textContent = '📡 Getting your location…';
+  _initPhotoSetupMap();
+
   // Proactively warm up GPS so coordinates are ready when the first shot is
-  // captured. Silent on failure — the stamp pipeline will try again at capture.
+  // captured, AND drive the situational-awareness map + address-candidate
+  // list off the same fix. Silent on failure — the stamp pipeline will try
+  // GPS again at capture regardless of what happens here.
   try {
     _tryGetLocationForStamp().then(function(gps) {
-      if (gps) _photoContext.gps = gps;
+      if (gps) {
+        _photoContext.gps = gps;
+        _refreshPhotoSetupParcels(gps);
+      } else if (_mapStatus) {
+        _mapStatus.textContent = '⚠ GPS unavailable — enter address manually';
+      }
     }).catch(function(){});
   } catch(_e) {}
 
@@ -15681,6 +15710,220 @@ async function photoReverseLookup() {
   } catch(err) {
     showToast('⚠ Lookup failed');
   }
+}
+
+// ── ParcelLookup: nearby parcel addresses + street names ────────────────
+// Queries the City of St. Louis's own public assessor ArcGIS service — same
+// trusted domain (maps8.stlouis-mo.gov) the app already hits for Wards and
+// Police Districts. No key, no server, no rate-limit auth. Powers the
+// Prepare Photo situational-awareness map: "what parcels/streets am I near
+// right now?" Best-effort only — every caller treats failures as "no
+// candidates," never as a blocking error.
+var ParcelLookup = (function() {
+  var PARCELS_URL = 'https://maps8.stlouis-mo.gov/arcgis/rest/services/ASSESSOR/Assessor_Public_Parcels/MapServer/11/query';
+  var STREETS_URL = 'https://maps8.stlouis-mo.gov/arcgis/rest/services/ASSESSOR/Assessor_Public_Parcels/MapServer/5/query';
+  var RADIUS_M = 55; // ~180ft — a handful of parcels either side on a typical STL block
+
+  // Rough centroid of a polygon's outer ring — good enough for a label
+  // anchor point, not for anything geometrically precise.
+  function _polygonCentroid(coords) {
+    var ring = coords && coords[0];
+    if (!ring || !ring.length) return null;
+    var x = 0, y = 0, n = 0;
+    for (var i = 0; i < ring.length; i++) { x += ring[i][0]; y += ring[i][1]; n++; }
+    if (!n) return null;
+    return { lat: y / n, lng: x / n };
+  }
+
+  function _fullStreetNameFromParcel(p) {
+    return [p.StPreDir, p.StName, p.StType].filter(Boolean).join(' ').trim();
+  }
+
+  async function queryParcels(lat, lng, radiusM) {
+    var url = PARCELS_URL + '?geometry=' + encodeURIComponent(lng + ',' + lat) +
+      '&geometryType=esriGeometryPoint&inSR=4326&distance=' + (radiusM || RADIUS_M) +
+      '&units=esriSRUnit_Meter&spatialRel=esriSpatialRelIntersects' +
+      '&outFields=SITEADDR,LowAddrNum,HighAddrNum,StPreDir,StName,StType,StSufDir' +
+      '&returnGeometry=true&outSR=4326&f=geojson';
+    var resp = await fetch(url);
+    if (!resp.ok) throw new Error('parcel query failed: ' + resp.status);
+    var gj = await resp.json();
+    var feats = (gj && gj.features) || [];
+    return feats.map(function(f) {
+      var p = f.properties || {};
+      var addr = (p.SITEADDR || '').trim() || _fullStreetNameFromParcel(p);
+      var geom = f.geometry;
+      var center = null;
+      if (geom && geom.type === 'Polygon') center = _polygonCentroid(geom.coordinates);
+      else if (geom && geom.type === 'MultiPolygon' && geom.coordinates.length) center = _polygonCentroid(geom.coordinates[0]);
+      return { address: addr, lat: center && center.lat, lng: center && center.lng, geometry: geom };
+    }).filter(function(x) { return x.address && x.lat && x.lng; });
+  }
+
+  async function queryStreets(lat, lng, radiusM) {
+    var url = STREETS_URL + '?geometry=' + encodeURIComponent(lng + ',' + lat) +
+      '&geometryType=esriGeometryPoint&inSR=4326&distance=' + (radiusM || RADIUS_M) +
+      '&units=esriSRUnit_Meter&spatialRel=esriSpatialRelIntersects' +
+      '&outFields=StreetName,StreetNamePreDirection,StreetNamePostType' +
+      '&returnGeometry=true&outSR=4326&f=geojson';
+    var resp = await fetch(url);
+    if (!resp.ok) throw new Error('street query failed: ' + resp.status);
+    var gj = await resp.json();
+    var feats = (gj && gj.features) || [];
+    var out = [];
+    feats.forEach(function(f) {
+      var p = f.properties || {};
+      var name = [p.StreetNamePreDirection, p.StreetName, p.StreetNamePostType].filter(Boolean).join(' ').trim();
+      if (!name || !f.geometry) return;
+      out.push({ name: name, geometry: f.geometry });
+    });
+    return out;
+  }
+
+  function haversineM(lat1, lng1, lat2, lng2) {
+    var R = 6371000, toRad = Math.PI / 180;
+    var dLat = (lat2 - lat1) * toRad, dLng = (lng2 - lng1) * toRad;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*toRad)*Math.cos(lat2*toRad)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  return { queryParcels: queryParcels, queryStreets: queryStreets, haversineM: haversineM, RADIUS_M: RADIUS_M };
+})();
+window.ParcelLookup = ParcelLookup;
+
+// GeoJSON LineString/MultiLineString → Leaflet-shaped [lat,lng] pairs.
+// GeoJSON stores [lng,lat]; Leaflet wants [lat,lng] — has to be swapped.
+function _geoJsonLineToLatLngs(geom) {
+  if (!geom) return [];
+  if (geom.type === 'LineString') {
+    return geom.coordinates.map(function(c) { return [c[1], c[0]]; });
+  }
+  if (geom.type === 'MultiLineString') {
+    return geom.coordinates.map(function(seg) { return seg.map(function(c) { return [c[1], c[0]]; }); });
+  }
+  return [];
+}
+
+// ── Prepare Photo situational-awareness map ──────────────────────────────
+// Independent Leaflet instance (separate from the Map tab's routeMap) shown
+// at the top of the setup modal. Lazily created on first Photostamp open,
+// then just recentered/invalidated on later opens.
+var _photoSetupMap = null;
+var _photoSetupMapLayers = []; // parcel polygons + labels + street lines + pin — cleared each refresh
+
+function _initPhotoSetupMap() {
+  if (_photoSetupMap) {
+    setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch(_e) {} }, 60);
+    return;
+  }
+  var el = document.getElementById('photo-setup-map');
+  if (!el || typeof L === 'undefined') return;
+  try {
+    _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false })
+      .setView(STL_CENTER, 16);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 20, minZoom: 12
+    }).addTo(_photoSetupMap);
+    setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch(_e) {} }, 60);
+  } catch(_e) { _photoSetupMap = null; }
+}
+
+function _clearPhotoSetupMapLayers() {
+  if (!_photoSetupMap) return;
+  _photoSetupMapLayers.forEach(function(l) { try { _photoSetupMap.removeLayer(l); } catch(_e) {} });
+  _photoSetupMapLayers = [];
+}
+
+// Pull nearby parcels + streets around the given GPS fix, draw them on the
+// setup map (pin + parcel outlines/address labels + street-name lines), and
+// populate the tappable address-candidate list above. Best-effort: any
+// network failure just leaves the base map showing with no candidates —
+// the free-text Address field and the single-best-guess "📍 GPS" button
+// both still work independently of this.
+async function _refreshPhotoSetupParcels(gps) {
+  var statusEl = document.getElementById('photo-setup-map-status');
+  var listEl = document.getElementById('photo-setup-addr-candidates');
+  if (!gps) { if (statusEl) statusEl.textContent = '⚠ GPS unavailable — enter address manually'; return; }
+  _initPhotoSetupMap();
+  if (!_photoSetupMap) { if (statusEl) statusEl.textContent = ''; return; }
+  _photoSetupMap.setView([gps.lat, gps.lng], 19);
+  _clearPhotoSetupMapLayers();
+
+  // Pin at the inspector's current position
+  var pinIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:16px;height:16px;border-radius:50%;background:#1a4a8c;border:3px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.5)"></div>',
+    iconSize: [16,16], iconAnchor: [8,8]
+  });
+  _photoSetupMapLayers.push(L.marker([gps.lat, gps.lng], { icon: pinIcon, zIndexOffset: 1000, interactive: false }).addTo(_photoSetupMap));
+
+  if (statusEl) statusEl.textContent = '📡 Loading nearby parcels…';
+  if (listEl) { listEl.style.display = 'none'; listEl.innerHTML = ''; }
+
+  var parcels = [], streets = [];
+  try {
+    var results = await Promise.allSettled([
+      ParcelLookup.queryParcels(gps.lat, gps.lng),
+      ParcelLookup.queryStreets(gps.lat, gps.lng)
+    ]);
+    if (results[0].status === 'fulfilled') parcels = results[0].value;
+    if (results[1].status === 'fulfilled') streets = results[1].value;
+  } catch(_e) {}
+
+  // Streets drawn first (under parcels) as thin labeled lines
+  streets.forEach(function(s) {
+    try {
+      var latlngs = _geoJsonLineToLatLngs(s.geometry);
+      if (!latlngs.length) return;
+      var line = L.polyline(latlngs, { color:'#999', weight:3, opacity:0.7 }).addTo(_photoSetupMap);
+      line.bindTooltip(s.name, { permanent:true, direction:'center', className:'boundary-label-ward', opacity:0.85 });
+      _photoSetupMapLayers.push(line);
+    } catch(_e) {}
+  });
+
+  // Parcel outlines + address-number labels
+  parcels.forEach(function(p) {
+    try {
+      if (p.geometry) {
+        var poly = L.geoJSON(p.geometry, { style: { color:'#e8a020', weight:1.5, fillOpacity:0.08 }, interactive:false }).addTo(_photoSetupMap);
+        _photoSetupMapLayers.push(poly);
+      }
+      var label = L.divIcon({
+        className: '',
+        html: '<div style="background:rgba(255,255,255,0.92);border:1px solid #e8a020;border-radius:4px;padding:1px 4px;font-family:\'Space Mono\',monospace;font-size:0.5rem;color:#8c4a00;white-space:nowrap;font-weight:700">' + escHtml(p.address) + '</div>',
+        iconSize: null
+      });
+      _photoSetupMapLayers.push(L.marker([p.lat, p.lng], { icon: label, interactive: false }).addTo(_photoSetupMap));
+    } catch(_e) {}
+  });
+
+  if (statusEl) statusEl.textContent = parcels.length ? ('📍 ' + parcels.length + ' nearby parcel' + (parcels.length===1?'':'s')) : '⚠ No parcel data found nearby';
+
+  // Tappable candidate list — nearest first, deduped by address text
+  var seen = {};
+  var candidates = parcels
+    .map(function(p) { return { address: p.address, dist: ParcelLookup.haversineM(gps.lat, gps.lng, p.lat, p.lng) }; })
+    .filter(function(c) { if (seen[c.address]) return false; seen[c.address] = true; return true; })
+    .sort(function(a,b) { return a.dist - b.dist; })
+    .slice(0, 8);
+
+  if (listEl) {
+    if (candidates.length) {
+      listEl.style.display = 'flex';
+      listEl.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.52rem;color:#999;margin-bottom:2px">Tap the address you\'re photographing:</div>' +
+        candidates.map(function(c) {
+          return '<button data-fn="_selectPhotoSetupAddr" data-arg="' + escHtml(c.address) + '" style="text-align:left;padding:7px 10px;background:#fff8ee;border:1px solid #ead3b0;border-radius:7px;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;color:#8c4a00;cursor:pointer">📍 ' + escHtml(c.address) + ' <span style="font-weight:400;color:#999;font-family:\'Space Mono\',monospace;font-size:0.5rem">(' + Math.round(c.dist) + 'm)</span></button>';
+        }).join('');
+    } else {
+      listEl.style.display = 'none';
+    }
+  }
+}
+
+function _selectPhotoSetupAddr(addr) {
+  var addrField = document.getElementById('photo-setup-addr');
+  if (addrField) addrField.value = addr;
+  showToast('📍 Address set');
 }
 
 // Continue from setup → open camera
