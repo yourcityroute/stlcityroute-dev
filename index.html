@@ -42,7 +42,7 @@
      silent at the network layer — the user just sees the feature broken
      with no obvious cause. test-csp.js exists to catch CSP drift at edit
      time so this doesn't bite. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://api.qrserver.com; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://nominatim.openstreetmap.org https://router.project-osrm.org https://maps8.stlouis-mo.gov https://maps6.stlouis-mo.gov https://raw.githubusercontent.com https://ipapi.co https://www.googleapis.com https://oauth2.googleapis.com https://accounts.google.com; frame-src https://accounts.google.com; manifest-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://api.qrserver.com; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://nominatim.openstreetmap.org https://router.project-osrm.org https://maps8.stlouis-mo.gov https://maps6.stlouis-mo.gov https://raw.githubusercontent.com https://ipapi.co; manifest-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -886,6 +886,36 @@ header{
 .leaflet-tooltip.boundary-label-police {
   color: #7c2d12;
   font-size: 0.74rem;
+}
+
+/* ── Prepare Photo situational-awareness map: street name labels ──────
+   Dedicated class (not reusing boundary-label-ward) so this map's colors/
+   sizing can be tuned independently of the Map tab's ward/neighborhood/
+   police-district layers. Syne (the app's bold display font used
+   everywhere else — buttons, headers) instead of the tiny Space Mono used
+   here previously; darker, more saturated color; larger size; a stronger
+   white halo so it stays legible over both light tile background and the
+   gold parcel outlines it often sits on top of.
+*/
+.leaflet-tooltip.photo-setup-street-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 1px 4px;
+  font-family: Syne, sans-serif;
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  pointer-events: none;
+  color: #2c3e50;
+  text-shadow:
+    0 0 2px rgba(255,255,255,0.98),
+    0 0 4px rgba(255,255,255,0.98),
+    0 0 7px rgba(255,255,255,0.85);
+}
+.leaflet-tooltip.photo-setup-street-label::before {
+  display: none !important;
 }
 </style>
 </head>
@@ -3225,27 +3255,18 @@ header{
       </div>
     </div>
 
-    <!-- Google Drive Sync — background upload of stamped photos so they show
-         up on your desktop/laptop without manual transfer. Client-only OAuth
-         (Google Identity Services), same BYOK shape as the Anthropic key:
-         no server holds your credentials, the token lives in this browser
-         session only. Requires a one-time Google Cloud OAuth Client ID —
-         see Version Notes for setup steps. -->
+    <!-- Recommended: native OS-level backup instead of in-app OAuth. Zero
+         app code, zero Cloud Console — just Google Photos' own device-folder
+         backup, which is far more reliable on mobile browsers/installed PWAs
+         than a browser-based OAuth popup flow. This is a plain instructional
+         card, not a control — nothing here calls into the app. -->
     <div style="margin-top:14px;padding-top:12px;border-top:1px solid #eee">
-      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#8c4a00;margin-bottom:6px">☁️ Google Drive Sync</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:8px;line-height:1.5">Stamped photos upload in the background to a "STLCityRoute Photos" folder in your Drive — no cable, no manual transfer.</div>
-
-      <div id="drive-sync-clientid-row" style="margin-bottom:8px">
-        <label style="display:block;font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:4px">Google OAuth Client ID (one-time setup)</label>
-        <input type="text" id="drive-sync-clientid" placeholder="xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com" style="width:100%;padding:8px 9px;border:1.5px solid #ead3b0;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.6rem;color:#222;background:#fff" onchange="_saveDriveClientId(this.value)">
-        <a href="https://support.google.com/googleapi/answer/6158849" target="_blank" rel="noopener" style="display:inline-block;margin-top:4px;font-family:'Space Mono',monospace;font-size:0.52rem;color:#1a73e8;text-decoration:underline">📖 How to get a Client ID (Google's setup guide) ↗</a>
-      </div>
-
-      <div id="drive-sync-status" style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:8px;padding:8px 10px;background:#f8f8f6;border-radius:8px;line-height:1.5">Not connected</div>
-
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button id="drive-sync-connect-btn" data-fn="_driveSyncConnectClick" style="flex:1 1 120px;padding:9px;background:linear-gradient(135deg,#1a73e8,#4285f4);border:none;border-radius:8px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">Connect Google Account</button>
-        <button id="drive-sync-retry-btn" data-fn="_driveSyncRetryClick" style="flex:1 1 100px;padding:9px;background:#fff;border:1.5px solid #ccc;border-radius:8px;color:#555;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer">↻ Retry Now</button>
+      <div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#1b5e20;margin-bottom:6px">✅ Recommended: Auto-backup via Google Photos</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:#444;line-height:1.7;background:#f3f9f3;border:1px solid #c8e6c9;border-radius:8px;padding:10px 12px">
+        Stamped photos already save to your phone's <b>Download</b> folder. Point Google Photos at that folder once and every future photo backs up automatically — no sign-in flow inside this app, no setup screen to fight with.<br><br>
+        <b>Android</b> — Google Photos app → profile icon (top right) → Photos settings → Backup → Back up device folders → turn on <b>Download</b>.<br><br>
+        <b>iPhone</b> — already covered: this app's "Save All" step already saves stamped photos to your Camera Roll, and iOS Google Photos backs that up automatically once Backup is turned on.<br><br>
+        Either way, your photos then show up at <a href="https://photos.google.com" target="_blank" rel="noopener" style="color:#1a73e8">photos.google.com</a> on any desktop/laptop — that's the "get them onto my hard drive without a cable" part, done. Same idea works with OneDrive or Dropbox's own device-folder-backup settings if you'd rather use one of those instead.
       </div>
     </div>
 
@@ -6915,11 +6936,6 @@ function _initBody() {
   // all re-renders.
   _attachStopsListListener();
   _attachRouteListListener();
-
-  // Google Drive sync: if the user previously connected, try a silent token
-  // refresh and drain any photos that queued while offline/disconnected.
-  // Fully best-effort — never blocks boot, never throws into _initBody.
-  try { if (typeof DriveSync !== 'undefined') DriveSync.autoInit(); } catch(_e) {}
 
   _attachLifecycleListeners();
 }
@@ -15291,7 +15307,6 @@ function openPhotoSettings() {
   renderPhotoSettings();
   _refreshStampSizeSeg();
   _refreshStampPosSeg();
-  _renderDriveSyncStatus();
   var modal = document.getElementById('photo-settings-modal');
   modal.style.display = 'flex';
   Accessibility.modalOpened(modal, { onEscape: closePhotoSettings });
@@ -15854,9 +15869,16 @@ function _photoSetupViewRadiusM() {
 }
 
 function _parcelLabelHtml(addr, highlighted) {
+  // Contrast fix: the previous version used orange/brown for the label
+  // border AND text, which is the same hue family as the parcel fill/
+  // outline sitting behind it — everything read as one wash of orange.
+  // Now: fully opaque white background, near-black text, and a neutral
+  // dark border (not orange) so the label visually separates from the
+  // parcel shading regardless of what's under it. cursor:pointer signals
+  // it's tappable (see also the tap-to-search fix below).
   return highlighted
-    ? '<div style="background:#ffd54a;border:2px solid #8c4a00;border-radius:5px;padding:2px 6px;font-family:\'Space Mono\',monospace;font-size:0.58rem;color:#5c3400;white-space:nowrap;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,0.4)">' + escHtml(addr) + '</div>'
-    : '<div style="background:rgba(255,255,255,0.92);border:1px solid #e8a020;border-radius:4px;padding:1px 4px;font-family:\'Space Mono\',monospace;font-size:0.5rem;color:#8c4a00;white-space:nowrap;font-weight:700">' + escHtml(addr) + '</div>';
+    ? '<div style="background:#ffd54a;border:2.5px solid #1a1a1a;border-radius:5px;padding:3px 7px;font-family:Syne,sans-serif;font-size:0.68rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,0.45);cursor:pointer">' + escHtml(addr) + '</div>'
+    : '<div style="background:#ffffff;border:1.5px solid #2a2a2a;border-radius:5px;padding:2px 6px;font-family:Syne,sans-serif;font-size:0.64rem;color:#111;white-space:nowrap;font-weight:800;box-shadow:0 1px 4px rgba(0,0,0,0.25);cursor:pointer">' + escHtml(addr) + '</div>';
 }
 
 // Fetches + draws parcels/streets for the given center + radius. Does NOT
@@ -15878,30 +15900,54 @@ async function _drawPhotoSetupParcelsAndStreets(centerLat, centerLng, radiusM) {
     if (results[1].status === 'fulfilled') streets = results[1].value;
   } catch(_e) {}
 
-  // Streets drawn first (under parcels) as thin labeled lines
+  // Streets drawn first (under parcels) as thin labeled lines. Darker slate
+  // (was a pale #999 that all but disappeared against light basemap tiles)
+  // and a dedicated, more-readable label class (photo-setup-street-label —
+  // see CSS) instead of reusing the Ward layer's teal styling.
   streets.forEach(function(s) {
     try {
       var latlngs = _geoJsonLineToLatLngs(s.geometry);
       if (!latlngs.length) return;
-      var line = L.polyline(latlngs, { color:'#999', weight:3, opacity:0.7 }).addTo(_photoSetupMap);
-      line.bindTooltip(s.name, { permanent:true, direction:'center', className:'boundary-label-ward', opacity:0.85 });
+      var line = L.polyline(latlngs, { color:'#4a5a6a', weight:3.5, opacity:0.85 }).addTo(_photoSetupMap);
+      line.bindTooltip(s.name, { permanent:true, direction:'center', className:'photo-setup-street-label', opacity:0.95 });
       _photoSetupMapLayers.push(line);
     } catch(_e) {}
   });
 
-  // Parcel outlines + address-number labels
+  // Parcel outlines + address-number labels. Darker, more saturated
+  // outline color and a touch more fill so parcels read clearly against
+  // the pale basemap; markers are interactive with a tap-to-search popup.
   parcels.forEach(function(p) {
     try {
       if (p.geometry) {
-        var poly = L.geoJSON(p.geometry, { style: { color:'#e8a020', weight:1.5, fillOpacity:0.08 }, interactive:false }).addTo(_photoSetupMap);
+        var poly = L.geoJSON(p.geometry, { style: { color:'#a85d00', weight:2, fillOpacity:0.12 }, interactive:false }).addTo(_photoSetupMap);
         _photoSetupMapLayers.push(poly);
       }
       var highlighted = (p.address === _photoSetupHighlightedAddr);
+      // Explicit iconSize/iconAnchor instead of the previous iconSize:null
+      // "auto-size" pattern. null left Leaflet's hit-testing box undefined,
+      // which is where the tap-to-search popup was silently failing to
+      // register taps on some devices — Leaflet had no defined clickable
+      // area to attach to. Width is a rough estimate from address length
+      // (Syne bold ~7px/char at this size) rather than exact text
+      // measurement, so it can run a little generous — better a slightly
+      // oversized tap target than an undersized one.
+      var dims = _parcelIconSize(p.address, highlighted);
       var marker = L.marker([p.lat, p.lng], {
-        icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted), iconSize: null }),
-        interactive: false,
+        icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }),
+        interactive: true,
         zIndexOffset: highlighted ? 500 : 0
       }).addTo(_photoSetupMap);
+      marker.bindPopup(
+        '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#5c3400;margin-bottom:6px">' + escHtml(p.address) + '</div>' +
+        '<button data-fn="openPropertySearch" data-arg="' + escHtml(p.address) + '" style="width:100%;padding:7px 10px;background:linear-gradient(135deg,#1a5276,#2874a6);border:none;border-radius:7px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">🔍 Property Search</button>',
+        { closeButton: true, autoPan: true }
+      );
+      // Explicit click → open, alongside bindPopup's own automatic
+      // click-to-open. Redundant on browsers where the automatic binding
+      // works fine, but makes the tap-to-search behavior deterministic
+      // rather than depending entirely on Leaflet's internal click wiring.
+      marker.on('click', function() { marker.openPopup(); });
       _photoSetupMapLayers.push(marker);
       _photoSetupParcelMarkers[p.address] = marker;
     } catch(_e) {}
@@ -15994,12 +16040,23 @@ async function _refreshPhotoSetupParcels(gps) {
 // that address isn't currently drawn on the map (e.g. it scrolled out of
 // the visible parcel set after a zoom/pan redraw) — the address still gets
 // set in the field either way, this is a visual bonus, not load-bearing.
+// Shared box-size estimate for parcel label divIcons — used both when
+// first drawing a parcel and when re-icon-ing it on highlight/unhighlight,
+// so the clickable area stays consistent (explicit size, not the old
+// iconSize:null "auto" pattern that left Leaflet's hit-testing undefined).
+function _parcelIconSize(addr, highlighted) {
+  var w = Math.min(230, Math.max(90, (addr || '').length * 7 + 26));
+  var h = highlighted ? 30 : 26;
+  return { iconSize: [w, h], iconAnchor: [w/2, h/2] };
+}
+
 function _highlightPhotoSetupParcel(addr) {
   if (_photoSetupHighlightedAddr && _photoSetupHighlightedAddr !== addr) {
     var prev = _photoSetupParcelMarkers[_photoSetupHighlightedAddr];
     if (prev) {
       try {
-        prev.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(_photoSetupHighlightedAddr, false), iconSize: null }));
+        var prevDims = _parcelIconSize(_photoSetupHighlightedAddr, false);
+        prev.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(_photoSetupHighlightedAddr, false), iconSize: prevDims.iconSize, iconAnchor: prevDims.iconAnchor }));
         prev.setZIndexOffset(0);
       } catch(_e) {}
     }
@@ -16008,7 +16065,8 @@ function _highlightPhotoSetupParcel(addr) {
   var marker = _photoSetupParcelMarkers[addr];
   if (marker) {
     try {
-      marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true), iconSize: null }));
+      var dims = _parcelIconSize(addr, true);
+      marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }));
       marker.setZIndexOffset(500);
     } catch(_e) {}
   }
@@ -17698,15 +17756,6 @@ async function _stashCapturedImage(blob, opts) {
     _offerImageDownload(blob, filename).catch(function(){});
   }
 
-  // Optional: background upload to Google Drive. Photostamp-only (that's
-  // what was asked for — photoscan/custom-layer-scan images stay local for
-  // now). Fire-and-forget: queues to IndexedDB immediately so it survives
-  // even if the network call itself fails, then attempts to drain. Never
-  // blocks or throws into the capture flow.
-  if (source === 'photostamp' && typeof DriveSync !== 'undefined' && DriveSync.isEnabled()) {
-    DriveSync.queueUpload(blob, { filename: filename, capturedAt: capturedAt }).catch(function(){});
-  }
-
   return ok;
 }
 
@@ -17729,398 +17778,6 @@ window._checkPhotoDrift         = _checkPhotoDrift;
 window._showDriftWarning        = _showDriftWarning;
 window._relatedStopsAt          = _relatedStopsAt;
 window._showRelatedStopsHint    = _showRelatedStopsHint;
-
-// ── DriveSync: background upload of stamped photos to Google Drive ──────
-// Client-only OAuth via Google Identity Services (GIS) — no server holds
-// any credential, matching the BYOK shape of the Anthropic key. Requires a
-// one-time Google Cloud OAuth Client ID (public, not secret — pasted into
-// Stamp Settings, same "bring your own registration" idea as the Anthropic
-// key, just not a secret this time). Scope is the narrow `drive.file`
-// scope: this app can only see/write files IT created, never browse the
-// rest of the user's Drive.
-//
-// Design:
-//   - IndexedDB queue ('stlcr-drive-queue') holds photos not yet uploaded.
-//     Photos are queued FIRST (survives a dead network instantly), then a
-//     drain is attempted. If the drain fails, the photo just sits in the
-//     queue for the next drain trigger (next capture, Settings→Retry Now,
-//     or next app open) — nothing is ever lost to a bad signal in the field.
-//   - Access token lives in memory only (never persisted) with a short
-//     buffer before its real expiry. On boot, if the user was previously
-//     connected, autoInit() attempts a SILENT reconnect (no popup) — this
-//     works most of the time but is not guaranteed forever (relies on an
-//     active Google browser session); if it fails, the status line asks
-//     for a manual reconnect tap rather than failing silently forever.
-//   - Soft cap of 300 queued photos to bound IndexedDB growth if Drive is
-//     unreachable for a long stretch; oldest is dropped with a toast if hit.
-var DriveSync = (function() {
-  var DB_NAME = 'stlcr-drive-queue';
-  var DB_VERSION = 1;
-  var STORE = 'queue';
-  var QUEUE_SOFT_CAP = 300;
-  var SCOPE = 'https://www.googleapis.com/auth/drive.file';
-
-  var _dbPromise = null;
-  var _token = null;       // { access_token, expiresAt(ms) }
-  var _tokenClient = null; // GIS token client, created lazily
-  var _gisLoadPromise = null;
-  var _draining = false;   // simple re-entrancy guard
-
-  function _openDb() {
-    if (_dbPromise) return _dbPromise;
-    _dbPromise = new Promise(function(resolve, reject) {
-      try {
-        var req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = function() {
-          var db = req.result;
-          if (!db.objectStoreNames.contains(STORE)) {
-            db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
-          }
-        };
-        req.onsuccess = function() { resolve(req.result); };
-        req.onerror = function() { reject(req.error); };
-      } catch(e) { reject(e); }
-    });
-    return _dbPromise;
-  }
-
-  function _queueAdd(item) {
-    return _openDb().then(function(db) {
-      return new Promise(function(resolve, reject) {
-        var tx = db.transaction(STORE, 'readwrite');
-        var store = tx.objectStore(STORE);
-        var req = store.add(item);
-        req.onsuccess = function() { resolve(req.result); };
-        req.onerror = function() { reject(req.error); };
-      });
-    });
-  }
-
-  function _queueAll() {
-    return _openDb().then(function(db) {
-      return new Promise(function(resolve, reject) {
-        var tx = db.transaction(STORE, 'readonly');
-        var out = [];
-        var cursorReq = tx.objectStore(STORE).openCursor();
-        cursorReq.onsuccess = function(e) {
-          var cur = e.target.result;
-          if (cur) { out.push(cur.value); cur.continue(); }
-          else resolve(out);
-        };
-        cursorReq.onerror = function() { reject(cursorReq.error); };
-      });
-    });
-  }
-
-  function _queueDelete(id) {
-    return _openDb().then(function(db) {
-      return new Promise(function(resolve) {
-        var tx = db.transaction(STORE, 'readwrite');
-        tx.objectStore(STORE).delete(id);
-        tx.oncomplete = function() { resolve(); };
-        tx.onerror = function() { resolve(); }; // best-effort — don't block on cleanup failure
-      });
-    });
-  }
-
-  function _queueCount() {
-    return _queueAll().then(function(all) { return all.length; });
-  }
-
-  // ── Config (LS) ─────────────────────────────────────────────────────
-  function _clientId() { try { return (LS.get('drive-sync-client-id') || '').trim(); } catch(_e) { return ''; } }
-  function isEnabled() { try { return LS.get('drive-sync-enabled') === '1'; } catch(_e) { return false; } }
-  function _accountEmail() { try { return LS.get('drive-sync-account-email') || ''; } catch(_e) { return ''; } }
-  function _folderId() { try { return LS.get('drive-sync-folder-id') || ''; } catch(_e) { return ''; } }
-
-  // ── GIS script + token client ────────────────────────────────────────
-  function _loadGisScript() {
-    if (_gisLoadPromise) return _gisLoadPromise;
-    _gisLoadPromise = new Promise(function(resolve, reject) {
-      if (window.google && window.google.accounts && window.google.accounts.oauth2) { resolve(); return; }
-      var s = document.createElement('script');
-      s.src = 'https://accounts.google.com/gsi/client';
-      s.async = true;
-      s.onload = function() { resolve(); };
-      s.onerror = function() { reject(new Error('Failed to load Google Identity Services')); };
-      document.head.appendChild(s);
-    });
-    return _gisLoadPromise;
-  }
-
-  function _getTokenClient() {
-    if (_tokenClient) return _tokenClient;
-    var clientId = _clientId();
-    if (!clientId || !window.google || !window.google.accounts) return null;
-    _tokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: SCOPE,
-      callback: function() {} // overridden per-call below
-    });
-    return _tokenClient;
-  }
-
-  function _tokenValid() {
-    return !!(_token && _token.access_token && _token.expiresAt > Date.now() + 30000);
-  }
-
-  // Request a token. interactive=true shows the Google account picker /
-  // consent screen (must be called from a user gesture, e.g. a button
-  // click). interactive=false attempts a silent renewal via GIS's iframe
-  // flow — works if there's an active Google session that already granted
-  // this app access, fails silently (resolves null) otherwise.
-  function _requestToken(interactive) {
-    return new Promise(function(resolve) {
-      var client = _getTokenClient();
-      if (!client) { resolve(null); return; }
-      client.callback = function(resp) {
-        if (resp && resp.access_token) {
-          _token = { access_token: resp.access_token, expiresAt: Date.now() + ((resp.expires_in || 3600) * 1000) };
-          resolve(_token);
-        } else {
-          resolve(null);
-        }
-      };
-      client.error_callback = function() { resolve(null); };
-      try {
-        client.requestAccessToken(interactive ? { prompt: 'consent' } : { prompt: '' });
-      } catch(_e) { resolve(null); }
-    });
-  }
-
-  // Returns a valid access token string, or null if one couldn't be
-  // obtained without user interaction (caller should show "tap Connect").
-  function _getValidToken() {
-    if (_tokenValid()) return Promise.resolve(_token.access_token);
-    return _loadGisScript().then(function() {
-      return _requestToken(false);
-    }).then(function(t) { return t ? t.access_token : null; });
-  }
-
-  // ── Drive REST calls ────────────────────────────────────────────────
-  function _fetchUserEmail(token) {
-    return fetch('https://www.googleapis.com/drive/v3/about?fields=user', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    }).then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(data) { return (data && data.user && data.user.emailAddress) || ''; })
-      .catch(function() { return ''; });
-  }
-
-  function _ensureFolder(token) {
-    var cached = _folderId();
-    var checkExisting = cached
-      ? fetch('https://www.googleapis.com/drive/v3/files/' + cached + '?fields=id,trashed', { headers: { 'Authorization': 'Bearer ' + token } })
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .then(function(f) { return (f && !f.trashed) ? f.id : null; })
-          .catch(function() { return null; })
-      : Promise.resolve(null);
-
-    return checkExisting.then(function(id) {
-      if (id) return id;
-      var q = "name='STLCityRoute Photos' and mimeType='application/vnd.google-apps.folder' and trashed=false";
-      return fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(q) + '&spaces=drive&fields=files(id,name)', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(r) { return r.ok ? r.json() : { files: [] }; })
-        .then(function(data) {
-          if (data.files && data.files.length) return data.files[0].id;
-          // Not found — create it
-          return fetch('https://www.googleapis.com/drive/v3/files', {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: 'STLCityRoute Photos', mimeType: 'application/vnd.google-apps.folder' })
-          }).then(function(r) { return r.json(); }).then(function(f) { return f.id; });
-        });
-    }).then(function(id) {
-      if (id) { try { LS.set('drive-sync-folder-id', id); } catch(_e) {} }
-      return id;
-    });
-  }
-
-  // Multipart upload — metadata (JSON) + binary photo in one request. Built
-  // as Blob parts (not string concatenation) so the JPEG bytes stay intact;
-  // concatenating binary data into a JS string would corrupt it.
-  function _uploadOne(item, token, folderId) {
-    var boundary = '-------stlcr' + Date.now();
-    var delimiter = '\r\n--' + boundary + '\r\n';
-    var closeDelim = '\r\n--' + boundary + '--';
-    var metadata = JSON.stringify({ name: item.filename, parents: [folderId] });
-    var head = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + metadata +
-      delimiter + 'Content-Type: ' + (item.blob.type || 'image/jpeg') + '\r\n\r\n';
-    var body = new Blob([head, item.blob, closeDelim], { type: 'multipart/related; boundary=' + boundary });
-    return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'multipart/related; boundary=' + boundary },
-      body: body
-    }).then(function(r) { if (!r.ok) throw new Error('Drive upload failed: ' + r.status); return r.json(); });
-  }
-
-  // ── Public: connect / disconnect ────────────────────────────────────
-  // Must be called directly from a user gesture (button click) — the first
-  // await (script load) is short enough to stay inside the browser's
-  // "transient activation" window in practice, but Stamp Settings preloads
-  // the GIS script as soon as the panel opens specifically to minimize
-  // that gap.
-  function connect() {
-    var clientId = _clientId();
-    if (!clientId) { showToast('⚠ Paste a Google OAuth Client ID first'); return Promise.resolve(false); }
-    return _loadGisScript().then(function() {
-      return _requestToken(true);
-    }).then(function(t) {
-      if (!t) { showToast('⚠ Google sign-in failed or was cancelled'); return false; }
-      return _fetchUserEmail(t.access_token).then(function(email) {
-        try {
-          LS.set('drive-sync-enabled', '1');
-          LS.set('drive-sync-account-email', email || 'connected');
-        } catch(_e) {}
-        showToast('✓ Connected' + (email ? ' as ' + email : ''));
-        _drainQueue();
-        return true;
-      });
-    }).catch(function() { showToast('⚠ Google sign-in failed'); return false; });
-  }
-
-  function disconnect() {
-    var t = _token;
-    try {
-      if (t && window.google && window.google.accounts && window.google.accounts.oauth2) {
-        window.google.accounts.oauth2.revoke(t.access_token, function(){});
-      }
-    } catch(_e) {}
-    _token = null;
-    try {
-      LS.set('drive-sync-enabled', '0');
-      LS.set('drive-sync-account-email', '');
-    } catch(_e) {}
-    showToast('Disconnected from Google Drive');
-  }
-
-  // ── Public: queue + drain ───────────────────────────────────────────
-  function queueUpload(blob, meta) {
-    meta = meta || {};
-    return _queueCount().then(function(count) {
-      var addP = _queueAdd({
-        blob: blob,
-        filename: meta.filename || _defaultCaptureFilename('photostamp'),
-        capturedAt: meta.capturedAt || new Date().toISOString(),
-        attempts: 0,
-        addedAt: Date.now()
-      });
-      // Soft cap: if we're over the limit, drop the single oldest item
-      // after adding the new one, so the queue never grows unbounded if
-      // Drive is unreachable for a long stretch.
-      if (count >= QUEUE_SOFT_CAP) {
-        _queueAll().then(function(all) {
-          if (all.length) {
-            var oldest = all.reduce(function(a,b){ return a.addedAt < b.addedAt ? a : b; });
-            _queueDelete(oldest.id);
-            showToast('⚠ Drive upload queue full — dropped oldest pending photo');
-          }
-        });
-      }
-      return addP;
-    }).then(function() {
-      _drainQueue(); // fire-and-forget from the caller's perspective
-      return true;
-    });
-  }
-
-  function _drainQueue() {
-    if (_draining || !isEnabled()) return Promise.resolve();
-    _draining = true;
-    return _getValidToken().then(function(token) {
-      if (!token) { _draining = false; _renderDriveSyncStatusSafe(); return; }
-      return _ensureFolder(token).then(function(folderId) {
-        if (!folderId) { _draining = false; _renderDriveSyncStatusSafe(); return; }
-        return _queueAll().then(function(items) {
-          // Oldest first, sequential (not parallel) — gentle on a possibly
-          // weak field connection and easy to reason about on failure.
-          items.sort(function(a,b){ return a.addedAt - b.addedAt; });
-          var i = 0;
-          function next() {
-            if (i >= items.length) { _draining = false; _renderDriveSyncStatusSafe(); return; }
-            var item = items[i++];
-            _uploadOne(item, token, folderId)
-              .then(function() { return _queueDelete(item.id); })
-              .then(next)
-              .catch(function() { next(); }); // leave it queued, try the next one, retry this one next drain
-          }
-          next();
-        });
-      });
-    }).catch(function() { _draining = false; _renderDriveSyncStatusSafe(); });
-  }
-
-  function _renderDriveSyncStatusSafe() {
-    try { if (typeof _renderDriveSyncStatus === 'function') _renderDriveSyncStatus(); } catch(_e) {}
-  }
-
-  // ── Public: status + boot ───────────────────────────────────────────
-  function status() {
-    return _queueCount().then(function(pending) {
-      return { enabled: isEnabled(), email: _accountEmail(), pending: pending };
-    });
-  }
-
-  function autoInit() {
-    if (!isEnabled()) return;
-    // Preload the script + attempt a silent reconnect so the queue can
-    // start draining without waiting for the user to open Settings.
-    _loadGisScript().then(function() { _drainQueue(); }).catch(function(){});
-  }
-
-  return {
-    isEnabled: isEnabled,
-    connect: connect,
-    disconnect: disconnect,
-    queueUpload: queueUpload,
-    status: status,
-    autoInit: autoInit,
-    drain: _drainQueue,
-    preloadScript: _loadGisScript
-  };
-})();
-window.DriveSync = DriveSync;
-
-function _saveDriveClientId(val) {
-  try { LS.set('drive-sync-client-id', (val || '').trim()); } catch(_e) {}
-}
-
-function _driveSyncConnectClick() {
-  DriveSync.status().then(function(st) {
-    if (st.enabled) { DriveSync.disconnect(); _renderDriveSyncStatus(); }
-    else { DriveSync.connect().then(function(){ _renderDriveSyncStatus(); }); }
-  });
-}
-
-function _driveSyncRetryClick() {
-  showToast('↻ Retrying Drive uploads…');
-  DriveSync.drain().then(function() { _renderDriveSyncStatus(); });
-}
-
-function _renderDriveSyncStatus() {
-  var statusEl = document.getElementById('drive-sync-status');
-  var btn = document.getElementById('drive-sync-connect-btn');
-  var idField = document.getElementById('drive-sync-clientid');
-  if (idField) { try { idField.value = LS.get('drive-sync-client-id') || ''; } catch(_e) {} }
-  if (typeof DriveSync === 'undefined') return;
-  // Preload the GIS script as soon as the settings panel is open, so the
-  // eventual Connect tap has as little async gap as possible before it
-  // calls requestAccessToken() (see DriveSync.connect() comment).
-  try { DriveSync.preloadScript().catch(function(){}); } catch(_e) {}
-  DriveSync.status().then(function(st) {
-    if (!statusEl) return;
-    if (st.enabled) {
-      statusEl.innerHTML = '✓ Connected' + (st.email ? ' as <b>' + escHtml(st.email) + '</b>' : '') +
-        (st.pending ? '<br>📤 ' + st.pending + ' photo' + (st.pending===1?'':'s') + ' pending upload' : '<br>All synced');
-      if (btn) { btn.textContent = 'Disconnect'; btn.style.background = '#fff'; btn.style.color = '#c0392b'; btn.style.border = '1.5px solid #f5c6c6'; }
-    } else {
-      statusEl.textContent = st.pending
-        ? ('Not connected — ' + st.pending + ' photo' + (st.pending===1?'':'s') + ' waiting to sync once connected')
-        : 'Not connected';
-      if (btn) { btn.textContent = 'Connect Google Account'; btn.style.background = 'linear-gradient(135deg,#1a73e8,#4285f4)'; btn.style.color = 'white'; btn.style.border = 'none'; }
-    }
-  });
-}
 
 
 // ── GeoCache: cached neighborhood + ward polygons for offline lookup ─────────
