@@ -2602,7 +2602,7 @@ header{
         <b>❓ Questions &amp; Follow-Up</b> — Contact information for departments you selected in Settings. CSB is always first. One-tap dialing.<br><br>
         <b>⚖️ Roles &amp; Authority</b> — Three panels (Roles, Summary, Ordinance) loaded from your saved position. Use the position selector to preview any other role without changing your profile. Navigate away and your saved default restores automatically.<br><br>
         <b>📄 Reference Documents</b> — Upload and store images (maps, forms, permit templates, reference sheets) for quick in-field lookup. Stored locally; up to 50 docs.<br><br>
-        <b>📋 RESOURCES</b> — Categorized contact list: property &amp; ownership lookup, courts &amp; enforcement records, citation-issuing agencies (SLMPD by district, parking, building, fire, health, state/federal), key city departments, towing, emergency utilities, environmental, GIS tools, animals &amp; wildlife, and local business listings. ~140 entries with one-tap dialing.<br><br>
+        <b>📋 RESOURCES</b> — Categorized contact list: property &amp; ownership lookup, courts &amp; enforcement records, citation-issuing agencies (SLMPD by district, parking, building, fire, health, state/federal), key city departments, towing, emergency utilities, environmental, GIS tools, and animals &amp; wildlife. ~135 entries with one-tap dialing.<br><br>
         <b>📊 Data &amp; Metrics</b> — Your shift data, stop history, and export tools.<br><br>
         <b>❓ Help &amp; Guide</b> — This page.<br><br>
         <b>⚙️ Settings</b> — Includes:<br>
@@ -3187,6 +3187,7 @@ header{
       <div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#8c4a00;margin-bottom:6px">Stamp size</div>
       <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:#666;margin-bottom:8px;line-height:1.5">How large the stamp text appears on your photo.</div>
       <div id="stamp-size-seg" style="display:flex;gap:6px">
+        <button data-size="xl" data-fn="setStampSize" data-arg="xl" class="stamp-size-btn" style="flex:1;padding:9px;border:1.5px solid #ccc;border-radius:8px;background:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:#333;cursor:pointer">🔠 XL</button>
         <button data-size="large" data-fn="setStampSize" data-arg="large" class="stamp-size-btn" style="flex:1;padding:9px;border:1.5px solid #ccc;border-radius:8px;background:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:#333;cursor:pointer">🔠 Large</button>
         <button data-size="medium" data-fn="setStampSize" data-arg="medium" class="stamp-size-btn" style="flex:1;padding:9px;border:1.5px solid #ccc;border-radius:8px;background:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:#333;cursor:pointer">🔡 Medium</button>
         <button data-size="small" data-fn="setStampSize" data-arg="small" class="stamp-size-btn" style="flex:1;padding:9px;border:1.5px solid #ccc;border-radius:8px;background:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:#333;cursor:pointer">🤏 Small</button>
@@ -3379,7 +3380,6 @@ header{
 // §  L 8324  showStopOnMap — switch to the map tab and pan to a stop's location
 // ·  L 8444  Analytics utilities
 // §  L 8500  MISC CITY CONTACTS & RESOURCES — data + renderer
-// ·  L 8797  Advertise modal — in-app advertising info page
 // ·  L 8816  Misc City Contacts & Resources modal
 // ·  L 8835  Detect device capabilities for scan routing
 // §  L 9085  PHOTO SCAN — Anthropic vision API (primary) or on-device TextDetector (fallback)
@@ -9322,7 +9322,7 @@ const StopCard = (function() {
       '<img src="' + UTILITY_ICON_URI + '" alt="Utility"></button>' +
       '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;' + menuPos + ';left:0;background:white;' +
       'border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);' +
-      'z-index:90;min-width:210px;overflow:hidden">' + html + '</div></div>';
+      'z-index:3000;min-width:210px;overflow:hidden">' + html + '</div></div>';
   }
 
   // Build the recon dropdown. Same id-prefix pattern as _utilDropdown.
@@ -9345,7 +9345,7 @@ const StopCard = (function() {
       '<img src="' + RECON_ICON_URI + '" alt="Recon"></button>' +
       '<div id="' + menuIdPrefix + '-menu-' + s.id + '" style="display:none;position:absolute;' + menuPos + ';left:0;background:white;' +
       'border:1px solid #ddd;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.22);' +
-      'z-index:90;min-width:210px;overflow:hidden">' + rows.join('') + '</div></div>';
+      'z-index:3000;min-width:210px;overflow:hidden">' + rows.join('') + '</div></div>';
   }
 
   function _photoBtn(s) {
@@ -13086,7 +13086,8 @@ function _beacon(event, meta) {
 
 function trackResourceClick(label, section, url) {
   _beacon('resource_click', { label, section, url: (url||'').slice(0,120) });
-  // Also keep dedicated resource click log for advertiser reporting
+  // Also keep a dedicated local log of resource-link usage (which entries
+  // actually get used, for future curation of the list)
   try {
     const log = safeParseLS('resource-click-log', []);
     log.push({ label, section, ts: new Date().toISOString() });
@@ -13106,11 +13107,8 @@ function trackResourceClick(label, section, url) {
 //   - _attachMiscLinksToggle: idempotent event-delegation wiring
 //   - openMiscLinks: thin coordinator (build HTML, attach listener, show modal)
 
-// Data: 8 categorized sections of city contacts, each containing items with
-// {label, sub, url, [phone, display, premiere]}. The last section
-// (LOCAL BUSINESS LISTINGS) renders always-open; the first 7 are collapsible.
-// Special urls: 'tel:...' triggers the dialer; '__ADVERTISE__' opens the
-// advertise modal instead of navigating.
+// Data: 7 categorized sections of city contacts, each containing items with
+// {label, sub, url, [phone, display]}. All sections are collapsible.
 const MISC_LINKS_SECTIONS = [
   // Drop S: 'OFFICIAL CITY MAPS' section moved to the Map Layers panel
   // — see the static HTML block under #map-layers-modal that follows the
@@ -13254,14 +13252,6 @@ const MISC_LINKS_SECTIONS = [
       { label: 'Wildlife Rescue Center', sub: 'Injured/orphaned native MAMMALS (not deer), reptiles, amphibians, waterfowl, game birds. MDC and USFWS licensed', url: 'https://www.mowildlife.org/', phone: '6363941880' },
       { label: 'Missouri Dept of Conservation — St. Louis Regional Office', sub: 'Wildlife laws · nuisance wildlife questions · deer · problem coyotes or foxes · licensed trapper referrals', url: 'https://mdc.mo.gov/', phone: '6364414554' },
     ]
-  },
-  {
-    heading: '📣 LOCAL BUSINESS LISTINGS',
-    items: [
-      { label: 'STL Pest Control', sub: 'Licensed & insured · Residential & commercial · Bed bugs · termites · rodents · ants · wasps · wildlife removal · St. Louis City & County', url: 'https://stlpestcontrol.com/', phone: '3148336222', premiere: true },
-      { label: '📣 Advertise with us', sub: 'Get your business in front of city field workers. Standard $25/yr · Featured $75/yr · Premiere $150/yr — tap to see options and contact us', url: '__ADVERTISE__' },
-      { label: '🌱 Nonprofits list free', sub: 'Qualifying nonprofit organizations — pest control, wildlife rescue, legal aid, environmental services. Tap to apply.', url: '__ADVERTISE__' },
-    ]
   }
 ];
 
@@ -13275,38 +13265,19 @@ function _fmtMiscPhone(p) {
   return p;
 }
 
-// Render one item's HTML. The item shape is {label, sub, url, [phone, display, premiere]}.
-// Special urls: 'tel:...' triggers the dialer (no target=_blank); '__ADVERTISE__'
-// opens the advertise modal via data-fn (no <a href>). Premiere items get a
-// gold-tinted card and a "PREMIERE PARTNER" ribbon.
+// Render one item's HTML. The item shape is {label, sub, url, [phone, display]}.
+// 'tel:...' urls trigger the dialer (no target=_blank).
 function _renderMiscItem(item, sec) {
   var isTel = item.url && item.url.indexOf('tel:') === 0;
   var displayPhone = item.display || (item.phone ? _fmtMiscPhone(item.phone) : '');
-  var isPremiereItem = !!item.premiere;
-  var isSpecial = item.url === '__ADVERTISE__';
-  var itemBg = isPremiereItem
-    ? 'background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px solid #f5c518;border-radius:8px;padding:8px 10px;margin-bottom:4px'
-    : 'padding:7px 0;border-bottom:1px solid #f5f5f5';
 
-  var html = '<div style="' + itemBg + '">';
-  if (isPremiereItem) {
-    html += '<div style="font-size:0.46rem;font-family:Syne,sans-serif;font-weight:800;color:#e6a100;letter-spacing:1px;margin-bottom:3px">⭐ PREMIERE PARTNER</div>';
-  }
-  if (isSpecial) {
-    html += '<span data-fn="openAdvertiseModal" style="font-family:Syne,sans-serif;font-weight:700;font-size:0.67rem;color:var(--forest);text-decoration:none;display:block;margin-bottom:2px;cursor:pointer">';
-  } else {
-    html += '<a href="' + escHtml(item.url) + '" ' + (isTel ? '' : 'target="_blank" rel="noopener"')
-         + ' onclick="trackResourceClick(' + escHtml(JSON.stringify(item.label)) + ',' + escHtml(JSON.stringify(sec.heading)) + ',' + escHtml(JSON.stringify(item.url)) + ')"'
-         + ' style="font-family:Syne,sans-serif;font-weight:700;font-size:0.67rem;color:var(--forest);text-decoration:none;display:block;margin-bottom:2px">';
-  }
+  var html = '<div style="padding:7px 0;border-bottom:1px solid #f5f5f5">';
+  html += '<a href="' + escHtml(item.url) + '" ' + (isTel ? '' : 'target="_blank" rel="noopener"')
+       + ' onclick="trackResourceClick(' + escHtml(JSON.stringify(item.label)) + ',' + escHtml(JSON.stringify(sec.heading)) + ',' + escHtml(JSON.stringify(item.url)) + ')"'
+       + ' style="font-family:Syne,sans-serif;font-weight:700;font-size:0.67rem;color:var(--forest);text-decoration:none;display:block;margin-bottom:2px">';
   html += escHtml(item.label);
-  if (isSpecial) {
-    html += ' <span style="font-size:0.55rem;color:var(--leaf);opacity:0.7">\u2197</span>';
-    html += '</span>';
-  } else {
-    if (!isTel) html += ' <span style="font-size:0.55rem;color:var(--leaf);opacity:0.7">\u2197</span>';
-    html += '</a>';
-  }
+  if (!isTel) html += ' <span style="font-size:0.55rem;color:var(--leaf);opacity:0.7">\u2197</span>';
+  html += '</a>';
   html += '<div style="font-size:0.54rem;color:#999;font-family:monospace;line-height:1.5">' + escHtml(item.sub) + '</div>';
   if (item.phone && !isTel) {
     html += '<a href="tel:+1' + item.phone.replace(/\D/g,'') + '"'
@@ -13318,21 +13289,14 @@ function _renderMiscItem(item, sec) {
   return html;
 }
 
-// Render one section's HTML. Sections are either always-open (used for the
-// last LISTINGS section) or collapsible (used for the first 7).
-// Collapsible sections start collapsed and expand via the click delegation
-// in _attachMiscLinksToggle.
-function _renderMiscSection(sec, idx, isAlwaysOpen) {
+// Render one section's HTML. All sections are collapsible now (the
+// always-open exception used to be reserved for the ad-listings section,
+// which no longer exists). Sections start collapsed and expand via the
+// click delegation in _attachMiscLinksToggle.
+function _renderMiscSection(sec, idx) {
   var itemsHtml = '';
   for (var i = 0; i < sec.items.length; i++) {
     itemsHtml += _renderMiscItem(sec.items[i], sec);
-  }
-
-  if (isAlwaysOpen) {
-    return '<div style="margin-bottom:14px">'
-         + '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.63rem;color:var(--forest);letter-spacing:1px;margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid rgba(37,99,235,0.12)">' + escHtml(sec.heading) + '</div>'
-         + itemsHtml
-         + '</div>';
   }
 
   return '<div style="margin-bottom:6px;border:1px solid rgba(37,99,235,0.1);border-radius:10px;overflow:hidden">'
@@ -13375,8 +13339,7 @@ function openMiscLinks() {
 
   var html = '';
   for (var s = 0; s < MISC_LINKS_SECTIONS.length; s++) {
-    var isAlwaysOpen = s === MISC_LINKS_SECTIONS.length - 1; // last section always open
-    html += _renderMiscSection(MISC_LINKS_SECTIONS[s], s, isAlwaysOpen);
+    html += _renderMiscSection(MISC_LINKS_SECTIONS[s], s);
   }
   body.innerHTML = html;
   _attachMiscLinksToggle(body);
@@ -13391,27 +13354,6 @@ function closeMiscLinks() {
   modal.style.display = 'none';
   Accessibility.modalClosed(modal);
 }
-
-// ── Advertise modal — in-app advertising info page ────────────────────────────
-function openAdvertiseModal() {
-  // Close the Misc modal first (uses the named closer to clean up Accessibility stack)
-  var miscModal = document.getElementById('misc-links-modal');
-  if (miscModal && miscModal.style.display !== 'none') closeMiscLinks();
-
-  var modal = document.getElementById('advertise-modal');
-  if (!modal) return;
-  modal.style.display = 'block';
-  Accessibility.modalOpened(modal, { onEscape: closeAdvertiseModal });
-}
-
-function closeAdvertiseModal() {
-  var modal = document.getElementById('advertise-modal');
-  if (modal) modal.style.display = 'none';
-  Accessibility.modalClosed(modal);
-}
-
-
-// ── Misc City Contacts & Resources modal ─────────────────────────────────────
 
 function openCsbForAddress(addr) {
   // Copy address to clipboard, then open CSB submit page
@@ -15381,7 +15323,7 @@ function closePhotoSettings() {
   }
 }
 function setStampSize(size) {
-  if (size !== 'large' && size !== 'medium' && size !== 'small') return;
+  if (size !== 'xl' && size !== 'large' && size !== 'medium' && size !== 'small') return;
   try { LS.set('photo-stamp-size', size); } catch(_e) {}
   _refreshStampSizeSeg();
   showToast('Stamp size: ' + size);
@@ -15685,7 +15627,23 @@ function openStampedCameraForStop(stopId) {
     } else {
       addrField.value = '';
     }
+    // Un-highlight the moment the field no longer reads exactly as the
+    // candidate that was tapped — the highlight means "this is what's in
+    // the field right now," not a sticky selection. Attached once; the
+    // input element persists across modal opens (it's shown/hidden, not
+    // recreated), so re-attaching on every open would just stack listeners.
+    if (!_photoSetupAddrListenerAttached) {
+      _photoSetupAddrListenerAttached = true;
+      addrField.addEventListener('input', function() {
+        if (_photoSetupHighlightedAddr && addrField.value.trim() !== _photoSetupHighlightedAddr) {
+          _highlightPhotoSetupParcel(null);
+        }
+      });
+    }
   }
+  // A fresh open starts with no candidate highlighted, regardless of
+  // whatever was highlighted (or not yet cleared) from a previous open.
+  _photoSetupHighlightedAddr = null;
   var setupModal = document.getElementById('photo-setup-modal');
   setupModal.style.display = 'flex';
   Accessibility.modalOpened(setupModal, { onEscape: closePhotoSetup });
@@ -15730,13 +15688,18 @@ function closePhotoSetup() {
 
 // "📍 GPS" button on the Prepare Photo map: re-fixes GPS and snaps the map
 // back to the inspector's current position at whatever zoom they already
-// had. Deliberately does NOT touch the Address field — filling it is only
-// ever done by tapping a candidate from the list below or typing it
-// manually (this used to also reverse-geocode and auto-fill the field via
-// Nominatim; that's gone, since a reverse-geocoded street guess could be
-// wrong in a way a tapped/typed address can't be).
+// had. Clears the Address field (and any highlighted candidate) since a
+// new position means whatever was typed/selected no longer necessarily
+// applies — filling it back in is then only ever done by tapping a
+// candidate from the refreshed list or typing it manually (this used to
+// also reverse-geocode and auto-fill the field via Nominatim; that's gone,
+// since a reverse-geocoded street guess could be wrong in a way a
+// tapped/typed address can't be).
 async function photoSetupGpsRefresh() {
   var statusEl = document.getElementById('photo-setup-map-status');
+  var addrField = document.getElementById('photo-setup-addr');
+  if (addrField) addrField.value = '';
+  _photoSetupHighlightedAddr = null;
   if (statusEl) statusEl.textContent = '📡 Getting your location…';
   try {
     var gps = await _tryGetLocationForStamp();
@@ -15829,6 +15792,7 @@ var _photoSetupParcelMarkers = {}; // address -> Leaflet marker, so the candidat
 var _photoSetupHighlightedAddr = null;
 var _photoSetupViewChangeTimer = null;
 var _photoSetupListenersAttached = false;
+var _photoSetupAddrListenerAttached = false; // guards the Address-field input listener that un-highlights on edit
 var _photoSetupLastDrawnRadiusM = null; // avoids redundant re-queries on trivial view changes
 
 function _initPhotoSetupMap() {
@@ -15846,7 +15810,7 @@ function _initPhotoSetupMap() {
     // and going further out was mostly just adding clutter (see
     // _parcelZoomTier for the font-shrink/number-only side of the same
     // idea).
-    _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false, zoomSnap: 0.5, zoomDelta: 0.5, minZoom: 18.0 })
+    _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false, zoomSnap: 0.5, zoomDelta: 0.5, minZoom: 16.0 })
       .setView(STL_CENTER, 16);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd', maxZoom: 20, minZoom: 12
@@ -15908,21 +15872,22 @@ var _PHOTO_SETUP_PRESS_ZOOM = 0.5;
 // started (in units of "presses" of the +/- control):
 //   < half a press out : full size, tappable (Property Search popup works)
 //   half a press to one full press out: shrunk text, still tappable
-//   one to two full presses out (the map's actual zoom-out limit): smaller
-//     still, tap-to-search popup no longer wired up, AND labels drop their
-//     street name — number only — since a full "1200 MARKET ST" at this
-//     density is more clutter than the base map's own street labels
-//     already provide.
-//   beyond two presses (not reachable today given minZoom, but the rule
-//     stays here in case that limit ever loosens): same number-only
-//     treatment, smaller still.
+//   one to two full presses out: smaller still, tap-to-search popup no
+//     longer wired up, AND labels drop their street name — number only —
+//     since a full "1200 MARKET ST" at this density is more clutter than
+//     the base map's own street labels already provide.
+//   beyond two presses out (up to the map's actual zoom-out limit, now 6
+//     presses — tripled range): parcels and labels disappear entirely —
+//     `hidden: true` — leaving just the base map. At this density even
+//     bare house numbers are unreadable clutter; the base map's own
+//     street/place labels are all that's useful here.
 function _parcelZoomTier(zoom) {
   var diff = _photoSetupBaselineZoom - zoom;
   var presses = diff / _PHOTO_SETUP_PRESS_ZOOM;
-  if (presses < 0.5) return { fontRem: 0.64, interactive: true,  numberOnly: false };
-  if (presses <= 1)  return { fontRem: 0.50, interactive: true,  numberOnly: false };
-  if (presses <= 2)  return { fontRem: 0.44, interactive: false, numberOnly: true };
-  return { fontRem: 0.40, interactive: false, numberOnly: true };
+  if (presses < 0.5) return { fontRem: 0.64, interactive: true,  numberOnly: false, hidden: false };
+  if (presses <= 1)  return { fontRem: 0.50, interactive: true,  numberOnly: false, hidden: false };
+  if (presses <= 2)  return { fontRem: 0.44, interactive: false, numberOnly: true,  hidden: false };
+  return { fontRem: 0.40, interactive: false, numberOnly: true,  hidden: true };
 }
 
 // Strips a full site address ("1200 MARKET ST", "1200-04 MARKET ST") down
@@ -15937,17 +15902,15 @@ function _addrNumberOnly(addr) {
 }
 
 function _parcelLabelHtml(addr, highlighted, fontRem, numberOnly) {
-  // The selected/highlighted parcel keeps a distinct bordered box — it's
-  // meant to stand out, and there's only ever one on screen at once, so it
-  // doesn't contribute to the "too busy" problem the way a box on every
-  // single label did. Font size here is fixed regardless of zoom tier;
-  // this is a deliberate one-off emphasis, not part of the base density.
-  // It also always shows the full address (never number-only) — it's the
-  // one label the inspector is actively looking at, so it should stay
+  // The selected/highlighted parcel gets a highlight color behind it so it
+  // stands out — NOT a bigger label. Same fontRem as every other label at
+  // the current zoom tier; only the background/border differ. It also
+  // always shows the full address (never number-only) — it's the one
+  // label the inspector is actively looking at, so it should stay
   // unambiguous even while every other label around it has shrunk to a
   // bare number.
   if (highlighted) {
-    return '<div style="background:#ffd54a;border:2.5px solid #1a1a1a;border-radius:5px;padding:3px 7px;font-family:Syne,sans-serif;font-size:0.68rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,0.45);cursor:pointer">' + escHtml(addr) + '</div>';
+    return '<div style="background:#ffd54a;border:1px solid #b8860b;border-radius:4px;padding:1px 5px;font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer">' + escHtml(addr) + '</div>';
   }
   // Every other label: plain text, no background/border/bubble — a strong
   // white halo keeps it legible over both basemap and the gold parcel fill
@@ -15966,11 +15929,6 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
   _clearPhotoSetupMapLayers();
   _photoSetupLastDrawnRadiusM = radiusM;
 
-  var parcels = [];
-  try {
-    parcels = await ParcelLookup.queryParcels(centerLat, centerLng, radiusM);
-  } catch(_e) {}
-
   // Zoom tier drives parcel-label font size, number-only vs. full-address
   // text, and whether Property Search is even wired up. Streets are no
   // longer drawn here at all — the base map's own tile labels already show
@@ -15978,6 +15936,17 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
   // was just visual noise on top of them.
   var zoom = _photoSetupMap.getZoom();
   var tier = _parcelZoomTier(zoom);
+
+  // Beyond the hidden-tier threshold, skip the query entirely — nothing
+  // would be drawn anyway, so there's no point spending a network
+  // round-trip on it. Layers are already cleared above, so the map is
+  // left showing just the base tiles.
+  if (tier.hidden) return { parcels: [] };
+
+  var parcels = [];
+  try {
+    parcels = await ParcelLookup.queryParcels(centerLat, centerLng, radiusM);
+  } catch(_e) {}
 
   // Parcel outlines + address labels. Detail level (font size, full
   // address vs. number-only, whether the tap-to-search popup is even wired
@@ -15992,13 +15961,14 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
         _photoSetupMapLayers.push(poly);
       }
       var highlighted = (p.address === _photoSetupHighlightedAddr);
-      var effFontRem = highlighted ? 0.68 : tier.fontRem; // highlighted always renders at a fixed size — see _parcelLabelHtml
       // Sizing is based on whatever text will actually render (full
       // address, or just the house number once zoomed out past the
       // number-only threshold) so the hit box never ends up oversized/stale
-      // relative to the shrunk label.
+      // relative to the shrunk label. Highlighted now uses the SAME
+      // tier.fontRem as everything else — it gets a highlight color behind
+      // it, not a bigger label.
       var displayAddr = (!highlighted && tier.numberOnly) ? _addrNumberOnly(p.address) : p.address;
-      var dims = _parcelIconSize(displayAddr, highlighted, effFontRem);
+      var dims = _parcelIconSize(displayAddr, highlighted, tier.fontRem);
       var marker = L.marker([p.lat, p.lng], {
         icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted, tier.fontRem, tier.numberOnly), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }),
         interactive: tier.interactive,
@@ -16130,29 +16100,35 @@ async function _refreshPhotoSetupParcels(gps, opts) {
   }
 }
 
-// Highlights the map label for the given address (gold background, raised
-// z-index) and un-highlights whatever was previously highlighted. No-op if
-// that address isn't currently drawn on the map (e.g. it scrolled out of
-// the visible parcel set after a zoom/pan redraw) — the address still gets
-// set in the field either way, this is a visual bonus, not load-bearing.
 // Shared box-size estimate for parcel label divIcons — used both when
 // first drawing a parcel and when re-icon-ing it on highlight/unhighlight,
 // so the clickable area stays consistent (explicit size, not the old
 // iconSize:null "auto" pattern that left Leaflet's hit-testing undefined).
 function _parcelIconSize(addr, highlighted, fontRem) {
   fontRem = fontRem || 0.64;
-  // Per-char width scales with font size; highlighted keeps extra room for
-  // its border/padding, plain labels are tighter since there's no box.
+  // Per-char width scales with font size; highlighted keeps a little extra
+  // room for its thin border/padding, plain labels are tighter since
+  // there's no box at all. Both now scale off the SAME fontRem — the
+  // highlighted box is a subtle highlight behind the text, not a bigger
+  // label with its own fixed size.
   var charW = fontRem * 10.5;
   var w = highlighted
-    ? Math.min(230, Math.max(90, (addr || '').length * charW + 26))
+    ? Math.min(220, Math.max(60, (addr || '').length * charW + 14))
     : Math.min(210, Math.max(50, (addr || '').length * charW + 6));
-  var h = highlighted ? 30 : Math.max(14, Math.round(fontRem * 22) + 4);
+  var h = highlighted ? Math.max(16, Math.round(fontRem * 22) + 6) : Math.max(14, Math.round(fontRem * 22) + 4);
   return { iconSize: [w, h], iconAnchor: [w/2, h/2] };
 }
 
+// Highlights the map label for the given address (highlight color behind
+// the SAME size text, raised z-index) and un-highlights whatever was
+// previously highlighted. Pass null/falsy to just clear the current
+// highlight without selecting a new one (used when the Address field no
+// longer matches it). No-op if the address isn't currently drawn on the
+// map (e.g. it scrolled out of the visible parcel set after a zoom/pan
+// redraw) — the address still gets set in the field either way, this is a
+// visual bonus, not load-bearing.
 function _highlightPhotoSetupParcel(addr) {
-  var tier = _photoSetupMap ? _parcelZoomTier(_photoSetupMap.getZoom()) : { fontRem: 0.64, interactive: true };
+  var tier = _photoSetupMap ? _parcelZoomTier(_photoSetupMap.getZoom()) : { fontRem: 0.64, interactive: true, numberOnly: false };
   if (_photoSetupHighlightedAddr && _photoSetupHighlightedAddr !== addr) {
     var prev = _photoSetupParcelMarkers[_photoSetupHighlightedAddr];
     if (prev) {
@@ -16164,11 +16140,12 @@ function _highlightPhotoSetupParcel(addr) {
       } catch(_e) {}
     }
   }
-  _photoSetupHighlightedAddr = addr;
+  _photoSetupHighlightedAddr = addr || null;
+  if (!addr) return;
   var marker = _photoSetupParcelMarkers[addr];
   if (marker) {
     try {
-      var dims = _parcelIconSize(addr, true, 0.68); // highlighted always renders at a fixed size, full address — see _parcelLabelHtml
+      var dims = _parcelIconSize(addr, true, tier.fontRem); // same fontRem as every other label — see _parcelLabelHtml
       marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true, tier.fontRem, tier.numberOnly), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }));
       marker.setZIndexOffset(500);
     } catch(_e) {}
@@ -16479,9 +16456,10 @@ async function rebuildStampedPreview() {
   }
   var settings = loadPhotoSettings();
   var dt = _photoContext.capturedAt || new Date();
-  // If linked to a stop, pull its geo metadata so the stamp can show it.
-  // Falls back to whatever's in _photoContext if the stop isn't found
-  // (e.g. header-button stamping with no linked stop).
+  // Stop this shot is linked to, if any — used for the photo sequence
+  // number below, and as a fallback source for neighborhood/ward if there's
+  // no GPS fix to look those up fresh (see geoMeta below). null for
+  // header-button stamping with no linked stop.
   var linkedStop = null;
   if (_photoContext.stopId != null && typeof stops !== 'undefined') {
     linkedStop = stops.find(function(x){ return x.id === _photoContext.stopId; }) || null;
@@ -16496,6 +16474,31 @@ async function rebuildStampedPreview() {
     // +1 for the shot currently being stamped (not yet pushed to session.shots)
     seqNum = _photoSession.shots.length + 1;
   }
+  // Neighborhood/ward metadata for the stamp. Resolved fresh from the
+  // CURRENT GPS fix via geoLookup — NOT read directly off linkedStop the
+  // way this used to work. That old approach silently produced nothing in
+  // two common cases: (1) a photo not linked to any saved stop at all
+  // (header 📷 button with a manually/candidate-picked address — no stop
+  // object to read from, ever), and (2) a stop photographed within moments
+  // of being added — commitStop's own geo lookup is fire-and-forget, so a
+  // freshly-created stop can still have null ward/neighborhood by the time
+  // this runs, moments before its lookup resolves. geoLookup is backed by
+  // a per-coordinate LS cache (see its own comment), so repeat shots at the
+  // same spot cost nothing after the first. Falls back to whatever's
+  // already cached on the linked stop only if there's no GPS fix at all to
+  // look up from. Skipped entirely if none of the three toggles are on —
+  // no reason to pay for a lookup (cached or not) nobody asked for.
+  var geoMeta = { neighborhood: null, neighborhoodName: null, ward: null };
+  if (settings.nbhdName || settings.nbhdNum || settings.ward) {
+    if (_photoContext.gps && typeof _photoContext.gps.lat === 'number') {
+      try { geoMeta = await geoLookup(_photoContext.gps.lat, _photoContext.gps.lng); } catch(_e) {}
+    }
+    if (linkedStop) {
+      if (geoMeta.neighborhood == null)     geoMeta.neighborhood     = linkedStop.neighborhood || null;
+      if (geoMeta.neighborhoodName == null) geoMeta.neighborhoodName = linkedStop.neighborhoodName || null;
+      if (geoMeta.ward == null)             geoMeta.ward             = linkedStop.ward || null;
+    }
+  }
   var meta = {
     fields: settings,
     address:   _photoContext.address,
@@ -16506,9 +16509,9 @@ async function rebuildStampedPreview() {
     title:     _readCredsField('title'),
     department: _readCredsField('department'),
     division:  _readCredsField('division'),
-    nbhdName:  linkedStop ? (linkedStop.neighborhoodName || null) : null,
-    nbhdNum:   linkedStop ? (linkedStop.neighborhood || null) : null,
-    ward:      linkedStop ? (linkedStop.ward || null) : null,
+    nbhdName:  geoMeta.neighborhoodName,
+    nbhdNum:   geoMeta.neighborhood,
+    ward:      geoMeta.ward,
     heading:   (typeof _photoContext.heading === 'number') ? _photoContext.heading : null,
     caseType:  _photoContext.caseType || null,
     caseNum:   _photoContext.caseNum || '',
@@ -20168,14 +20171,18 @@ function _stampImageBlob(blob, meta) {
 
         // Font sizing based on image width + user stamp-size preference.
         // Tier scale (less visually dominant than the original):
+        //   xl     = 1.00  (new — larger than "large," for when the stamp
+        //                    needs to be unmistakably readable at a glance,
+        //                    e.g. thumbnails or quick visual scans)
         //   large  = 0.80  (was 1.00 — the old "bold, dominant" look)
         //   medium = 0.60  (was 0.80 — current default, modest)
         //   small  = 0.45  (was 0.60 — subtle corner stamp)
-        // The goal is for even "large" to read as a tasteful overlay, not a
-        // billboard. Users can still bump up via Settings → 📷 Stamp Settings.
+        // The goal is for "large" to read as a tasteful overlay, not a
+        // billboard — xl is the deliberate opt-in past that point. Users
+        // can bump up via Settings → 📷 Stamp Settings.
         var stampSize = 'medium';
         try { stampSize = LS.get('photo-stamp-size') || 'medium'; } catch(_e) {}
-        var sizeScale = stampSize === 'large' ? 0.80 : stampSize === 'small' ? 0.45 : 0.60;
+        var sizeScale = stampSize === 'xl' ? 1.00 : stampSize === 'large' ? 0.80 : stampSize === 'small' ? 0.45 : 0.60;
         var base = Math.max(18, Math.round(w * 0.075 * sizeScale));
         var sizeFor = { big: Math.round(base * 1.30), normal: Math.round(base * 0.78), small: Math.round(base * 0.65) };
         var pad = Math.round(base * 0.70);
@@ -23266,6 +23273,10 @@ const CITY_JOBS = [
   {
     id:'weed_inspector',
     label:'Nuisance Inspector — Weed Control (Forestry)',
+    title:'Nuisance Inspector',
+    division:'Weed Control Section, Forestry Division',
+    department:'Department of Parks, Recreation & Forestry',
+    scope:'Nuisance Vegetation · Ordinance No. 72059',
     whoami:'I am a duly authorized Nuisance Inspector employed by the City of St. Louis Forestry Division, Weed Control Section, Department of Parks, Recreation & Forestry. I am authorized under Ordinance No. 72059 to inspect private property and enforce nuisance vegetation standards within the City of St. Louis.',
     authority:'\u25b8 Inspect any privately-owned lot, tract, or parcel at reasonable times without warrant\n\u25b8 Issue written notices of violation to property owner or occupant\n\u25b8 Order City abatement (cut/clear) upon non-compliance\n\u25b8 Assess all City abatement costs as a lien on the property — collected as real estate taxes\n\u25b8 Civil penalties: $100\u2013$500/day per violation after compliance deadline\n\u25b8 Chronic violator penalties: $250\u2013$1,000/day per violation\n\u25b8 Seek assistance of City Counselor, Building Division, or other City agencies',
     enforce:'\u25b8 Weeds, grasses, or brush exceeding 7 inches in height (Sec. 1 definition)\n\u25b8 Vegetation constituting a fire hazard\n\u25b8 Vegetation providing harborage for rodents, vermin, or pests\n\u25b8 Vegetation detrimental to neighboring property or public health, safety, or welfare\n\u25b8 Entire parcel — including setbacks, easements, and right-of-way abutting property line\n\u25b8 Vacant lots and unimproved land\n\u25b8 Property adjacent to occupied or unoccupied structures',
@@ -23285,6 +23296,10 @@ const CITY_JOBS = [
   {
     id:'building_inspector',
     label:'Building Inspector — Building Division (SLDC)',
+    title:'Building Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'International Building Code (IBC)',
     whoami:'I am a duly authorized Building Inspector for the City of St. Louis Building Division, St. Louis Development Corporation, enforcing the International Building Code and City of St. Louis building ordinances.',
     authority:'▸ Enter & inspect any structure at reasonable times with consent or warrant\n▸ Issue stop-work orders and notices of violation\n▸ Order vacating of unsafe structures\n▸ Revoke or deny building permits\n▸ Assess civil penalties and refer for prosecution',
     enforce:'▸ Structural integrity and unsafe building conditions\n▸ Unpermitted construction, demolition, or renovation\n▸ Electrical, plumbing, and mechanical code violations\n▸ Fire safety and egress violations\n▸ Building maintenance and exterior upkeep standards',
@@ -23296,6 +23311,10 @@ const CITY_JOBS = [
   {
     id:'housing_inspector',
     label:'Housing Conservation Inspector — Neighborhood Stabilization',
+    title:'Housing Conservation Inspector',
+    division:'Neighborhood Stabilization Office',
+    department:'Department of Public Safety',
+    scope:'Housing Conservation Code · Ch. 25.12',
     whoami:'I am a duly authorized Housing Conservation Inspector for the City of St. Louis Neighborhood Stabilization Office, enforcing the City Housing Conservation Code and property maintenance standards.',
     authority:'▸ Enter & inspect occupied and vacant residential properties\n▸ Issue notices of violation and compliance orders\n▸ Post properties as unfit for habitation\n▸ Refer properties for City receivership or demolition\n▸ Assess civil penalties $50–$500/day',
     enforce:'▸ Exterior maintenance: walls, roofs, windows, foundations\n▸ Interior habitability: heating, sanitation, water, electrical\n▸ Vacant building registration and security\n▸ Rental property licensing compliance\n▸ Rat and pest harborage conditions',
@@ -23307,6 +23326,10 @@ const CITY_JOBS = [
   {
     id:'refuse_inspector',
     label:'Refuse Enforcement Inspector — Streets Department',
+    title:'Refuse Enforcement Inspector',
+    division:'Refuse Division',
+    department:'Streets Department',
+    scope:'Solid Waste & Illegal Dumping · Ch. 11.36',
     whoami:'I am a duly authorized Refuse Enforcement Inspector for the City of St. Louis Streets Department, enforcing ordinances related to solid waste, illegal dumping, and refuse storage on public and private property.',
     authority:'▸ Inspect public and private property for refuse violations\n▸ Issue notices of violation and citations\n▸ Order immediate removal of illegally dumped material\n▸ Assess costs of City cleanup as lien against property\n▸ Civil penalties $100–$1,000 per violation',
     enforce:'▸ Illegal dumping on public rights-of-way and private property\n▸ Improper refuse storage — containers, timing, placement\n▸ Bulk/large item placement violations\n▸ Commercial dumpster violations\n▸ Open burning of refuse',
@@ -23318,6 +23341,10 @@ const CITY_JOBS = [
   {
     id:'env_health_inspector',
     label:'Environmental Health Inspector — Health Department',
+    title:'Environmental Health Inspector',
+    division:'Bureau of Environmental Health',
+    department:'Department of Health',
+    scope:'Food Safety & Environmental Health',
     whoami:'I am a duly authorized Environmental Health Inspector for the City of St. Louis Department of Health, enforcing ordinances and state regulations related to food safety, sanitation, vector control, and environmental nuisances.',
     authority:'▸ Enter and inspect food establishments, public facilities, and relevant private property\n▸ Issue notices of violation, compliance orders, and citations\n▸ Order immediate closure of imminent health hazards\n▸ Condemn food products and equipment\n▸ Refer for license suspension or revocation',
     enforce:'▸ Food establishment sanitation and safety standards\n▸ Rodent and vector control on private and public property\n▸ Sewage and septic system violations\n▸ Air quality and nuisance odor complaints\n▸ Public swimming pool and spa safety',
@@ -23329,6 +23356,10 @@ const CITY_JOBS = [
   {
     id:'streets_inspector',
     label:'Streets & Sidewalk Inspector — Streets Department',
+    title:'Streets & Sidewalk Inspector',
+    division:'Street Maintenance Division',
+    department:'Streets Department',
+    scope:'ROW & Sidewalk Standards · Ch. 17.16',
     whoami:'I am a duly authorized Streets and Sidewalk Inspector for the City of St. Louis Streets Department, responsible for enforcing ordinances governing public right-of-way maintenance, sidewalk conditions, and street use permits.',
     authority:'▸ Inspect public rights-of-way, sidewalks, alleys, and adjacent private property\n▸ Issue notices to property owners for sidewalk repair\n▸ Order removal of encroachments from public ROW\n▸ Issue right-of-way use permits or revoke unauthorized use\n▸ Assess repair costs as special tax bill against property',
     enforce:'▸ Defective, cracked, or sunken sidewalk panels\n▸ Encroachments into public right-of-way without permit\n▸ Obstruction of sidewalks, curb cuts, and alleys\n▸ Snow/ice removal obligations on adjacent private property\n▸ Illegal excavation or construction within the ROW',
@@ -23340,6 +23371,10 @@ const CITY_JOBS = [
   {
     id:'arborist_inspector',
     label:'Urban Forestry Inspector / Arborist — Forestry Division',
+    title:'Urban Forestry Inspector / Arborist',
+    division:'Forestry Division',
+    department:'Department of Parks, Recreation & Forestry',
+    scope:'Tree Ordinance · Ch. 34',
     whoami:'I am a duly authorized Urban Forestry Inspector for the City of St. Louis Forestry Division, Department of Parks, Recreation & Forestry, responsible for enforcing ordinances governing trees on public rights-of-way and hazardous private trees.',
     authority:'▸ Inspect trees on public rights-of-way and adjacent private property\n▸ Order removal or trimming of hazardous or diseased trees\n▸ Issue permits for tree removal on public ROW\n▸ Stop unauthorized tree removal or trimming on public ROW\n▸ Assess costs of City tree work against property',
     enforce:'▸ Unauthorized removal or topping of City-owned parkway trees\n▸ Hazardous tree conditions on private property threatening public safety\n▸ Tree trimming encroaching on utility clearances without permit\n▸ Tree removal without required permit\n▸ Damage to City trees during construction',
@@ -23351,6 +23386,10 @@ const CITY_JOBS = [
   {
     id:'animal_control',
     label:'Animal Control Officer — Department of Health',
+    title:'Animal Control Officer',
+    division:'Animal Care & Control',
+    department:'Department of Health',
+    scope:'Animal Control · Ch. 10',
     whoami:'I am a duly authorized Animal Control Officer for the City of St. Louis Department of Health, responsible for enforcing ordinances governing animal welfare, dangerous animals, licensing, and public safety related to animals.',
     authority:'▸ Enter property to investigate animal complaints with proper authority\n▸ Impound animals in violation of City ordinances\n▸ Issue citations and notices of violation\n▸ Order quarantine of animals that have bitten or exposed persons\n▸ Euthanize animals that pose an imminent public safety threat',
     enforce:'▸ Unlicensed dogs and cats\n▸ Animals at large (running loose)\n▸ Dangerous and vicious animal designations\n▸ Animal cruelty, neglect, and abandonment\n▸ Rabies vaccination requirements',
@@ -23362,6 +23401,10 @@ const CITY_JOBS = [
   {
     id:'park_officer',
     label:'Park Ranger / Park Officer — Parks, Recreation & Forestry',
+    title:'Park Ranger / Park Officer',
+    division:'Parks Division',
+    department:'Department of Parks, Recreation & Forestry',
+    scope:'Park Rules · Ch. 34',
     whoami:'I am a duly authorized Park Officer for the City of St. Louis Department of Parks, Recreation & Forestry, responsible for enforcing park rules, ordinances, and protecting public park facilities and natural resources.',
     authority:'▸ Enforce park rules and City ordinances within public parks\n▸ Issue citations and notices of violation\n▸ Order persons to leave City park property for rule violations\n▸ Coordinate with St. Louis Metropolitan Police for criminal matters\n▸ Protect City park property and natural resources',
     enforce:'▸ Park hours violations (after-hours use)\n▸ Alcohol and open container violations in parks\n▸ Damage or vandalism to park facilities\n▸ Prohibited activities: off-road vehicles, camping, fires without permit\n▸ Commercial activity in parks without permit',
@@ -23373,6 +23416,10 @@ const CITY_JOBS = [
   {
     id:'fire_inspector',
     label:'Fire Prevention Inspector — Fire Department',
+    title:'Fire Prevention Inspector',
+    division:'Bureau of Fire Prevention',
+    department:'Fire Department',
+    scope:'Fire Code (IFC)',
     whoami:'I am a duly authorized Fire Prevention Inspector for the City of St. Louis Fire Department, Bureau of Fire Prevention, responsible for enforcing the International Fire Code and City fire safety ordinances.',
     authority:'▸ Enter and inspect any building or premises at reasonable times\n▸ Issue notices of violation and compliance orders\n▸ Order immediate cessation of operations posing imminent fire hazard\n▸ Revoke or recommend revocation of occupancy permits\n▸ Refer willful violations for criminal prosecution',
     enforce:'▸ Blocked or obstructed fire exits, corridors, and egress paths\n▸ Malfunctioning fire suppression and detection systems\n▸ Improper storage of flammable and hazardous materials\n▸ Overcrowding and occupancy load violations\n▸ Illegal fireworks storage or use',
@@ -23383,28 +23430,36 @@ const CITY_JOBS = [
   }
   ,{
     id:'neighborhood_improvement',
-    label:'Neighborhood Improvement Specialist — Citizens Service Bureau',
-    whoami:'I am a Neighborhood Improvement Specialist employed by the City of St. Louis Citizens Service Bureau (CSB). I conduct proactive neighborhood monitoring patrols to identify and document code violations, nuisances, and quality-of-life issues in assigned geographic areas, and coordinate referrals to the appropriate City departments for enforcement.',
-    authority:'\u25b8 Conduct proactive field inspections of assigned neighborhoods\n\u25b8 Document and photograph violations of City ordinances and codes\n\u25b8 Submit service requests and referrals through CSB to appropriate enforcement departments\n\u25b8 Communicate with residents and property owners about identified issues\n\u25b8 Coordinate multi-department responses to complex neighborhood conditions\n\u25b8 Operate as liaison between residents, CSB, and enforcement divisions',
+    label:'Neighborhood Improvement Specialist — Neighborhood Stabilization',
+    title:'Neighborhood Improvement Specialist',
+    division:'Neighborhood Stabilization',
+    department:'Department of Public Safety',
+    scope:'Neighborhood Stabilization and Improvement',
+    whoami:'I am a Neighborhood Improvement Specialist employed by the City of St. Louis Department of Public Safety, Neighborhood Stabilization Team. I conduct proactive neighborhood monitoring patrols to identify and document code violations, nuisances, and quality-of-life issues in assigned geographic areas, and coordinate referrals to the appropriate City departments for enforcement.',
+    authority:'\u25b8 Conduct proactive field inspections of assigned neighborhoods\n\u25b8 Document and photograph violations of City ordinances and codes\n\u25b8 Submit service requests and referrals through the Neighborhood Stabilization Team (via CSB/311) to appropriate enforcement departments\n\u25b8 Communicate with residents and property owners about identified issues\n\u25b8 Coordinate multi-department responses to complex neighborhood conditions\n\u25b8 Operate as liaison between residents, Neighborhood Stabilization, and enforcement divisions',
     enforce:'\u25b8 Overgrown vegetation / nuisance vegetation (refer to Forestry/Weed Control)\n\u25b8 Illegal dumping and litter accumulation\n\u25b8 Abandoned or deteriorating structures\n\u25b8 Inoperable or unlicensed vehicles on private property\n\u25b8 Graffiti and blight\n\u25b8 Sidewalk and alley obstructions\n\u25b8 Public health nuisances — rodents, vermin, sewage\n\u25b8 Building and housing code violations (refer to Building Division / Housing Conservation)\n\u25b8 Animal control issues (refer to Animal Control)\n\u25b8 Illegal signs and structures',
     exempt:'\u25b8 NIS documents and refers — does not issue citations or enforce directly\n\u25b8 Criminal matters \u2192 refer to Metropolitan Police Department\n\u25b8 Utility issues \u2192 refer to appropriate utility authority\n\u25b8 Private disputes between neighbors not involving code violations',
     summary:[
-      {heading:'YOUR ROLE',body:'\u25b8 Proactive patrol — you find issues before complaints come in\n\u25b8 Document, photograph, and submit CSB requests\n\u25b8 You are the coordinator — enforcement is done by other departments\n\u25b8 Build relationships with residents in your assigned area'},
+      {heading:'YOUR ROLE',body:'\u25b8 Proactive patrol — you find issues before complaints come in\n\u25b8 Document, photograph, and submit service requests\n\u25b8 You are the coordinator — enforcement is done by other departments\n\u25b8 Build relationships with residents in your assigned area'},
       {heading:'WHAT TO DOCUMENT',body:'\u25b8 Address and parcel ID (use Property Search)\n\u25b8 Type of violation — be specific (vegetation height, debris type, etc.)\n\u25b8 Photographs from public right-of-way\n\u25b8 Date, time, and your name on all records\n\u25b8 Any prior notices or history you can observe'},
       {heading:'REFERRAL ROUTING',body:'\u25b8 Overgrown vegetation \u2192 Forestry / Weed Control (Ord. 72059)\n\u25b8 Building deterioration \u2192 Building Division\n\u25b8 Occupied housing conditions \u2192 Housing Conservation\n\u25b8 Illegal dumping \u2192 Streets Department\n\u25b8 Rodents/vectors \u2192 Department of Health\n\u25b8 Animals \u2192 Animal Control\n\u25b8 Abandoned vehicles \u2192 Police / Streets'},
-      {heading:'CSB PROCESS',body:'\u25b8 Submit service request via CSB system or 311\n\u25b8 Assign to correct department with your documentation\n\u25b8 Follow up on open requests in your area\n\u25b8 Escalate persistent or multi-department issues to supervisor'},
+      {heading:'SERVICE REQUEST PROCESS',body:'\u25b8 Submit service request via CSB system or 311\n\u25b8 Assign to correct department with your documentation\n\u25b8 Follow up on open requests in your area\n\u25b8 Escalate persistent or multi-department issues to supervisor'},
       {heading:'RESIDENT INTERACTION',body:'\u25b8 Identify yourself and explain your role clearly\n\u25b8 You cannot issue fines — redirect complaints to CSB/311\n\u25b8 Do not make enforcement promises — refer to the responsible department\n\u25b8 Note resident concerns for inclusion in service requests'},
       {heading:'SAFETY',body:'\u25b8 Never enter private property without consent or authorization\n\u25b8 Photograph from public ROW whenever possible\n\u25b8 If a situation feels unsafe, withdraw and contact police\n\u25b8 Carry City ID at all times'},
-      {heading:'\u26a1 FIELD DECISION FLOW',body:'1. PATROL assigned area — systematic block-by-block\n2. OBSERVE violation \u2192 Photograph from public ROW\n3. DOCUMENT: address, violation type, date/time, photos\n4. CLASSIFY: which department handles this?\n5. SUBMIT CSB service request with full documentation\n6. LOG stop in route app for tracking\n7. RESIDENT CONTACT (optional):\n   - Introduce yourself as NIS\n   - Explain what was observed and which dept will follow up\n   - Do NOT promise specific timelines or outcomes\n8. FOLLOW-UP: Check open requests weekly\n   - Still open after 2 weeks? \u2192 Escalate to supervisor\n9. PATTERNS: Note repeat violators for multi-dept coordination'}
+      {heading:'\u26a1 FIELD DECISION FLOW',body:'1. PATROL assigned area — systematic block-by-block\n2. OBSERVE violation \u2192 Photograph from public ROW\n3. DOCUMENT: address, violation type, date/time, photos\n4. CLASSIFY: which department handles this?\n5. SUBMIT service request with full documentation\n6. LOG stop in route app for tracking\n7. RESIDENT CONTACT (optional):\n   - Introduce yourself as NIS\n   - Explain what was observed and which dept will follow up\n   - Do NOT promise specific timelines or outcomes\n8. FOLLOW-UP: Check open requests weekly\n   - Still open after 2 weeks? \u2192 Escalate to supervisor\n9. PATTERNS: Note repeat violators for multi-dept coordination'}
     ],
-    ord_header:'CSB — Neighborhood Improvement Specialist Program',
-    ord_body:'City of St. Louis — Neighborhood Improvement Specialist (NIS) Program\n▸ Citizens Service Bureau\n\n▶ ROLE OVERVIEW\n\n▸ Neighborhood Improvement Specialists conduct systematic proactive patrols of assigned geographic areas within the City of St. Louis. Unlike reactive enforcement officers who respond to complaints, NIS personnel identify violations before they are reported by residents, providing an early-intervention layer of neighborhood maintenance coordination.\n\n▶ AUTHORITY AND SCOPE\n\n▸ NIS personnel are authorized to:\n▸ - Conduct foot and vehicle patrols of assigned neighborhoods\n▸ - Observe and document potential code violations from public rights-of-way\n▸ - Photograph conditions from public property\n▸ - Submit service requests through the CSB system on behalf of the City\n▸ - Communicate with residents and property owners about observed conditions\n▸ - Coordinate multi-department responses for complex situations\n\n▸ NIS personnel are NOT authorized to:\n▸ - Enter private property without the owner or occupant consent (unless accompanied by a duly authorized enforcement officer)\n▸ - Issue notices of violation, citations, or fines\n▸ - Make enforcement decisions or promises to residents\n▸ - Handle criminal matters (refer to SLMPD)\n\n▶ REFERRAL STANDARDS\n\n▸ Vegetation / Weed Control: Ordinance 72059 — refer to Forestry Division Weed Control\n▸ Building Conditions: IBC and City Code — refer to Building Division\n▸ Occupied Housing: City Code Ch. 25 — refer to Housing Conservation\n▸ Illegal Dumping / Litter: City Code Ch. 11.16 — refer to Streets Department\n▸ Rodent / Vector Control: City Code Title 10 — refer to Department of Health\n▸ Abandoned Vehicles: City Code Ch. 17.16 — refer to Police or Streets\n▸ Animal Issues: City Code Ch. 10 — refer to Animal Control\n\n▶ DOCUMENTATION STANDARDS\n\n▸ Every observation submitted as a CSB service request must include:\n  ▸ Complete address (number, street, unit if applicable)\n  ▸ Parcel ID if available (look up via Property Search)\n  ▸ Specific violation description (e.g., "vegetation approximately 14 inches, entire front parcel" not just "tall grass")\n  ▸ At least one photograph showing the condition\n  ▸ Date and time of observation\n  ▸ Submitting NIS name and badge/employee number\n\n▶ Note: Quality documentation speeds enforcement and creates the record needed if the case proceeds to penalties or legal action.'
+    ord_header:'Neighborhood Stabilization — Neighborhood Improvement Specialist Program',
+    ord_body:'City of St. Louis — Neighborhood Improvement Specialist (NIS) Program\n▸ Department of Public Safety — Neighborhood Stabilization Team\n\n▶ ROLE OVERVIEW\n\n▸ Neighborhood Improvement Specialists conduct systematic proactive patrols of assigned geographic areas within the City of St. Louis. Unlike reactive enforcement officers who respond to complaints, NIS personnel identify violations before they are reported by residents, providing an early-intervention layer of neighborhood maintenance coordination.\n\n▶ AUTHORITY AND SCOPE\n\n▸ NIS personnel are authorized to:\n▸ - Conduct foot and vehicle patrols of assigned neighborhoods\n▸ - Observe and document potential code violations from public rights-of-way\n▸ - Photograph conditions from public property\n▸ - Submit service requests through the CSB system on behalf of the City\n▸ - Communicate with residents and property owners about observed conditions\n▸ - Coordinate multi-department responses for complex situations\n\n▸ NIS personnel are NOT authorized to:\n▸ - Enter private property without the owner or occupant consent (unless accompanied by a duly authorized enforcement officer)\n▸ - Issue notices of violation, citations, or fines\n▸ - Make enforcement decisions or promises to residents\n▸ - Handle criminal matters (refer to SLMPD)\n\n▶ REFERRAL STANDARDS\n\n▸ Vegetation / Weed Control: Ordinance 72059 — refer to Forestry Division Weed Control\n▸ Building Conditions: IBC and City Code — refer to Building Division\n▸ Occupied Housing: City Code Ch. 25 — refer to Housing Conservation\n▸ Illegal Dumping / Litter: City Code Ch. 11.16 — refer to Streets Department\n▸ Rodent / Vector Control: City Code Title 10 — refer to Department of Health\n▸ Abandoned Vehicles: City Code Ch. 17.16 — refer to Police or Streets\n▸ Animal Issues: City Code Ch. 10 — refer to Animal Control\n\n▶ DOCUMENTATION STANDARDS\n\n▸ Every observation submitted as a CSB service request must include:\n  ▸ Complete address (number, street, unit if applicable)\n  ▸ Parcel ID if available (look up via Property Search)\n  ▸ Specific violation description (e.g., "vegetation approximately 14 inches, entire front parcel" not just "tall grass")\n  ▸ At least one photograph showing the condition\n  ▸ Date and time of observation\n  ▸ Submitting NIS name and badge/employee number\n\n▶ Note: Quality documentation speeds enforcement and creates the record needed if the case proceeds to penalties or legal action.'
   }
 
   ,
   {
     id:'forestry_crew_supervisor',
     label:'Forestry Field Crew Supervisor — Weed Control / Abatement',
+    title:'Forestry Field Crew Supervisor',
+    division:'Weed Control Section, Forestry Division',
+    department:'Department of Parks, Recreation & Forestry',
+    scope:'City Abatement · Ord. 72059 Sec. 6',
     whoami:'I am a Forestry Field Crew Supervisor for the City of St. Louis Forestry Division, Weed Control Section. I direct City abatement crews executing vegetation cutting orders on private property under Ordinance No. 72059, following notices issued by Nuisance Inspectors.',
     authority:'▸ Direct City abatement crews cutting vegetation on properties with active abatement orders\n▸ Document all abatement work: address, date, crew, scope, equipment\n▸ Authorize crew access to private property under Commissioner abatement order (Ord. 72059 Sec. 6)\n▸ Submit work records for cost recovery billing and lien assessment\n▸ Coordinate with Nuisance Inspectors on cut list priorities and access issues\n▸ Refuse unsafe work and document refusal',
     enforce:'▸ Properties with active abatement orders from Nuisance Inspector\n▸ Vegetation meeting nuisance definition (over 7 inches) on non-compliant parcels\n▸ Fire hazard vegetation requiring immediate clearing\n▸ Right-of-way areas abutting non-compliant private parcels\n▸ Vacant lots and unimproved land on active cut list',
@@ -23417,6 +23472,10 @@ const CITY_JOBS = [
   {
     id:'electrical_inspector',
     label:'Electrical Inspector — Building Division (SLDC)',
+    title:'Electrical Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'National Electrical Code (NEC)',
     whoami:'I am a duly authorized Electrical Inspector for the City of St. Louis Building Division, St. Louis Development Corporation (SLDC), enforcing the National Electrical Code (NEC) as locally adopted and City electrical ordinances.',
     authority:'▸ Inspect electrical installations on permitted construction and renovation projects\n▸ Issue certificates of electrical inspection upon code compliance\n▸ Issue stop-work orders for unpermitted or non-conforming electrical work\n▸ Condemn electrical systems presenting imminent safety hazards\n▸ Refer unlicensed contractor work to the License Collector\n▸ Enter and inspect any structure during reasonable hours with proper authority',
     enforce:'▸ Electrical work without a required permit\n▸ Work not matching approved permit drawings\n▸ Exposed wiring, unsafe connections, improper grounding\n▸ Overloaded panels, improper breaker sizing, double-tapped breakers\n▸ Work performed by unlicensed electrical contractors\n▸ Electrical deficiencies referred by Building or Housing inspectors',
@@ -23429,6 +23488,10 @@ const CITY_JOBS = [
   {
     id:'plumbing_inspector',
     label:'Plumbing Inspector — Building Division (SLDC)',
+    title:'Plumbing Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'International Plumbing Code (IPC)',
     whoami:'I am a duly authorized Plumbing Inspector for the City of St. Louis Building Division, St. Louis Development Corporation (SLDC), enforcing the International Plumbing Code (IPC) as locally adopted and City plumbing ordinances.',
     authority:'▸ Inspect plumbing installations on permitted construction and renovation projects\n▸ Issue certificates of plumbing inspection upon code compliance\n▸ Issue stop-work orders for unpermitted or non-conforming plumbing work\n▸ Condemn plumbing systems presenting imminent sanitation or safety hazards\n▸ Coordinate with Metropolitan St. Louis Sewer District (MSD) on sewer lateral issues\n▸ Refer unlicensed contractor work to License Collector',
     enforce:'▸ Plumbing work without a required permit\n▸ New drain, waste, and vent (DWV) installations or modifications\n▸ Water service or supply line work\n▸ Fixture installation requiring rough-in work\n▸ Water heater replacement or installation\n▸ Sewer lateral connections or modifications\n▸ Cross-connections between potable water and non-potable sources\n▸ Illegal discharge of sewage to storm drains or ground surface',
@@ -23441,6 +23504,10 @@ const CITY_JOBS = [
   {
     id:'mechanical_inspector',
     label:'Mechanical Inspector — Building Division (SLDC)',
+    title:'Mechanical Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'IMC / IFGC',
     whoami:'I am a duly authorized Mechanical Inspector for the City of St. Louis Building Division, St. Louis Development Corporation (SLDC), enforcing the International Mechanical Code (IMC) and International Fuel Gas Code (IFGC) as locally adopted.',
     authority:'▸ Inspect mechanical and HVAC installations on permitted projects\n▸ Inspect fuel gas piping and appliance installations\n▸ Issue certificates of mechanical inspection upon compliance\n▸ Issue stop-work orders for unpermitted or non-conforming mechanical work\n▸ Condemn unsafe gas systems presenting immediate hazard\n▸ Coordinate with Spire (formerly Laclede Gas) for gas emergencies\n▸ Require corrective action within specified periods',
     enforce:'▸ HVAC system installation or replacement\n▸ Fuel gas piping installation, modification, or extension\n▸ Gas appliance installation: furnaces, water heaters, boilers, ranges\n▸ Commercial kitchen ventilation and hood systems\n▸ Boiler installation or replacement\n▸ Ductwork serving new or renovated conditioned spaces\n▸ Combustion air provisions for fuel-burning appliances',
@@ -23453,6 +23520,10 @@ const CITY_JOBS = [
   {
     id:'dangerous_building_inspector',
     label:'Dangerous Building Inspector — Building Division (SLDC)',
+    title:'Dangerous Building Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'Dangerous Buildings · Ch. 25 / IPMC',
     whoami:'I am a duly authorized Dangerous Building Inspector for the City of St. Louis Building Division, SLDC. I identify, document, and initiate enforcement action against structurally unsafe buildings under City Code Chapter 25 and the IPMC, coordinating emergency securing, boarding, and demolition referrals.',
     authority:'▸ Inspect and evaluate structures for structural safety and dangerous conditions\n▸ Issue Dangerous Building Orders requiring repair or demolition\n▸ Order immediate vacation of structures presenting imminent collapse hazard\n▸ Order emergency boarding, fencing, or structural stabilization\n▸ Refer structures to Preservation Board and LRA for demolition proceedings\n▸ Authorize City emergency stabilization and assess costs as property lien\n▸ Coordinate with Fire, Police, and Utilities on emergencies\n▸ Enter structures suspected of being dangerous - with emergency authority',
     enforce:'▸ Structural failure or imminent collapse: walls, floors, roof, foundation\n▸ Buildings open to trespass: unsecured doors, windows, or openings\n▸ Partially demolished or fire-damaged structures\n▸ Significant foundation movement, wall cracking, or leaning elements\n▸ Roof collapse, partial or complete\n▸ Chimneys or parapets at risk of falling onto public right-of-way\n▸ Buildings subject to active vandalism, arson, or illegal occupancy',
@@ -23465,6 +23536,10 @@ const CITY_JOBS = [
   {
     id:'vector_control',
     label:'Vector Control Specialist — Department of Health',
+    title:'Vector Control Specialist',
+    division:'Environmental Health / Vector Control',
+    department:'Department of Health',
+    scope:'Vector & Rodent Control · Title 10',
     whoami:'I am a Vector Control Specialist for the City of St. Louis Department of Health. I conduct targeted rodent and pest abatement on public and private property, respond to vector complaints, inspect properties for harborage conditions, and issue correction notices under City Code Title 10.',
     authority:'▸ Inspect private and public property for rodent and pest harborage conditions\n▸ Conduct rodent baiting and abatement on public rights-of-way and City property\n▸ Issue notices of violation to property owners for harborage conditions\n▸ Order corrective action: eliminate harborage, food sources, entry points\n▸ Collect rodent specimens for disease surveillance when required\n▸ Investigate and document 311 and CSB vector complaints\n▸ Coordinate with Nuisance Inspector when vegetation contributes to harborage',
     enforce:'▸ Active rodent infestation: burrows, droppings, gnaw marks, live sightings\n▸ Harborage conditions: debris piles, abandoned vehicles, overgrown vegetation\n▸ Food sources attracting vectors: improperly stored refuse, composting, animal feed\n▸ Structural entry points: holes or gaps in foundation\n▸ Standing water attracting mosquitoes or other vectors\n▸ Active infestations in food establishments (coordinate with Environmental Health)',
@@ -23477,6 +23552,10 @@ const CITY_JOBS = [
   {
     id:'air_quality_inspector',
     label:'Air Quality Inspector — Health Dept / Missouri DNR Partnership',
+    title:'Air Quality Inspector',
+    division:'Environmental Health Division',
+    department:'Department of Health',
+    scope:'Air Quality · Missouri DNR Partnership',
     whoami:'I am an Air Quality Inspector for the City of St. Louis Department of Health, working in partnership with the Missouri Department of Natural Resources (DNR) Air Pollution Control Program. I enforce air quality regulations including prohibitions on open burning and asbestos abatement site compliance.',
     authority:'▸ Inspect open burning complaints and issue citations and stop orders\n▸ Inspect illegal dump sites, especially those with burning\n▸ Conduct asbestos abatement site inspections during renovation and demolition\n▸ Issue Notice of Violation for air quality violations\n▸ Coordinate with Missouri DNR on stationary source complaints\n▸ Coordinate with Fire Department on illegal burning',
     enforce:'▸ Open burning of refuse, yard waste, construction debris, or tires within City limits\n▸ Illegal dump sites with evidence of burning\n▸ Asbestos-containing materials disturbed without proper abatement procedures\n▸ Renovation or demolition of pre-1980 structures without required asbestos survey\n▸ Visible emissions from stationary sources exceeding opacity standards\n▸ Use of uncertified refrigerant recovery practices',
@@ -23489,6 +23568,10 @@ const CITY_JOBS = [
   {
     id:'traffic_inspector',
     label:'Traffic Engineering Inspector — Streets Department',
+    title:'Traffic Engineering Inspector',
+    division:'Traffic Engineering Division',
+    department:'Streets Department',
+    scope:'MUTCD Compliance',
     whoami:'I am a Traffic Engineering Inspector for the City of St. Louis Streets Department, Traffic Engineering Division. I inspect traffic control devices, signage, pavement markings, and signal equipment within the City for MUTCD compliance, document deficiencies, and initiate work orders for maintenance.',
     authority:'▸ Inspect traffic control devices: signals, signs, and pavement markings\n▸ Identify and document deficiencies in signal timing, sign placement, and markings\n▸ Issue work orders for Traffic Engineering maintenance crews\n▸ Inspect contractor-installed temporary traffic control during construction\n▸ Investigate citizen complaints about traffic control issues\n▸ Document sight distance obstructions caused by vegetation or structures\n▸ Inspect crosswalks, pedestrian signals, and ADA-compliant curb ramps',
     enforce:'▸ Missing, damaged, faded, or improperly positioned traffic signs\n▸ Faded or missing pavement markings: centerlines, stop bars, crosswalks\n▸ Malfunctioning or improperly timed traffic signals\n▸ Vegetation obstructing sign visibility or traffic sight lines\n▸ Contractor temporary traffic control not meeting MUTCD standards\n▸ ADA non-compliant pedestrian facilities at intersections\n▸ Illegal traffic control devices installed by property owners',
@@ -23501,6 +23584,10 @@ const CITY_JOBS = [
   {
     id:'sewer_lateral_inspector',
     label:'Sewer Lateral Inspector — MSD / Building Division Partnership',
+    title:'Sewer Lateral Inspector',
+    division:'Building Division',
+    department:'SLDC / MSD (joint authority)',
+    scope:'Sewer Laterals · MSD Regulation XII',
     whoami:'I am a Sewer Lateral Inspector operating under the joint authority of the Metropolitan St. Louis Sewer District (MSD) and the City of St. Louis Building Division. I inspect private sewer laterals for defects, illegal connections, and compliance with MSD Regulation XII and City plumbing requirements.',
     authority:'▸ Inspect private sewer laterals for structural defects, root intrusion, and illegal connections\n▸ Conduct smoke testing to identify cross-connections and illicit storm drain connections\n▸ Issue notices of violation for non-compliant laterals\n▸ Review and approve lateral repair and replacement permits\n▸ Coordinate with City Plumbing Inspector on permit-related lateral work\n▸ Investigate sewage backup complaints attributable to private lateral defects\n▸ Coordinate with MSD on public main issues vs. private lateral issues',
     enforce:'▸ Private laterals with confirmed structural defects: cracks, offsets, collapses\n▸ Root intrusion blocking or infiltrating the private lateral\n▸ Illegal storm drain connections to sanitary sewer lateral\n▸ Sump pump discharges connected to sanitary sewer (prohibited)\n▸ Downspout and roof drain connections to sanitary sewer (prohibited)\n▸ Laterals installed without proper slope, material, or cleanout access\n▸ Lateral work performed without required MSD and City permits',
@@ -23513,6 +23600,10 @@ const CITY_JOBS = [
   {
     id:'alley_inspector',
     label:'Alley Maintenance Inspector — Streets Department',
+    title:'Alley Maintenance Inspector',
+    division:'Street Maintenance Division',
+    department:'Streets Department',
+    scope:'Alleys · Ch. 17',
     whoami:'I am an Alley Maintenance Inspector for the City of St. Louis Streets Department. I patrol and inspect public alleys, identify pavement defects, drainage problems, illegal dumping, and obstruction issues, initiate work orders for maintenance crews, and issue notices to property owners for alley-related violations.',
     authority:'▸ Patrol and inspect public alleys for pavement defects and drainage problems\n▸ Document illegal dumping in or adjacent to public alleys\n▸ Issue notices to property owners for alley-related refuse violations\n▸ Initiate work orders for City alley maintenance crews\n▸ Investigate 311 and CSB alley complaints\n▸ Document obstructions and encroachments in public alley right-of-way\n▸ Coordinate with Refuse Enforcement, Vector Control, and Streets Division',
     enforce:'▸ Illegal dumping: bulk items, construction debris, trash in alley ROW\n▸ Pavement failures: potholes, base failures, surface distress\n▸ Drainage obstructions: blocked inlets, standing water, improper grading\n▸ Encroachments: structures, fences, or dumpsters in alley ROW\n▸ Vegetation overhanging or blocking alley passage\n▸ Refuse containers not stored on private property between collections\n▸ Dumpsters blocking alley access or creating safety hazard',
@@ -23525,6 +23616,10 @@ const CITY_JOBS = [
   {
     id:'community_dev',
     label:'Community Development Specialist — SLDC / Neighborhood Stabilization',
+    title:'Community Development Specialist',
+    division:'Neighborhood Stabilization / Community Development',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'Neighborhood Stabilization / LRA Referrals',
     whoami:'I am a Community Development Specialist for the St. Louis Development Corporation (SLDC) and City Neighborhood Stabilization Office. I identify vacant properties, assess neighborhood conditions, facilitate LRA referrals, connect owners and developers with rehabilitation incentives, and coordinate multi-department responses to distressed areas.',
     authority:'▸ Identify and document vacant, abandoned, and underutilized properties\n▸ Assess neighborhood conditions and track distress indicators block by block\n▸ Facilitate referrals to the Land Reutilization Authority (LRA)\n▸ Connect property owners with City rehabilitation loan and grant programs\n▸ Coordinate with Building Division, Housing Conservation, and LRA\n▸ Conduct outreach to property owners, developers, and neighborhood organizations\n▸ Document conditions to support city planning and investment decisions',
     enforce:'▸ Vacant structures: condition, secure status, and ownership documentation\n▸ Tax-delinquent properties approaching LRA referral eligibility\n▸ Neighborhood blight indicators: abandonment clusters and vacancy rates\n▸ Properties with rehabilitation potential where owners may not know of incentives\n▸ Absentee owners of distressed properties who can be connected to resources\n▸ Illegal occupancy of vacant structures - coordinate with Police and Building Division',
@@ -23537,6 +23632,10 @@ const CITY_JOBS = [
   {
     id:'vacant_property_inspector',
     label:'Vacant Property Inspector — Building Division / LRA',
+    title:'Vacant Property Inspector',
+    division:'Building Division',
+    department:'St. Louis Development Corporation (SLDC)',
+    scope:'Vacant Property Regulations / LRA',
     whoami:'I am a Vacant Property Inspector for the City of St. Louis Building Division, working in coordination with the Land Reutilization Authority (LRA). I systematically inspect vacant and abandoned structures throughout the City to support enforcement, LRA acquisition, and redevelopment decisions.',
     authority:'▸ Systematically inspect vacant structures for condition, security, and safety\n▸ Document and photograph conditions for Building Division and LRA records\n▸ Issue notices for unsecured or open vacant structures\n▸ Refer dangerous structures to the Dangerous Building Inspector\n▸ Maintain the City vacant property inventory database\n▸ Verify compliance with boarding and securing requirements\n▸ Coordinate with LRA on acquisition-eligible properties\n▸ Check for illegal occupancy and coordinate with Police',
     enforce:'▸ Vacant structures open to trespass: unsecured doors, windows, or openings\n▸ Structures with inadequate boarding or securing\n▸ Vacant buildings with deteriorating conditions since last inspection\n▸ Structures with evidence of illegal occupancy, arson, or vandalism\n▸ Properties not registered as required under vacant property ordinance\n▸ LRA-owned properties requiring condition verification\n▸ Structures approaching dangerous building threshold',
@@ -23549,6 +23648,10 @@ const CITY_JOBS = [
   {
     id:'fire_investigator',
     label:'Fire Investigator — Fire Department, Bureau of Fire Investigation',
+    title:'Fire Investigator',
+    division:'Bureau of Fire Investigation',
+    department:'Fire Department',
+    scope:'NFPA 921',
     whoami:'I am a Fire Investigator for the City of St. Louis Fire Department, Bureau of Fire Investigation. I conduct systematic origin and cause investigations at fire scenes, document findings for civil and criminal proceedings, coordinate with law enforcement on arson investigations, and testify as an expert witness when required.',
     authority:'▸ Conduct origin and cause investigations at all significant fire scenes\n▸ Determine fire origin through systematic fire pattern analysis\n▸ Determine fire cause: accidental, natural, undetermined, or incendiary (arson)\n▸ Document fire scene with systematic photography and diagrams\n▸ Collect and preserve physical evidence for laboratory analysis\n▸ Coordinate with SLMPD Arson Unit on suspected incendiary fires\n▸ Interview witnesses, occupants, first-arriving firefighters, and neighbors\n▸ Prepare written reports and testify in court proceedings',
     enforce:'▸ All fires resulting in injury, death, or significant property loss\n▸ All fires in commercial, industrial, or multi-family occupancies\n▸ Fires with unusual burn patterns or suspected arson indicators\n▸ Fires in structures with recent code violations or complaints on record\n▸ Vehicle fires where incendiary cause is suspected\n▸ Explosion investigations associated with fire events\n▸ Juvenile fire-setting incidents',
@@ -23561,6 +23664,10 @@ const CITY_JOBS = [
   {
     id:'license_inspector',
     label:'License Inspector — License Collector\'s Office',
+    title:'License Inspector',
+    division:'Field Enforcement',
+    department:'License Collector\'s Office',
+    scope:'Business Licensing',
     whoami:'I am a License Inspector for the City of St. Louis License Collector\'s Office. I conduct field inspections to verify that businesses operating within the City hold current and appropriate City business licenses and contractor licenses, and I identify and cite unlicensed operations.',
     authority:'▸ Conduct field inspections of businesses for business license compliance\n▸ Verify current City business licenses are displayed and active\n▸ Verify contractor licenses for permitted work\n▸ Issue notices of violation for unlicensed business operations\n▸ Coordinate with Building Division on unlicensed contractor work at permit sites\n▸ Coordinate with Health Department on unlicensed food establishments',
     enforce:'▸ Businesses operating without a current City of St. Louis business license\n▸ Contractors performing permitted work without current City contractor license\n▸ Home-based businesses without required licenses or permits\n▸ Businesses operating beyond the scope of their license classification\n▸ Seasonal or transient vendors without required vendor licenses\n▸ Businesses with lapsed or suspended licenses continuing to operate',
@@ -23573,6 +23680,10 @@ const CITY_JOBS = [
   {
     id:'weights_measures',
     label:'Weights & Measures Inspector — License Collector / Missouri Dept of Agriculture',
+    title:'Weights & Measures Inspector',
+    division:'License Collector\'s Office',
+    department:'License Collector\'s Office / Missouri Dept. of Agriculture',
+    scope:'NIST Handbook 44',
     whoami:'I am a Weights and Measures Inspector for the City of St. Louis License Collector\'s Office in partnership with the Missouri Department of Agriculture. I inspect commercial weighing and measuring devices within the City for accuracy and compliance with Missouri law and NIST Handbook 44.',
     authority:'▸ Inspect commercial scales, fuel pumps, and measuring devices for accuracy\n▸ Test devices using NIST-traceable certified reference standards\n▸ Issue certificates of approval for compliant devices\n▸ Issue condemn and stop-use orders for devices failing accuracy tests\n▸ Affix condemn seals to failing devices preventing further commercial use\n▸ Investigate short-weight and short-measure consumer complaints\n▸ Inspect net weight labeling on packaged goods at retail\n▸ Submit inspection records to Missouri Department of Agriculture',
     enforce:'▸ Commercial scales at retail, grocery, deli, and farmers markets\n▸ Fuel dispensers (gas pumps) at all retail fuel stations\n▸ Vehicle scales at commercial weigh stations, recyclers, and landfills\n▸ Coin-operated laundry equipment on commercial premises\n▸ Net weight labeling on packaged commodities sold by weight\n▸ Measuring devices used in any commercial transaction',
@@ -23585,6 +23696,10 @@ const CITY_JOBS = [
   {
     id:'zoning_inspector',
     label:'Zoning Inspector — Planning & Urban Design Agency',
+    title:'Zoning Inspector',
+    division:'Zoning Enforcement',
+    department:'Planning & Urban Design Agency',
+    scope:'Zoning Code · Title 26',
     whoami:'I am a Zoning Inspector for the City of St. Louis Planning and Urban Design Agency. I enforce the City of St. Louis Zoning Code (Title 26), investigating land use violations, non-conforming use issues, sign violations, home occupation violations, and illegal conversions.',
     authority:'▸ Inspect properties for compliance with the City of St. Louis Zoning Code (Title 26)\n▸ Investigate land use complaints: illegal uses, non-conforming use expansion\n▸ Inspect signage for permit status, size, height, and placement compliance\n▸ Identify illegal structure additions, conversions, or changes of occupancy\n▸ Issue Notices of Violation for zoning code violations\n▸ Coordinate with Building Division on change of occupancy\n▸ Testify at Board of Adjustment and City Plan Commission hearings',
     enforce:'▸ Businesses operating in residential zones without proper approval\n▸ Unpermitted signs: size, height, placement, or lighting violations\n▸ Home occupation violations: businesses beyond permitted scope\n▸ Non-conforming use expansion beyond lawfully established footprint\n▸ Illegal structure additions or conversions changing occupancy without zoning approval\n▸ Outdoor storage of commercial materials in residential zones\n▸ Illegal parking of commercial trucks or construction equipment in residential zones\n▸ Setback violations: structures built within required setback areas without variance',
@@ -23599,6 +23714,10 @@ const CITY_JOBS = [
     id:'home_inspector',
     sector:'private',
     label:'Home Inspector (Real Estate)',
+    title:'Home Inspector',
+    division:'Residential Inspections',
+    department:'Real Estate / Independent Practice',
+    scope:'Missouri Real Estate Inspector Act · RSMo §339.500–339.650',
     whoami:'I am a licensed Missouri Home Inspector conducting residential property inspections for buyers, sellers, and investors. I am licensed under RSMo §339.500–339.650 (Missouri Real Estate Inspector Act) and certified by my employer or professional association. I perform visual inspections of structural, mechanical, and safety systems and produce written reports for clients.',
     authority:'▸ Inspect accessible areas of a property with client or owner consent\n▸ Document and photograph deficiencies\n▸ Issue written inspection reports\n▸ Recommend specialist evaluation for concerns beyond scope\n▸ No authority to order repairs or issue violations',
     enforce:'▸ Structural systems: foundation, framing, roof\n▸ HVAC, plumbing, electrical systems\n▸ Insulation and ventilation\n▸ Interior and exterior components\n▸ Built-in appliances',
@@ -23611,6 +23730,10 @@ const CITY_JOBS = [
     id:'property_manager_inspector',
     sector:'private',
     label:'Property Manager / Field Inspector (Property Management)',
+    title:'Property Manager / Field Inspector',
+    division:'Property Management',
+    department:'Property Management Company',
+    scope:'Owner-Delegated Authority',
     whoami:'I am a field inspector or property manager conducting inspections and managing compliance for residential or commercial rental properties. I act under authority delegated by the property owner or management company. I am not a government code enforcement officer but may reference city codes to document conditions and coordinate with public inspectors.',
     authority:'▸ Enter managed properties with proper lease notice (24–48 hours typical)\n▸ Document condition and photograph violations\n▸ Issue tenant notices of violation and cure demands\n▸ Coordinate city code enforcement referrals via CSB\n▸ Authorize maintenance and repair work orders\n▸ Recommend eviction proceedings through counsel',
     enforce:'▸ Lease compliance: unauthorized occupants, pets, modifications\n▸ Property condition: damage, cleanliness, unit standards\n▸ Building maintenance: HVAC, plumbing, electrical deficiencies\n▸ Parking, common area, and exterior compliance\n▸ Code violations that trigger city enforcement',
@@ -23623,6 +23746,10 @@ const CITY_JOBS = [
     id:'pest_control_tech',
     sector:'private',
     label:'Pest Control Technician',
+    title:'Pest Control Technician',
+    division:'Pest Management Services',
+    department:'Licensed Pest Control Company',
+    scope:'Missouri Pesticide Use Act · RSMo §281',
     whoami:'I am a licensed Missouri Pest Control Technician or Operator performing pest management services for residential and commercial clients. I am licensed by the Missouri Department of Agriculture under 2 CSR 70-28 (Pesticide Rules) and the Missouri Pesticide Use Act (RSMo §281). I am authorized to apply restricted and general-use pesticides in and around structures.',
     authority:'▸ Apply pesticides in and around structures with client authorization\n▸ Inspect for pest conducive conditions and document findings\n▸ Place traps, baits, and exclusion materials on client property\n▸ Issue service reports and treatment records\n▸ Report environmental hazards to Missouri DNR if applicable',
     enforce:'▸ Rodents (mice, rats) — exclusion and baiting\n▸ Insects: cockroaches, ants, bed bugs, termites\n▸ Wildlife: limited exclusion (bats, birds — permit may be required)\n▸ Structural pest damage documentation\n▸ Pesticide application and treatment records',
@@ -23635,6 +23762,10 @@ const CITY_JOBS = [
     id:'insurance_loss_control',
     sector:'private',
     label:'Insurance Loss Control Inspector',
+    title:'Loss Control Consultant / Inspector',
+    division:'Loss Control',
+    department:'Insurance Company / Third-Party Survey Firm',
+    scope:'Underwriting Risk Assessment',
     whoami:'I am a Loss Control Consultant or Inspector employed by or contracted to an insurance company or third-party survey firm. I conduct property risk assessments for underwriting purposes on commercial, residential, and industrial properties. I operate under authority granted by the property owner or policyholder who has agreed to inspection as a condition of insurance.',
     authority:'▸ Inspect accessible interior and exterior areas with policyholder consent\n▸ Document hazards and recommend risk improvements\n▸ Photograph conditions relevant to insurability\n▸ Issue written survey reports to the insurer\n▸ No authority to require access or issue citations — inspection is voluntary per policy terms',
     enforce:'▸ Structural, roof, electrical, and mechanical conditions\n▸ Fire protection: sprinklers, alarms, fire doors\n▸ Safety hazards: slip/fall, housekeeping, storage\n▸ Environmental: hazardous materials, underground storage\n▸ Security: locks, lighting, perimeter',
@@ -23647,6 +23778,10 @@ const CITY_JOBS = [
     id:'utility_field_tech',
     sector:'private',
     label:'Utility Field Technician (Gas / Electric / Water)',
+    title:'Utility Field Technician',
+    division:'Field Service',
+    department:'Utility Company (Gas / Electric / Water)',
+    scope:'Tariff / Easement Authority',
     whoami:'I am a field service technician employed by a utility company (Spire/Laclede Gas, Ameren, Missouri American Water, or MSD) performing service connections, disconnections, meter reads, leak investigations, and emergency response within the utility\'s service territory. I operate under authority granted by tariff, easement, and state public utility regulation.',
     authority:'▸ Access utility meters and service equipment per tariff and easement rights\n▸ Disconnect or reconnect service per company procedures and PSC rules\n▸ Enter property to the extent of meter location with or without consent (easement)\n▸ Investigate reported leaks or hazards\n▸ Coordinate with emergency services for gas leaks or electrical hazards',
     enforce:'▸ Gas leak detection and shut-off\n▸ Meter tampering and theft of service\n▸ Unauthorized service reconnections\n▸ Service connection and disconnection per PSC tariff rules\n▸ Sewer lateral and stormwater compliance (MSD)',
@@ -23659,6 +23794,10 @@ const CITY_JOBS = [
     id:'environmental_consultant',
     sector:'private',
     label:'Environmental Field Consultant (Phase I/II ESA)',
+    title:'Environmental Field Consultant',
+    division:'Environmental Site Assessment',
+    department:'Environmental Consulting Firm',
+    scope:'40 CFR §312.10 (AAI Rule)',
     whoami:'I am an environmental consultant or Environmental Professional (EP) as defined by 40 CFR §312.10 (All Appropriate Inquiries rule), conducting Phase I or Phase II Environmental Site Assessments. I am typically a Professional Geologist, Professional Engineer, or certified environmental professional. I operate under client authorization with property owner consent.',
     authority:'▸ Inspect accessible site areas with property owner authorization\n▸ Collect soil, water, and air samples under Missouri DNR permit if required\n▸ Review government records and databases\n▸ Document recognized environmental conditions (RECs)\n▸ Report findings to client per ASTM E1527 (Phase I) or E1903 (Phase II) standards',
     enforce:'▸ Recognized Environmental Conditions (RECs): petroleum, solvents, metals\n▸ Hazardous substance storage and disposal history\n▸ Underground storage tank presence and status\n▸ Asbestos-Containing Materials (ACM) and LBP survey\n▸ Wetlands, floodplains, and natural resource concerns',
@@ -23671,6 +23810,10 @@ const CITY_JOBS = [
     id:'real_estate_appraiser',
     sector:'private',
     label:'Licensed Real Estate Appraiser',
+    title:'Licensed Real Estate Appraiser',
+    division:'Property Valuation',
+    department:'Independent / Appraisal Firm',
+    scope:'USPAP · RSMo §339.700–339.840',
     whoami:'I am a Missouri-licensed or certified real estate appraiser conducting property valuations for lenders, buyers, sellers, attorneys, and government agencies. I am regulated by the Missouri Real Estate Appraisers Commission (MREAC) under RSMo §339.700–339.840. My work product (the appraisal report) is governed by USPAP (Uniform Standards of Professional Appraisal Practice).',
     authority:'▸ Inspect interior and exterior of subject property with owner/occupant consent\n▸ Photograph and document property condition\n▸ Access public records, MLS data, and comparable sales\n▸ Produce appraisal reports conforming to USPAP and client requirements\n▸ No authority to require entry or issue orders',
     enforce:'▸ Physical condition: structural, roof, mechanical systems\n▸ Code compliance affecting marketability and value\n▸ Zoning conformity and legal non-conforming use\n▸ Environmental conditions affecting value\n▸ Market conditions and comparable sales analysis',
@@ -23683,6 +23826,10 @@ const CITY_JOBS = [
     id:'fire_safety_inspector_private',
     sector:'private',
     label:'Fire Safety Inspector (Private / Third-Party)',
+    title:'Fire Safety Inspector',
+    division:'Fire Protection Systems',
+    department:'Private Fire Safety Company / Third-Party AHJ',
+    scope:'NICET Certification',
     whoami:'I am a certified fire protection inspector employed by a private fire safety company or third-party AHJ (Authority Having Jurisdiction) designee, conducting fire alarm, sprinkler, extinguisher, and fire protection system inspections for commercial, industrial, and institutional clients. I may be a NICET-certified technician and/or licensed Missouri fire protection contractor.',
     authority:'▸ Inspect fire protection systems with facility authorization\n▸ Test alarm systems, sprinklers, suppression systems, and extinguishers\n▸ Issue inspection tags and certificates of inspection\n▸ Document deficiencies and issue written deficiency reports\n▸ Notify AHJ of impaired or non-functional life safety systems',
     enforce:'▸ NFPA 25: Inspection, Testing, and Maintenance of Water-Based Systems\n▸ NFPA 72: Fire Alarm and Signaling Code\n▸ NFPA 10: Portable Fire Extinguishers\n▸ Missouri State Fire Marshal rules for sprinkler contractor licensing\n▸ Local fire code adoption (IFC or NFPA 1)',
@@ -23695,6 +23842,10 @@ const CITY_JOBS = [
     id:'mortgage_field_services',
     sector:'private',
     label:'Mortgage Field Services Inspector (REO / Occupancy)',
+    title:'Mortgage Field Services Inspector',
+    division:'REO / Occupancy Inspections',
+    department:'Bank / Mortgage Servicer / Asset Management Co.',
+    scope:'HUD/GSE Guidelines',
     whoami:'I am a field inspector contracted by a bank, mortgage servicer, or asset management company to conduct property inspections on mortgaged or REO (Real Estate Owned) properties. My work includes occupancy verification, property condition inspections, winterization checks, and securing vacant properties. I operate under client instruction and applicable HUD/GSE guidelines.',
     authority:'▸ Conduct exterior occupancy verification from public right-of-way\n▸ Enter vacant/REO property under lender rights with proper documentation\n▸ Document and photograph exterior and accessible interior conditions\n▸ Post legal notices authorized by lender/servicer\n▸ Coordinate property preservation work orders',
     enforce:'▸ Occupancy status (occupied vs. vacant)\n▸ Property condition: roof, windows, exterior, utilities\n▸ Security: unsecured entry points, vandalism, encroachment\n▸ Winterization and maintenance compliance\n▸ Code violations visible from exterior',
@@ -23707,6 +23858,10 @@ const CITY_JOBS = [
     id:'public_housing_inspector',
     sector:'private',
     label:'Public Housing / HCV Inspection Specialist (HQS/NSPIRE)',
+    title:'HQS/NSPIRE Inspection Specialist',
+    division:'Housing Choice Voucher Program',
+    department:'Public Housing Authority / HUD-Contracted Firm',
+    scope:'HUD HQS/NSPIRE Standards',
     whoami:'I am an inspection specialist conducting Housing Quality Standards (HQS) or NSPIRE inspections for a Public Housing Authority or HUD-contracted inspection company. I verify that dwelling units meet HUD\'s minimum habitability standards for the Housing Choice Voucher (Section 8) program. I am trained and certified in HQS or NSPIRE inspection protocols.',
     authority:'▸ Inspect interior and exterior of subsidized units with tenant and landlord notice\n▸ Determine pass/fail status per HQS or NSPIRE standards\n▸ Issue inspection results to PHA and landlord\n▸ Require correction of life-threatening failures within 24 hours\n▸ Recommend HAP contract suspension for uncorrected failures',
     enforce:'▸ HQS/NSPIRE: sanitary facilities, food preparation, space and security\n▸ Thermal environment: heating and cooling adequacy\n▸ Illumination, electrical safety, and structure/interior\n▸ Lead-based paint visual assessment (pre-1978 units)\n▸ Site and neighborhood: safety and accessibility',
@@ -23721,6 +23876,10 @@ const CITY_JOBS = [
     id:'lead_paint_inspector',
     sector:'private',
     label:'Lead Paint / Asbestos Inspector (Environmental)',
+    title:'Lead Paint / Asbestos Inspector',
+    division:'Environmental Health Surveys',
+    department:'Missouri DHSS / DNR Certified Firm',
+    scope:'EPA & Missouri Lead/Asbestos Regulations',
     whoami:'I am a Missouri-certified Lead Inspector/Risk Assessor or Asbestos Building Inspector conducting environmental health surveys in residential and commercial buildings. I am certified by the Missouri Department of Health and Senior Services (DHSS) for lead-based paint work and by the Missouri Department of Natural Resources (DNR) for asbestos inspections. I operate under client authorization and applicable EPA and Missouri regulations.',
     authority:'▸ Collect paint chip, dust, and soil samples with property owner consent\n▸ Conduct XRF testing for lead-based paint\n▸ Sample suspected asbestos-containing materials (ACM) for laboratory analysis\n▸ Issue written inspection reports and risk assessments\n▸ Notify MDNR and/or EPA of confirmed asbestos presence above action levels before any renovation',
     enforce:'▸ Lead-based paint hazards: paint, dust, soil (pre-1978 housing)\n▸ Asbestos-containing materials: floor tile, pipe insulation, ceiling tile, roofing\n▸ Clearance testing after lead abatement or asbestos removal\n▸ HUD visual assessment for Section 8 / HCV units built before 1978',
@@ -23733,6 +23892,10 @@ const CITY_JOBS = [
     id:'county_assessor_field',
     sector:'private',
     label:'County Assessor Field Appraiser',
+    title:'County Assessor Field Appraiser',
+    division:'Mass Appraisal / Data Collection',
+    department:'County Assessor\'s Office',
+    scope:'RSMo §137 / IAAO Standards',
     whoami:'I am a field appraiser employed by a County Assessor\'s office or contracted assessment firm conducting mass appraisal data collection for property tax assessment purposes. In Missouri, I operate under the authority of the County Assessor (RSMo §137) and am bound by Missouri State Tax Commission (STC) standards and the IAAO (International Association of Assessing Officers) standards of practice.',
     authority:'▸ Inspect exterior of properties — exterior-only inspection authority under RSMo §137.085 (assessor may view from street)\n▸ Request interior access with property owner consent for accurate assessment\n▸ Photograph exterior condition from public right-of-way\n▸ Enter property with written owner consent for interior inspection\n▸ Correct assessment records based on field data collected',
     enforce:'▸ Property characteristics: square footage, construction quality, condition, amenities\n▸ Permit records and recent improvements\n▸ Comparable sales verification\n▸ Code violations affecting assessed value or condition grade',
@@ -23745,6 +23908,10 @@ const CITY_JOBS = [
     id:'food_safety_inspector_private',
     sector:'private',
     label:'Food Safety Inspector (State/Third-Party)',
+    title:'Food Safety Inspector',
+    division:'Food Protection Program',
+    department:'Missouri DHSS / Third-Party Inspection Firm',
+    scope:'Missouri Food Code',
     whoami:'I am a food safety inspector employed by the Missouri Department of Health and Senior Services (DHSS) or a contracted third-party inspection firm conducting inspections of food service establishments, retail food stores, and food processing facilities. I operate under Missouri\'s Food Protection Program and enforce the Missouri Food Code.',
     authority:'▸ Enter and inspect any food service establishment during operating hours without advance notice (RSMo §196.060)\n▸ Examine food, equipment, processes, and employee practices\n▸ Review records and temperature logs\n▸ Issue correction orders and notices of violation\n▸ Issue closure orders for imminent health hazards\n▸ Collect food samples for laboratory testing',
     enforce:'▸ Temperature control: receiving, storage, cooking, cooling, holding temperatures\n▸ Personal hygiene: handwashing, illness exclusion, glove use\n▸ Food contact surfaces: cleaning, sanitizing, condition\n▸ Pest control and facility condition\n▸ Food source verification and labeling',
@@ -23757,6 +23924,10 @@ const CITY_JOBS = [
     id:'elevator_inspector',
     sector:'private',
     label:'Elevator / Mechanical Lift Inspector',
+    title:'Elevator / Mechanical Lift Inspector',
+    division:'Conveyance Inspections',
+    department:'Missouri Division of Labor Standards / Third-Party',
+    scope:'ASME QEI Certification',
     whoami:'I am a licensed Missouri Elevator Inspector conducting code-required annual and periodic inspections of elevators, escalators, moving walks, dumbwaiters, and platform lifts. I am licensed by the Missouri Division of Labor Standards and certified by ASME (American Society of Mechanical Engineers) QEI (Qualified Elevator Inspector) program or equivalent. I inspect both under AHJ authority (if employed by a city) and as a third-party inspector contracted by building owners.',
     authority:'▸ Inspect and test elevator systems per ASME A17.1 Safety Code\n▸ Issue certificates of inspection upon passing inspection\n▸ Issue correction orders for code deficiencies\n▸ Order elevator out of service for imminent hazard conditions\n▸ Access elevator machine rooms and pit areas per safety protocol',
     enforce:'▸ Safety devices: door interlocks, governor, safeties, buffers\n▸ Capacity and load ratings\n▸ Emergency lighting, phones, and alarm systems\n▸ ADA accessibility requirements (28 CFR Part 36)\n▸ Annual full-load test and 5-year full-load/safety test compliance',
@@ -23769,6 +23940,10 @@ const CITY_JOBS = [
     id:'boiler_pressure_vessel',
     sector:'private',
     label:'Boiler & Pressure Vessel Inspector',
+    title:'Boiler & Pressure Vessel Inspector',
+    division:'Boiler & Pressure Vessel Inspections',
+    department:'Insurance Company / Missouri Division of Labor Standards',
+    scope:'NBIC Commission',
     whoami:'I am a commissioned boiler and pressure vessel inspector, employed by an authorized insurance company or the Missouri Division of Labor Standards, conducting code-required inspections of boilers, pressure vessels, and pressure piping in commercial, industrial, and institutional facilities. I hold a Missouri commission and an NBIC (National Board Inspection Code) commission.',
     authority:'▸ Inspect boilers and pressure vessels at any reasonable time per RSMo §292.040\n▸ Require boiler shut-down for internal inspection\n▸ Witness hydrostatic tests and repairs\n▸ Issue Certificates of Inspection (required for operation)\n▸ Order immediate shut-down of unsafe pressure equipment',
     enforce:'▸ ASME Boiler and Pressure Vessel Code compliance for construction\n▸ Inspection interval compliance: annual (power boilers), biennial (heating boilers), triennial (pressure vessels)\n▸ Safety valve testing and certification\n▸ Operator qualification and log-keeping requirements\n▸ National Board R-Stamp repair requirements',
@@ -23781,6 +23956,10 @@ const CITY_JOBS = [
     id:'hoa_community_inspector',
     sector:'private',
     label:'HOA / Community Association Inspector',
+    title:'HOA / Community Association Inspector',
+    division:'Compliance Inspections',
+    department:'HOA / Community Management Company',
+    scope:'CC&Rs & Bylaws',
     whoami:'I am a compliance inspector or community manager employed by or contracted to a Homeowners Association (HOA) or condominium association management company. I conduct property inspections within the association\'s governed community to identify violations of the CC&Rs (Covenants, Conditions & Restrictions), bylaws, and Rules & Regulations. I operate under authority delegated by the association\'s board of directors.',
     authority:'▸ Inspect common areas and unit exteriors per CC&R inspection rights\n▸ Document and photograph violations visible from common areas or public right-of-way\n▸ Issue written notices of violation (NOVs) to property owners\n▸ Assess fines per the association\'s fine schedule after due process\n▸ Coordinate contractors for common area maintenance\n▸ Recommend legal action for persistent non-compliance through association counsel',
     enforce:'▸ Exterior maintenance: paint, landscaping, structures, vehicles\n▸ Prohibited items: unapproved modifications, commercial vehicles, recreational equipment storage\n▸ Nuisance violations: noise, waste, lighting\n▸ Rental restriction compliance in communities with short-term rental prohibitions\n▸ Pet policies and violation of breed/size restrictions',
@@ -23793,6 +23972,10 @@ const CITY_JOBS = [
     id:'commercial_property_inspector',
     sector:'private',
     label:'Commercial Property Inspector (Phase I / Pre-Purchase)',
+    title:'Commercial Property Inspector',
+    division:'Property Condition Assessments',
+    department:'Building Consulting Firm / Independent',
+    scope:'ASTM E2018',
     whoami:'I am a licensed commercial property inspector or building consultant conducting pre-purchase or pre-lease building condition assessments (PCAs) for investors, lenders, and tenants. I typically hold a PE, RA, or InterNACHI/CCPIA commercial certification. I follow ASTM E2018 Standard Guide for Property Condition Assessments.',
     authority:'▸ Inspect accessible areas of a commercial building with owner/agent authorization\n▸ Review available building records: permits, certificates of occupancy, maintenance records\n▸ Interview facilities staff and building owners\n▸ Observe and document all accessible building systems\n▸ Engage subcontractors for specialist reviews (MEP, structural, roofing)',
     enforce:'▸ Structural components: foundation, framing, exterior walls, roof\n▸ Mechanical, electrical, and plumbing systems\n▸ Life safety: fire protection, egress, emergency systems\n▸ ADA accessibility compliance\n▸ Deferred maintenance and immediate repair needs',
@@ -23805,6 +23988,10 @@ const CITY_JOBS = [
     id:'stormwater_inspector',
     sector:'private',
     label:'Stormwater / MS4 Compliance Inspector',
+    title:'Stormwater / MS4 Compliance Inspector',
+    division:'Stormwater Compliance',
+    department:'Municipality / County / Consulting Firm',
+    scope:'NPDES · Clean Water Act',
     whoami:'I am a stormwater compliance inspector employed by a municipality, county, or consulting firm to conduct inspections of construction sites, industrial facilities, and municipal infrastructure for stormwater permit compliance. I enforce NPDES stormwater permit conditions under the Clean Water Act and Missouri Clean Water Law. Construction sites require me to verify SWPPP (Stormwater Pollution Prevention Plan) implementation.',
     authority:'▸ Inspect construction sites and industrial facilities for NPDES permit compliance\n▸ Review and audit SWPPPs and stormwater control measures\n▸ Document illicit discharges and trace discharge sources\n▸ Issue notices of non-compliance and require immediate corrective action\n▸ Report significant violations to Missouri DNR\n▸ Document conditions photographically for enforcement record',
     enforce:'▸ Erosion and sediment controls at active construction sites\n▸ Illicit discharges to storm drains: sewage, chemicals, washwater\n▸ Industrial facility best management practices (BMPs)\n▸ MS4 outfall monitoring and dry weather screening\n▸ Post-construction stormwater management feature maintenance',
@@ -23817,6 +24004,10 @@ const CITY_JOBS = [
     id:'telecommunications_inspector',
     sector:'private',
     label:'Telecommunications / Broadband Field Tech',
+    title:'Telecommunications / Broadband Field Tech',
+    division:'Network Construction & Maintenance',
+    department:'Telecommunications Company (AT&T, Charter/Spectrum, T-Mobile, etc.)',
+    scope:'47 U.S.C. §224 · FCC Pole Attachment Rules',
     whoami:'I am a field technician employed by or contracted to a telecommunications company (AT&T, Charter/Spectrum, T-Mobile, or a competitive fiber provider) installing, maintaining, and repairing telecommunications infrastructure including fiber optic, coaxial, and wireless equipment. My work in public rights-of-way is governed by franchise agreements with the city and FCC regulations.',
     authority:'▸ Access company-owned equipment in public ROW per franchise agreement rights\n▸ Enter private property with easement rights (pole attachments, underground easements)\n▸ Install and maintain service drops and customer premises equipment with customer consent\n▸ Access utility poles under joint-use attachment agreements (NESC compliance)\n▸ Coordinate with city for ROW permits before trenching or aerial work',
     enforce:'▸ FCC rules for pole attachments and ROW access (47 U.S.C. §224)\n▸ Cable franchise agreement compliance requirements\n▸ City ROW permits for trenching, boring, and aerial construction\n▸ One-Call (Missouri 811) notification before underground work\n▸ Applicable safety clearances from power lines (NESC)',
@@ -23829,6 +24020,10 @@ const CITY_JOBS = [
     id:'hvac_service_tech',
     sector:'private',
     label:'HVAC Service Technician',
+    title:'HVAC Service Technician',
+    division:'Residential/Commercial HVAC Service',
+    department:'Licensed HVAC Contractor',
+    scope:'EPA Section 608 / Missouri HVAC License',
     whoami:'I am a licensed Missouri HVAC technician performing installation, maintenance, and repair of heating, ventilating, and air conditioning systems in residential and commercial buildings. I hold EPA Section 608 certification for refrigerant handling and a Missouri HVAC contractor license or work under a licensed contractor. I operate under client authorization.',
     authority:'▸ Install, maintain, and repair HVAC equipment per manufacturer specs and local codes\n▸ Handle and recover refrigerants under EPA Section 608 certification\n▸ Pull permits for new HVAC installations through the building department\n▸ Schedule inspections with the building department for permitted work\n▸ Access mechanical spaces, rooftop equipment, and crawl spaces with property authorization',
     enforce:'▸ Refrigerant regulations: Clean Air Act Section 608 (illegal venting prohibited)\n▸ Missouri HVAC contractor licensing requirements\n▸ Local mechanical codes (IMC or local equivalent)\n▸ Energy efficiency standards: Missouri minimum SEER requirements\n▸ Indoor air quality: carbon monoxide safety, combustion analysis',
@@ -24059,14 +24254,15 @@ function prefillFromPosition(jobId) {
   const job  = jobs.find(j => j.id === jobId);
   if (!job) return;
 
-  // ── Derive title / division / department / scope from the job record
-  const titleDerived = (job.label || '').split(' — ')[0].trim();
-  const whoami = job.whoami || '';
-  const divM   = whoami.match(/City of St\. Louis\s+([A-Za-z ,&\/]+?(?:Division|Bureau|Section|Unit)[A-Za-z ,&\/]*?)(?:,|\.|\bDepartment\b|$)/i);
-  const deptM  = whoami.match(/Department of ([A-Za-z ,&]+?)(?:\.|,|\bI am\b|$)/i);
-  const divDerived   = divM  ? divM[1].trim()  : '';
-  const deptDerived  = deptM ? ('Dept. of ' + deptM[1].trim()) : '';
-  const scopeDerived = job.ord_header || '';
+  // ── title / division / department / scope come straight from the job
+  // record now (added so every role has these explicitly, instead of
+  // regex-guessing them out of the whoami/label prose — that guess missed
+  // or mis-split a large fraction of roles, which is why Step 2 of the
+  // wizard used to come up blank for most positions).
+  const titleDerived  = job.title      || (job.label || '').split(' — ')[0].trim();
+  const divDerived    = job.division   || '';
+  const deptDerived   = job.department || '';
+  const scopeDerived  = job.scope      || job.ord_header || '';
 
   // ── Persist to storage so fields are pre-filled next time the UI opens
   //    (was previously DOM-only, which meant wizard prefill was lost)
@@ -26643,6 +26839,12 @@ function wizardSkip() {
   closeSetupWizard();
 }
 
+function wizardBack() {
+  if (_wizardStep <= 0) return;
+  _wizardStep--;
+  renderWizardStep();
+}
+
 function renderWizardStep() {
   var step = WIZARD_STEPS[_wizardStep];
   var body = document.getElementById('wiz-body');
@@ -26663,6 +26865,9 @@ function renderWizardStep() {
   if (step === 'welcome') {
     body.innerHTML =
       '<div style="padding:6px 0">' +
+      '<div style="background:rgba(255,255,255,0.06);border:1px solid rgba(126,200,80,0.35);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-family:\'Space Mono\',monospace;font-size:0.6rem;color:rgba(200,230,201,0.85);line-height:1.6">' +
+      '🔒 <b style="color:var(--lime)">This app does not use or talk to AI</b> unless you go out of your way to add your own Anthropic API key (Step 3, entirely optional — see below). No AI runs, and nothing is sent to any AI service, unless you set that up yourself.' +
+      '</div>' +
       '<div style="font-size:2rem;margin-bottom:8px;text-align:center">👋</div>' +
       '<div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:1rem;color:var(--lime);margin-bottom:10px;text-align:center;line-height:1.35">You don\'t need to set anything up.</div>' +
       '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:rgba(255,255,255,0.88);line-height:1.65;margin-bottom:12px">This app works right now, today, as a simple powerful route planner — no account, no sign-in, nothing required.</div>' +
@@ -26721,6 +26926,7 @@ function renderWizardStep() {
     }, 50);
 
     footer.innerHTML =
+      '<button data-fn="wizardBack" style="padding:12px 14px;background:none;border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:rgba(200,230,201,0.85);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">‹ Back</button>' +
       '<button onclick="wizSaveRole();wizardNext();" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
       '<button data-fn="wizardSkip" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip</button>';
 
@@ -26743,6 +26949,7 @@ function renderWizardStep() {
       wizField('Department', 'wiz-dept-input', 'text', savedDept, 'e.g. Dept. of Parks, Recreation & Forestry') +
       wizField('Scope / Ordinance', 'wiz-scope-input', 'text', savedScope, 'e.g. Weed Control · Ord. 72059');
     footer.innerHTML =
+      '<button data-fn="wizardBack" style="padding:12px 14px;background:none;border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:rgba(200,230,201,0.85);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">‹ Back</button>' +
       '<button data-fn="wizardNext" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Next →</button>' +
       '<button data-fn="wizardSkip" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip</button>';
 
@@ -26764,6 +26971,7 @@ function renderWizardStep() {
       wizField('PIN to unlock key (min 4 chars)', 'wiz-apikey-pin', 'password', '', '••••') +
       '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:rgba(200,230,201,0.3);margin-top:6px">🔒 Encrypted with your PIN on this device. Never uploaded.</div>';
     footer.innerHTML =
+      '<button data-fn="wizardBack" style="padding:12px 14px;background:none;border:1.5px solid rgba(126,200,80,0.35);border-radius:10px;color:rgba(200,230,201,0.85);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer">‹ Back</button>' +
       '<button data-fn="wizardNext" style="flex:1;padding:12px;background:var(--lime);color:var(--forest);border:none;border-radius:10px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:0.8rem;cursor:pointer">Finish Setup →</button>' +
       '<button data-fn="wizardSkip" style="padding:12px 16px;background:none;border:none;color:rgba(200,230,201,0.4);font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;cursor:pointer">Skip for now</button>';
 
@@ -26954,124 +27162,14 @@ function wizSaveRole() {
     <div style="position:sticky;top:0;background:white;border-radius:16px 16px 0 0;padding:16px 16px 10px;border-bottom:1px solid #f0f0f0;z-index:2">
       <div style="display:flex;align-items:center;justify-content:space-between">
         <div id="misc-links-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:var(--forest)">📋 Resources</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <a href="https://patreon.com/user?u=210452278&utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_fan&utm_content=copyLink" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:4px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.52rem;color:#c0392b;text-decoration:none;background:rgba(255,66,77,0.08);border:1px solid rgba(255,66,77,0.2);border-radius:7px;padding:4px 8px;white-space:nowrap" title="Support STLCityRoute on Patreon">❤ Patreon</a>
-          <button onclick="closeMiscLinks()" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
-        </div>
+        <button onclick="closeMiscLinks()" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
       </div>
       <div style="font-size:0.54rem;color:#999;font-family:'Space Mono',monospace;margin-top:3px">Tap any link to open · Phone numbers dial directly</div>
       <div style="font-size:0.5rem;color:#bbb;font-family:'Space Mono',monospace;margin-top:4px;line-height:1.5;padding:5px 0 2px;border-top:1px solid #f5f5f5">
-        This app is funded by local government sponsorships and listings on this page — no pop-up ads or banners. Just the information you need, where you know to look.
+        This app is built and hosted independently, on the developer's own dime, as a gift to the City of St. Louis — no ads, no sponsorships, nothing to sell you.
       </div>
     </div>
     <div id="misc-links-body" style="padding:12px 14px"></div>
-  </div>
-</div>
-
-<!-- ===== ADVERTISE MODAL ===== -->
-<div id="advertise-modal" role="dialog" aria-modal="true" aria-labelledby="advertise-modal-title" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9400;overflow-y:auto;-webkit-overflow-scrolling:touch">
-  <div style="background:white;border-radius:16px 16px 0 0;padding:0 0 40px;max-width:480px;margin:40px auto 0;min-height:calc(100vh - 40px);box-shadow:0 -4px 40px rgba(0,0,0,0.3)">
-    
-    <!-- Sticky title -->
-    <div style="position:sticky;top:0;background:#1F4E79;padding:14px 16px 12px;z-index:2;display:flex;align-items:flex-start;justify-content:space-between">
-      <div>
-        <div id="advertise-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:white">📣 List Your Business in Resources</div>
-        <div style="font-size:0.54rem;color:rgba(255,255,255,0.65);font-family:'Space Mono',monospace;margin-top:3px">Reach city field workers exactly when they need your service</div>
-      </div>
-      <button data-fn="closeAdvertiseModal" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:8px;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;padding:6px 12px;cursor:pointer;white-space:nowrap;margin-left:10px">‹ Back</button>
-    </div>
-
-    <div style="padding:14px 16px 0">
-
-      <!-- Audience -->
-      <div style="background:#f0f7f0;border-left:3px solid #1A6B5A;border-radius:0 8px 8px 0;padding:11px 14px;margin-bottom:16px">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:#1A6B5A;margin-bottom:4px">Who sees your listing</div>
-        <div style="font-size:0.66rem;color:#444;font-family:'Space Mono',monospace;line-height:1.6">STLCityRoute is used daily by City of St. Louis field inspectors — nuisance, building, housing, animal control, zoning, and environmental health. Your listing appears in the Resources panel, one tap away at the exact moment a worker needs to refer your type of service.</div>
-      </div>
-
-      <!-- Nonprofit free note -->
-      <div style="background:#f8fff8;border:1.5px solid #1A6B5A;border-radius:10px;padding:11px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start">
-        <span style="font-size:1.1rem;flex-shrink:0">🌱</span>
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.72rem;color:#1A6B5A">Nonprofits list free</div>
-          <div style="font-size:0.63rem;color:#555;font-family:'Space Mono',monospace;line-height:1.5;margin-top:2px">Qualified 501(c)(3) nonprofits providing services relevant to city field work receive a complimentary Standard listing. Contact us with your EIN to apply. Subject to availability and annual review.</div>
-        </div>
-      </div>
-
-      <!-- TIER: Premiere -->
-      <div style="background:white;border:2px solid #1F4E79;border-radius:10px;padding:14px;margin-bottom:10px;position:relative">
-        <div style="position:absolute;top:-10px;left:14px;background:#1F4E79;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:1px;padding:2px 10px;border-radius:12px">⭐ PREMIERE</div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;color:#1F4E79">Premiere Listing</div>
-            <div style="font-size:0.6rem;color:#999;font-family:'Space Mono',monospace;margin-top:1px">Top of Resources page + top of category · alphabetical among Premiere</div>
-          </div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:#1A6B5A;flex-shrink:0">$150<span style="font-size:0.65rem;font-weight:400;color:#999">/yr</span></div>
-        </div>
-        <div style="font-size:0.66rem;color:#555;font-family:'Space Mono',monospace;line-height:1.6">Your listing appears prominently at the top of the entire Resources page AND at the top of your category — above all Featured and Standard listings. Multiple Premiere listings are sorted alphabetically. Includes name, phone, website, and extended two-line description.</div>
-      </div>
-
-      <!-- TIER: Featured -->
-      <div style="background:white;border:2px solid #1A6B5A;border-radius:10px;padding:14px;margin-bottom:10px;position:relative">
-        <div style="position:absolute;top:-10px;left:14px;background:#1A6B5A;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.58rem;letter-spacing:1px;padding:2px 10px;border-radius:12px">FEATURED</div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;color:#1F4E79">Featured Listing</div>
-            <div style="font-size:0.6rem;color:#999;font-family:'Space Mono',monospace;margin-top:1px">Top of category (below Premiere) · alphabetical among Featured</div>
-          </div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:#1A6B5A;flex-shrink:0">$75<span style="font-size:0.65rem;font-weight:400;color:#999">/yr</span></div>
-        </div>
-        <div style="font-size:0.66rem;color:#555;font-family:'Space Mono',monospace;line-height:1.6">Appears at the top of your category section, above all Standard listings and below any Premiere listings. Sorted alphabetically among other Featured businesses. Includes name, phone, website, and one-line description.</div>
-      </div>
-
-      <!-- TIER: Standard -->
-      <div style="background:white;border:1.5px solid #ddd;border-radius:10px;padding:14px;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;color:#1F4E79">Standard Listing</div>
-            <div style="font-size:0.6rem;color:#999;font-family:'Space Mono',monospace;margin-top:1px">Listed in category · alphabetical among Standard</div>
-          </div>
-          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:#1A6B5A;flex-shrink:0">$25<span style="font-size:0.65rem;font-weight:400;color:#999">/yr</span></div>
-        </div>
-        <div style="font-size:0.66rem;color:#555;font-family:'Space Mono',monospace;line-height:1.6">Listed in your category, sorted alphabetically among Standard listings. Includes business name, phone number, website, and one-line description. One-tap dial for field workers.</div>
-      </div>
-
-      <!-- What's included in all tiers -->
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:#1F4E79;letter-spacing:1px;margin-bottom:8px">ALL LISTINGS INCLUDE</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace">📞 One-tap phone dial</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace">🔗 Website link</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace">📧 Up to 4 contacts</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace">✏️ Free info updates</div>
-      </div>
-
-      <!-- Categories -->
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:#1F4E79;letter-spacing:1px;margin-bottom:8px">OPEN CATEGORIES</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Pest Control</strong>Rodent, insect, vermin</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Wildlife Removal</strong>Licensed nuisance trapping</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Property Law</strong>Code enforcement defense</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Towing & Recovery</strong>Abandoned vehicles</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Environmental</strong>Asbestos, mold, hazmat</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Boarding & Securing</strong>Vacant structures</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Demolition</strong>Licensed demo contractors</div>
-        <div style="background:#f8f9fa;border-radius:7px;padding:8px 10px;border-left:3px solid #1A6B5A;font-size:0.63rem;color:#444;font-family:'Space Mono',monospace"><strong style="display:block;color:#1F4E79;font-size:0.66rem">Property Rehab</strong>Distressed property work</div>
-      </div>
-
-      <!-- Policy -->
-      <div style="background:#fff8ec;border-left:3px solid #e8a020;border-radius:0 8px 8px 0;padding:11px 14px;margin-bottom:16px">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.7rem;color:#7a5000;margin-bottom:5px">Policy</div>
-        <div style="font-size:0.62rem;color:#555;font-family:'Space Mono',monospace;line-height:1.65">St. Louis area businesses with services relevant to city field work. All listings reviewed before publication. Listings include: business name (linked to website), up to 10-word description, and up to 4 email/phone contacts. Advertising never influences official city contacts — paid listings appear only in the Local Business Listings section. Annual billing · invoice or Venmo · live within 48 hours of payment · lapsed listings removed and slot re-opens.</div>
-      </div>
-
-      <!-- CTA -->
-      <div style="background:#1F4E79;border-radius:10px;padding:18px;text-align:center">
-        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.88rem;color:white;margin-bottom:6px">Ready to list your business?</div>
-        <div style="font-size:0.63rem;color:rgba(255,255,255,0.7);font-family:'Space Mono',monospace;margin-bottom:14px">Email us your business name, category, and preferred tier. We'll confirm availability and get you live within 48 hours.</div>
-        <a href="mailto:support@yourcityroute.com?subject=STLCityRoute Resources Listing Inquiry" style="display:inline-block;background:white;color:#1F4E79;font-family:'Syne',sans-serif;font-weight:800;font-size:0.82rem;text-decoration:none;padding:10px 22px;border-radius:8px">📧 support@yourcityroute.com</a>
-      </div>
-
-    </div>
   </div>
 </div>
 
