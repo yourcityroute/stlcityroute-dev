@@ -16078,9 +16078,9 @@ var _PHOTO_SETUP_PRESS_ZOOM = 1;
 // started (in whole "presses" of the +/- control):
 //   0–1 presses out : full address (house # + street), tappable —
 //     Property Search popup works
-//   2–3 presses out : HOUSE NUMBER ONLY, not tappable — the content
+//   2 presses out   : HOUSE NUMBER ONLY, not tappable — the content
 //     itself changes here, not just the font size
-//   4+ presses out  : no parcel labels (or parcel/street data) at all —
+//   3+ presses out  : no parcel labels (or parcel/street data) at all —
 //     _drawPhotoSetupParcelsAndStreets and _onPhotoSetupMapViewChange
 //     both skip the network query entirely at this tier, so zooming out
 //     further to see the whole city doesn't spam the ArcGIS endpoint for
@@ -16088,7 +16088,7 @@ var _PHOTO_SETUP_PRESS_ZOOM = 1;
 function _parcelZoomTier(zoom) {
   var presses = Math.round((_photoSetupBaselineZoom - zoom) / _PHOTO_SETUP_PRESS_ZOOM);
   if (presses <= 1) return { mode: 'full', fontRem: 0.64, interactive: true };
-  if (presses <= 3) return { mode: 'houseNumber', fontRem: 0.58, interactive: false };
+  if (presses <= 2) return { mode: 'houseNumber', fontRem: 0.58, interactive: false };
   return { mode: 'none', fontRem: 0, interactive: false };
 }
 
