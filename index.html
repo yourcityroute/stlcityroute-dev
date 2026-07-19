@@ -16075,20 +16075,26 @@ var _photoSetupBaselineZoom = 19;
 var _PHOTO_SETUP_PRESS_ZOOM = 1;
 
 // How much detail to render at a given zoom, relative to where the screen
-// started (in whole "presses" of the +/- control):
-//   0–1 presses out : full address (house # + street), tappable —
-//     Property Search popup works
-//   2 presses out   : HOUSE NUMBER ONLY, not tappable — the content
-//     itself changes here, not just the font size
-//   3+ presses out  : no parcel labels (or parcel/street data) at all —
-//     _drawPhotoSetupParcelsAndStreets and _onPhotoSetupMapViewChange
-//     both skip the network query entirely at this tier, so zooming out
-//     further to see the whole city doesn't spam the ArcGIS endpoint for
-//     an ever-growing empty result.
+// started (in fractional "presses" of the +/- control — NOT rounded to
+// whole clicks, since pinch/scroll-wheel zoom can land between them and
+// the boundaries themselves are fractional):
+//   up to 3/4 of a press out  : full address (house # + street), tappable
+//     — Property Search popup works
+//   beyond 3/4 up to 1.5 presses out : HOUSE NUMBER ONLY, not tappable —
+//     the content itself changes here, not just the font size. A single
+//     button click (which moves a full 1.0 press with this map's default
+//     zoomDelta) already crosses the 3/4 line, so one click is enough to
+//     drop into this tier.
+//   beyond 1.5 presses out    : no parcel labels (or parcel/street data)
+//     at all — _drawPhotoSetupParcelsAndStreets and
+//     _onPhotoSetupMapViewChange both skip the network query entirely at
+//     this tier, so zooming out further to see the whole city doesn't
+//     spam the ArcGIS endpoint for an ever-growing empty result. Two
+//     button clicks (2.0 presses) clears the 1.5 line.
 function _parcelZoomTier(zoom) {
-  var presses = Math.round((_photoSetupBaselineZoom - zoom) / _PHOTO_SETUP_PRESS_ZOOM);
-  if (presses <= 1) return { mode: 'full', fontRem: 0.64, interactive: true };
-  if (presses <= 2) return { mode: 'houseNumber', fontRem: 0.58, interactive: false };
+  var presses = (_photoSetupBaselineZoom - zoom) / _PHOTO_SETUP_PRESS_ZOOM;
+  if (presses <= 0.75) return { mode: 'full', fontRem: 0.64, interactive: true };
+  if (presses <= 1.5)  return { mode: 'houseNumber', fontRem: 0.58, interactive: false };
   return { mode: 'none', fontRem: 0, interactive: false };
 }
 
