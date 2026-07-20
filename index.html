@@ -2078,13 +2078,14 @@ header{
       style="flex:0 0 68px;width:68px;border:none;background:transparent center/contain no-repeat;padding:0;cursor:pointer"></button>
     <!-- 2026-07-18: replaces the old "Navigate Route" (launchGoogleMaps)
          button — same slot (flex:1, 68px row height), now the entry point
-         for Survey Mode instead. launchGoogleMaps() itself is untouched
-         in case it needs a home elsewhere later; it just has no button
-         wired to it in this row anymore. Content is populated by
-         _renderSurveyRouteButton() rather than a baked background-image,
-         since the face needs to switch between an idle "Start Survey"
-         state and a live "neighborhood · elapsed" status — a static
-         image can't show that. -->
+         for Survey Mode instead. (2026-07-19: launchGoogleMaps() itself
+         has since been removed entirely — it never worked correctly and
+         had no button anywhere after this swap. Per-stop navigation via
+         navToStop() on each stop card is untouched.) Content is
+         populated by _renderSurveyRouteButton() rather than a baked
+         background-image, since the face needs to switch between an
+         idle "Start Survey" state and a live "neighborhood · elapsed"
+         status — a static image can't show that. -->
     <button data-fn="openSurveyModeModal" id="btn-survey-mode" title="Survey Mode" aria-label="Survey Mode"
       style="flex:1;min-width:0;border:none;border-radius:10px;padding:0;cursor:pointer;overflow:hidden">
       <div id="survey-route-btn-content" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:2px 4px"><!-- filled by _renderSurveyRouteButton() --></div>
@@ -13719,32 +13720,12 @@ function navToStop(addr) {
   }
 }
 
-function launchGoogleMaps() {
-  const pending = routeOrder.length > 0
-    ? routeOrder.map(id => stops.find(s => s.id === id)).filter(s => s && !s.done)
-    : stops.filter(s => !s.done);
-  if (!pending.length) { showToast('No stops to navigate'); return; }
-
-  // Build full multi-waypoint route URL — works on desktop AND mobile browser
-  // Google Maps web URL supports up to 10 waypoints via /dir/ syntax
-  const addrs = pending.map(s => encodeURIComponent(s.fullAddress || s.address + ', St. Louis, MO'));
-
-  // Origin: use GPS/manual if set, else omit (Maps uses current location)
-  const origin = manualOrigin ? encodeURIComponent(manualOrigin.label || `${manualOrigin.lat},${manualOrigin.lng}`) : '';
-
-  if (addrs.length === 1) {
-    // Single stop — simplest URL
-    const url = `https://www.google.com/maps/dir/?api=1${origin?'&origin='+origin:''}&destination=${addrs[0]}&travelmode=driving`;
-    window.open(url, '_blank');
-    return;
-  }
-
-  // Multiple stops — use /maps/dir/origin/wp1/wp2/.../dest URL format
-  // This format works on mobile browsers AND opens in Google Maps app
-  const allAddrs = origin ? [origin, ...addrs] : addrs;
-  const routeUrl = 'https://www.google.com/maps/dir/' + allAddrs.join('/');
-  window.open(routeUrl, '_blank');
-}
+// 2026-07-19: removed launchGoogleMaps() (the "send the entire route to
+// Google Maps" feature) per explicit instruction — it never worked
+// correctly, and had no UI entry point at all since the Route tab button
+// that used to trigger it was replaced by Survey Mode in an earlier
+// drop. navToStop() above (the per-stop "navigate to this address"
+// button on each stop card) is unrelated and untouched — that stays.
 // ============================================================
 // SECTION: photo-scan
 // PHOTO SCAN — Anthropic vision API (primary) or on-device TextDetector (fallback)
