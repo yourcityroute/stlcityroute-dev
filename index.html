@@ -1217,7 +1217,7 @@ header{
           <li style="margin-bottom:4px">📷 <b>Just took photos:</b> tap <b>📧 Email Summary + Photos</b> in the photo preview, OR mark the stop done and tap <b>📧📷 Email Summary + photos attached</b> in the close-stop screen. Either way your share sheet opens with the stop summary text and all the stamped photos pre-attached.</li>
           <li style="margin-bottom:4px">📅 <b>Within 48 hours:</b> open the stop, tap <b>✅ MARK COMPLETE</b> (or just tap the existing complete stop), the close-stop modal will show the <b>📧📷 Email Summary + photos attached</b> button if cached photos still exist for this stop. The cache count appears under the button.</li>
           <li style="margin-bottom:4px">📝 <b>Older than 48 hours:</b> the <b>📧 Email Stop Summary</b> button still sends the full text summary, and the email body lists the exact filenames of every photo taken at that stop — so you (or the recipient) know which files to attach manually from the gallery.</li>
-          <li>📱 <b>Filenames:</b> photos are named like <code style="font-size:0.95em">2801daltonavenue042326101832847.jpg</code> (address + date + time + ms). Search for that filename in your gallery or file manager.</li>
+          <li>📱 <b>Filenames:</b> photos are named like <code style="font-size:0.95em">2801_dalton_avenue_042326_101832847.jpg</code> (address, with each address word/number separated by underscores, then date + time + ms). Search a street name — like "dalton" — in your gallery or file manager to find every photo on that street.</li>
         </ul>
         <p style="margin:0 0 8px 0"><b>Cache size limits:</b> normally 200MB. On phones with less than ~150MB free, the cap drops to 50MB to be polite. Either way, when full, the oldest photos go first. The newest photo for any stop is always preserved as long as it fits.</p>
         <p style="margin:0;color:#888;font-size:0.92em"><i>The cache is a working convenience, not a permanent record. The photos you see in your phone\u2019s Photos app or Downloads folder are the real archive — the app never modifies or removes those.</i></p>
@@ -1737,6 +1737,46 @@ header{
   </div>
 </div>
 
+<!-- ===== REGULAR STOPS LIST MODAL (2026-07-22) ===== -->
+<!-- A persistent address book, separate from the working `stops` list —
+     see loadRegularStops/saveRegularStopsList. Each entry can be added
+     as a real stop (routes through addStop's normal pipeline), edited,
+     or removed. -->
+<div id="regular-stops-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="regular-stops-modal-title" data-backdrop-close data-fn="closeRegularStopsModal">
+  <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:85dvh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div id="regular-stops-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320">⭐ Regular Stops</div>
+      <button data-fn="openRegularStopEditor" style="padding:6px 11px;border:none;border-radius:8px;background:linear-gradient(135deg,#1a3320,#2e7d32);color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">+ NEW</button>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:12px;line-height:1.5">Addresses you visit often, with notes that stick around between sessions. Tap "Add as Stop" to send one through the normal add flow.</div>
+    <div id="regular-stops-list-body"></div>
+  </div>
+</div>
+
+<!-- ===== REGULAR STOP EDITOR MODAL (add/edit a single entry) ===== -->
+<div id="regular-stop-editor-modal" class="modal-overlay" style="display:none;z-index:1000" role="dialog" aria-modal="true" aria-labelledby="regular-stop-editor-title" data-backdrop-close data-fn="closeRegularStopEditor">
+  <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:90dvh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div id="regular-stop-editor-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.9rem;color:#1a3320;margin-bottom:12px">+ New Regular Stop</div>
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Address</label>
+    <input type="text" id="regular-stop-editor-addr" style="width:100%;padding:9px 10px;border:1.5px solid #c5d8c8;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.72rem;color:#1a3320;background:#fff;margin-bottom:10px">
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Type</label>
+    <select id="regular-stop-editor-type" class="select-field" style="width:100%;margin-bottom:10px"></select>
+
+    <label style="display:block;font-family:'Space Mono',monospace;font-size:0.56rem;color:#666;margin-bottom:4px">Notes</label>
+    <textarea id="regular-stop-editor-notes" rows="3" placeholder="Notes about this address (optional)" style="width:100%;padding:9px 10px;border:1.5px solid #c5d8c8;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#1a3320;background:#fff;resize:vertical;margin-bottom:14px"></textarea>
+
+    <div style="display:flex;gap:8px">
+      <button data-fn="closeRegularStopEditor" style="flex:1;padding:11px;background:none;border:1.5px solid #ccc;border-radius:10px;color:#666;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Cancel</button>
+      <button data-fn="saveRegularStopEditor" style="flex:2;padding:11px;background:linear-gradient(135deg,#1a3320,#2e7d32);border:none;border-radius:10px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.75rem;cursor:pointer">✓ Save</button>
+    </div>
+    <button id="regular-stop-editor-delete-btn" data-fn="deleteRegularStopFromEditor" style="display:none;width:100%;margin-top:8px;padding:10px;background:none;border:1.5px solid var(--danger);border-radius:10px;color:var(--danger);font-family:Syne,sans-serif;font-weight:700;font-size:0.68rem;cursor:pointer">🗑 Delete This Regular Stop</button>
+  </div>
+</div>
+
 <!-- ===== CLOSE-SETTINGS CONFIRM MODAL (3-button: Save / Discard / Cancel) ===== -->
 <!-- Replaces a 2-button confirm() that previously had no Cancel option.       -->
 <!-- Opened by askCloseSettings() when settings have unsaved changes.          -->
@@ -2009,6 +2049,7 @@ header{
     <span class="section-title">Stops</span>
     <div style="display:flex;align-items:center;gap:7px">
       <span class="badge-count" id="stop-count">0</span>
+      <button data-fn="openRegularStopsModal" style="padding:4px 9px;border:1px solid var(--forest);border-radius:7px;background:none;color:var(--forest);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">⭐ REGULAR</button>
       <button onclick="openDeleteAllModal()" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 ALL</button>
     </div>
   </div>
@@ -2745,7 +2786,7 @@ header{
       <div class="help-panel-body">
         <b>What is photostamping?</b> The 📷 button in the top header (and the 📷 button in any stop's Utility menu) opens <b>Prepare Photo</b> — a full-screen setup step, not the camera directly. It shows a live map of parcels and street names near your GPS position, with your nearest 10 addresses listed below as tappable candidates (each with its own 🔍 Property Search button). Tap a candidate to fill the address, use 📍 GPS to reverse-lookup instead, or type it manually. Add optional notes and a tracking number, then tap <b>📷 Open Camera</b> or <b>🖼 Pick Existing</b> (choose one or more photos from your gallery — all get stamped with the same address). ⚙ Stamp jumps to Stamp Settings; ✕ Exit backs out without taking a photo.<br><br>
         <b>Per-stop photo sessions:</b> Opening Prepare Photo from a specific stop's Utility menu links the photo to that stop. Each stamped shot increments a 📷 counter on the stop card so you can see at a glance how many photos you've taken at that address.<br><br>
-        <b>Filenames are searchable:</b> Stamped photos are named like <code style="font-size:0.95em">2801daltonavenue_042326_101832847.jpg</code> — address, then date (mmddyy), then time (hhmmss) + milliseconds, underscore-separated. You can search this exact name in your Photos / Files app to find any photo later.<br><br>
+        <b>Filenames are searchable:</b> Stamped photos are named like <code style="font-size:0.95em">2801_dalton_avenue_042326_101832847.jpg</code> — address number, street name, and street suffix each underscore-separated, then date (mmddyy), then time (hhmmss) + milliseconds. Dump photos into one folder and search a street name (e.g. "dalton") in your Photos / Files app to pull up every photo taken on that street.<br><br>
         <b>What gets burned in</b> — Settings → 📷 Stamp Settings has individual toggles for: address, date, time, inspector name, title/department, GPS coordinates, compass bearing, case number, photo sequence number, neighborhood name, neighborhood number, ward number, and notes. Turn any subset on. Compact form: "Tower Grove South #15 · Ward 8".<br><br>
         <b>Stamp size and position</b> — Choose Small / Medium / Large size and Top / Bottom position in Stamp Settings. Defaults are Medium and Bottom.<br><br>
         <b>Photostamp drift detection</b> — If your phone's clock differs from the network time by more than 30 seconds, the app warns you before stamping. This protects against an inspector accidentally stamping yesterday's date or being off by an hour after a daylight-savings change.<br><br>
@@ -5892,6 +5933,178 @@ function getStopType(id) {
 }
 function typeCodeFor(t)      { return getStopType(t).code; }
 function typeColorFor(t)     { return getStopType(t).color; }
+
+// ── Regular Stops List (2026-07-22) ──────────────────────────────────────
+// A small, separately-persisted address book distinct from the working
+// `stops` list. Stops get added, worked, marked done, and eventually
+// cleared — there was nowhere to keep a standing note about a chronic
+// problem address that persists across that churn. Entries here survive
+// independently of anything happening on the Stops tab; "Add as Stop"
+// just feeds one into the normal add-stop pipeline (geocoding, dupe
+// detection, etc. all still run, same as typing the address by hand) —
+// see addRegularStopAsStop below.
+function loadRegularStops() {
+  try {
+    var raw = LS.get('regular-stops-list');
+    if (!raw) return [];
+    var a = JSON.parse(raw);
+    return Array.isArray(a) ? a : [];
+  } catch(_e) { return []; }
+}
+function saveRegularStopsList(list) {
+  if (!LS.set('regular-stops-list', JSON.stringify(list))) {
+    console.warn('[regularStops] save failed (storage full?)');
+    showToast('⚠ Storage full — regular stop not saved');
+    return false;
+  }
+  return true;
+}
+
+var _regularStopEditingId = null; // null while adding a new entry, else the id being edited
+
+function openRegularStopsModal() {
+  renderRegularStopsList();
+  var modal = document.getElementById('regular-stops-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeRegularStopsModal });
+}
+function closeRegularStopsModal() {
+  var modal = document.getElementById('regular-stops-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+
+function renderRegularStopsList() {
+  var list = loadRegularStops();
+  var el = document.getElementById('regular-stops-list-body');
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px 10px;color:#999;font-family:\'Space Mono\',monospace;font-size:0.65rem">No regular stops yet. Tap "+ New" below to add an address you visit often.</div>';
+    return;
+  }
+  // Alphabetical by address — this is a reference list, not a queue.
+  var sorted = list.slice().sort(function(a,b){ return (a.address||'').localeCompare(b.address||''); });
+  el.innerHTML = sorted.map(function(e) {
+    var typeInfo = getStopType(e.type);
+    var notesHtml = e.notes ? '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:#888;margin-top:2px;line-height:1.4">' + escHtml(e.notes) + '</div>' : '';
+    return '<div style="border:1px solid #e5ddd0;border-radius:9px;padding:10px 12px;margin-bottom:8px;background:#fffdf9">' +
+      '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.72rem;color:var(--forest)">' + (typeInfo.emoji || '📍') + ' ' + escHtml(e.address) + '</div>' +
+      notesHtml +
+      '<div style="display:flex;gap:6px;margin-top:8px">' +
+        '<button data-fn="addRegularStopAsStop" data-arg="' + e.id + '" style="flex:1;padding:7px 8px;border:none;border-radius:7px;background:var(--forest);color:var(--lime);font-family:Syne,sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">➕ ADD AS STOP</button>' +
+        '<button data-fn="openRegularStopEditor" data-arg="' + e.id + '" style="padding:7px 10px;border:1px solid #ccc;border-radius:7px;background:none;color:#555;font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer">✎</button>' +
+        '<button data-fn="deleteRegularStopEntry" data-arg="' + e.id + '" style="padding:7px 10px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:Syne,sans-serif;font-weight:700;font-size:0.6rem;cursor:pointer">🗑</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function deleteRegularStopEntry(id) {
+  var list = loadRegularStops();
+  var next = list.filter(function(e){ return e.id !== id; });
+  saveRegularStopsList(next);
+  renderRegularStopsList();
+  showToast('Regular stop removed');
+}
+
+// Opens the add/edit editor. Pass null/undefined to add a new entry, or
+// an existing entry's id to edit it in place.
+function openRegularStopEditor(id) {
+  _regularStopEditingId = (id === undefined || id === null || id === '') ? null : id;
+  var list = loadRegularStops();
+  var entry = _regularStopEditingId != null ? list.find(function(e){ return e.id === _regularStopEditingId; }) : null;
+
+  var titleEl = document.getElementById('regular-stop-editor-title');
+  var addrEl  = document.getElementById('regular-stop-editor-addr');
+  var typeEl  = document.getElementById('regular-stop-editor-type');
+  var notesEl = document.getElementById('regular-stop-editor-notes');
+  var delBtn  = document.getElementById('regular-stop-editor-delete-btn');
+
+  // Populate type dropdown with all current types (built-in + custom) —
+  // same pattern as openEditStop's edit-stop-type population.
+  if (typeEl) {
+    var allTypes = getAllStopTypes();
+    typeEl.innerHTML = allTypes.map(function(t) {
+      return '<option value="' + escHtml(t.id) + '">' + (t.emoji || '•') + ' ' + escHtml(t.label) + '</option>';
+    }).join('');
+    typeEl.value = entry ? (entry.type || 'inspection') : (LS.get('last-stop-type') || 'inspection');
+  }
+
+  if (titleEl) titleEl.textContent = entry ? '✎ Edit Regular Stop' : '+ New Regular Stop';
+  if (addrEl)  addrEl.value  = entry ? entry.address : '';
+  if (notesEl) notesEl.value = entry ? (entry.notes || '') : '';
+  if (delBtn)  delBtn.style.display = entry ? 'block' : 'none';
+
+  var modal = document.getElementById('regular-stop-editor-modal');
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeRegularStopEditor });
+}
+function closeRegularStopEditor() {
+  var modal = document.getElementById('regular-stop-editor-modal');
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+
+function saveRegularStopEditor() {
+  var addrEl  = document.getElementById('regular-stop-editor-addr');
+  var typeEl  = document.getElementById('regular-stop-editor-type');
+  var notesEl = document.getElementById('regular-stop-editor-notes');
+  var addr = addrEl ? addrEl.value.trim() : '';
+  if (!addr) { showToast('Enter a street address'); return; }
+  var type  = typeEl ? typeEl.value : 'inspection';
+  var notes = notesEl ? notesEl.value.trim() : '';
+
+  var list = loadRegularStops();
+  if (_regularStopEditingId != null) {
+    var idx = list.findIndex(function(e){ return e.id === _regularStopEditingId; });
+    if (idx >= 0) {
+      list[idx].address = addr;
+      list[idx].type = type;
+      list[idx].notes = notes;
+      list[idx].updatedAt = new Date().toISOString();
+    }
+  } else {
+    list.push({
+      id: Date.now() * 1000 + Math.floor(Math.random() * 999),
+      address: addr,
+      type: type,
+      notes: notes,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+  }
+  saveRegularStopsList(list);
+  closeRegularStopEditor();
+  renderRegularStopsList();
+  showToast('Regular stop saved');
+}
+
+function deleteRegularStopFromEditor() {
+  if (_regularStopEditingId == null) return;
+  deleteRegularStopEntry(_regularStopEditingId);
+  closeRegularStopEditor();
+}
+
+// "Add as Stop" — routes the entry through the SAME address pipeline as
+// typing it into the normal Add Stop box (geocoding, AI fallback, dupe
+// detection all still run). Drives the real form fields rather than
+// duplicating that logic, so this can never drift out of sync with it.
+function addRegularStopAsStop(id) {
+  var list = loadRegularStops();
+  var entry = list.find(function(e){ return e.id === id; });
+  if (!entry) { showToast('Regular stop not found'); return; }
+  closeRegularStopsModal();
+  switchTab('stops');
+  var addrInput  = document.getElementById('addr-input');
+  var typeSelect = document.getElementById('type-select');
+  var notesInput = document.getElementById('notes-input');
+  AddressAutocomplete.reset();
+  hideAddrSuggestions();
+  if (addrInput)  addrInput.value = entry.address;
+  if (typeSelect) typeSelect.value = entry.type || 'inspection';
+  if (notesInput) notesInput.value = entry.notes || '';
+  addStop();
+}
 
 // Render the small geo-metadata line shown beneath the address on stop cards.
 // Examples of output:
@@ -15763,14 +15976,27 @@ function openStampedCameraForStop(stopId) {
     caseTypeField.value = lastType;
   }
   if (caseNumField) caseNumField.value = '';
+  var _stopForPhoto = null;
   if (addrField) {
     if (_photoContext.stopId !== null && typeof stops !== 'undefined') {
-      var stop = stops.find(function(x){ return x.id === _photoContext.stopId; });
-      addrField.value = (stop && stop.address) ? stop.address : '';
+      _stopForPhoto = stops.find(function(x){ return x.id === _photoContext.stopId; });
+      addrField.value = (_stopForPhoto && _stopForPhoto.address) ? _stopForPhoto.address : '';
     } else {
       addrField.value = '';
     }
   }
+  // 2026-07-22: when opened from a stop that already has resolved
+  // coordinates, anchor the situational-awareness map + candidate list to
+  // THAT location instead of the inspector's live GPS position — the
+  // point of opening PhotoStamp from a stop card is to document a known
+  // address, not wherever the phone currently sits (which may be
+  // mid-block, or still approaching). Live GPS is still fetched below for
+  // accurate photo geotagging at capture time; it just no longer
+  // recenters the map when a stop anchor is available. See the GPS-fetch
+  // block further down and _highlightPhotoSetupStopAddress.
+  _photoSetupStopAnchor = (_stopForPhoto && typeof _stopForPhoto.lat === 'number' && typeof _stopForPhoto.lng === 'number')
+    ? { lat: _stopForPhoto.lat, lng: _stopForPhoto.lng, address: _stopForPhoto.address }
+    : null;
   var setupModal = document.getElementById('photo-setup-modal');
   setupModal.style.display = 'flex';
   Accessibility.modalOpened(setupModal, { onEscape: closePhotoSetup });
@@ -15785,19 +16011,34 @@ function openStampedCameraForStop(stopId) {
   _initPhotoSetupMap();
 
   // Proactively warm up GPS so coordinates are ready when the first shot is
-  // captured, AND drive the situational-awareness map + address-candidate
-  // list off the same fix. Silent on failure — the stamp pipeline will try
-  // GPS again at capture regardless of what happens here.
-  try {
-    _tryGetLocationForStamp().then(function(gps) {
-      if (gps) {
-        _photoContext.gps = gps;
-        _refreshPhotoSetupParcels(gps);
-      } else if (_mapStatus) {
-        _mapStatus.textContent = '⚠ GPS unavailable — enter address manually';
-      }
-    }).catch(function(){});
-  } catch(_e) {}
+  // captured, AND (when there's no stop anchor) drive the
+  // situational-awareness map + address-candidate list off the same fix.
+  // Silent on failure — the stamp pipeline will try GPS again at capture
+  // regardless of what happens here.
+  if (_photoSetupStopAnchor) {
+    // Center the map on the stop's known location and highlight its
+    // parcel right away — no need to wait on a fresh GPS fix for this.
+    if (_mapStatus) _mapStatus.textContent = '📍 Centered on stop address…';
+    _refreshPhotoSetupParcels(_photoSetupStopAnchor).then(function() {
+      _highlightPhotoSetupStopAddress(_photoSetupStopAnchor.address);
+    });
+    try {
+      _tryGetLocationForStamp().then(function(gps) {
+        if (gps) _photoContext.gps = gps; // capture geotag only — map stays anchored to the stop
+      }).catch(function(){});
+    } catch(_e) {}
+  } else {
+    try {
+      _tryGetLocationForStamp().then(function(gps) {
+        if (gps) {
+          _photoContext.gps = gps;
+          _refreshPhotoSetupParcels(gps);
+        } else if (_mapStatus) {
+          _mapStatus.textContent = '⚠ GPS unavailable — enter address manually';
+        }
+      }).catch(function(){});
+    } catch(_e) {}
+  }
 
   // Warm up compass heading too (non-blocking, silent on failure).
   try {
@@ -16008,10 +16249,16 @@ function _streetLabelMidpointAndAngle(map, latlngs) {
 // at the top of the setup modal. Lazily created on first Photostamp open,
 // then just recentered/invalidated on later opens.
 var _photoSetupMap = null;
+var _photoSetupLabelLayer = null;  // CARTO 'light_only_labels' overlay tile — hidden/shown by zoom tier, see _updatePhotoSetupLabelVisibility
 var _photoSetupPinMarker = null;   // the inspector's GPS position — persists across zoom/pan redraws
 var _photoSetupMapLayers = [];     // parcel polygons + labels + street lines ONLY — cleared/rebuilt on every redraw
 var _photoSetupParcelMarkers = {}; // address -> Leaflet marker, so the candidate list can highlight one on tap
 var _photoSetupHighlightedAddr = null;
+// Set by openStampedCameraForStop when the stop being photographed already
+// has resolved coordinates — { lat, lng, address } or null. Non-null tells
+// the GPS-fetch block below to anchor the map to the stop instead of live
+// GPS. See _highlightPhotoSetupStopAddress.
+var _photoSetupStopAnchor = null;
 var _photoSetupViewChangeTimer = null;
 var _photoSetupListenersAttached = false;
 var _photoSetupLastDrawnRadiusM = null; // avoids redundant re-queries on trivial view changes
@@ -16050,7 +16297,23 @@ function _initPhotoSetupMap() {
     // out that far comfortably shows the whole city on this basemap.
     _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false, minZoom: 12 })
       .setView(STL_CENTER, 16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    // 2026-07-22: split the basemap into a no-labels base tile plus a
+    // separate labels-only overlay tile (both are standard CARTO Positron
+    // style variants, same basemaps.cartocdn.com host already allowed by
+    // CSP). Previously this used the combined 'light_all' tile, which
+    // bakes street-name labels into the raster at CARTO's own zoom-based
+    // density — that density stayed high through the moderately-zoomed-out
+    // range even after our own parcel address labels had already dropped
+    // to house-number-only (see _parcelZoomTier, which does that on ANY
+    // zoom-out at all), so the view still felt crowded with street names
+    // zoomed out "a little." Splitting the tiles lets the labels overlay
+    // be hidden by _updatePhotoSetupLabelVisibility on the exact same
+    // tier boundary our own labels already use — see that function and
+    // its call sites in _drawPhotoSetupParcels / _onPhotoSetupMapViewChange.
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd', maxZoom: 20, minZoom: 12
+    }).addTo(_photoSetupMap);
+    _photoSetupLabelLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd', maxZoom: 20, minZoom: 12
     }).addTo(_photoSetupMap);
     setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch(_e) {} }, 60);
@@ -16128,6 +16391,17 @@ function _parcelZoomTier(zoom) {
   return { mode: 'none', fontRem: 0, interactive: false };
 }
 
+// 2026-07-22: the basemap's own street-name labels (light_only_labels
+// tile — see _initPhotoSetupMap) fall away on the same tier boundary our
+// parcel labels already use, rather than lingering at CARTO's own zoom
+// density through the "zoomed out a little" range. Called from every
+// place _parcelZoomTier's result gets used for a real redraw decision, so
+// panning/zooming stays in sync even without a fresh parcel query.
+function _updatePhotoSetupLabelVisibility(tierMode) {
+  if (!_photoSetupLabelLayer) return;
+  try { _photoSetupLabelLayer.setOpacity(tierMode === 'full' ? 1 : 0); } catch(_e) {}
+}
+
 // The leading house number from a "1256 N Grand Blvd"-style address, for
 // the houseNumber zoom tier. Falls back to the full address if it somehow
 // doesn't start with a number (defensive — shouldn't happen given how
@@ -16180,14 +16454,15 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
   var zoom = _photoSetupMap.getZoom();
   var tier = _parcelZoomTier(zoom);
   _photoSetupLastDrawnTierMode = tier.mode; // single source of truth — every draw path updates this
+  _updatePhotoSetupLabelVisibility(tier.mode);
   if (tier.mode === 'none') return { parcels: [] };
 
   // 2026-07-19: no longer queries or draws street lines/name labels here —
-  // the basemap tile layer (cartocdn light_all, set up in
-  // _initPhotoSetupMap) already renders real street lines and name labels
-  // on its own. This overlay was drawing a second, redundant copy on top
-  // of that — same street names doubled up, extra clutter, no added
-  // information. ParcelLookup.queryStreets/_geoJsonLineToLatLngs/
+  // the basemap tile layers (cartocdn light_nolabels + light_only_labels,
+  // set up in _initPhotoSetupMap) already render real street lines and
+  // name labels on their own. This overlay was drawing a second, redundant
+  // copy on top of that — same street names doubled up, extra clutter, no
+  // added information. ParcelLookup.queryStreets/_geoJsonLineToLatLngs/
   // _streetLabelMidpointAndAngle are left defined but unused rather than
   // deleted outright, in case a future need for a custom (non-basemap)
   // street layer comes up — flagged as dead code for a future cleanup
@@ -16256,6 +16531,7 @@ function _onPhotoSetupMapViewChange() {
   var statusEl = document.getElementById('photo-setup-map-status');
   var tier = _parcelZoomTier(_photoSetupMap.getZoom());
   var tierChanged = tier.mode !== _photoSetupLastDrawnTierMode;
+  _updatePhotoSetupLabelVisibility(tier.mode);
 
   if (tier.mode === 'none') {
     if (tierChanged) {
@@ -16406,6 +16682,28 @@ function _selectPhotoSetupAddr(addr) {
   if (addrField) addrField.value = addr;
   showToast('📍 Address set');
   _highlightPhotoSetupParcel(addr);
+}
+
+// 2026-07-22: auto-highlights the parcel matching a stop's address after
+// the map has been anchored/redrawn around it — used when PhotoStamp is
+// opened from a stop card (see openStampedCameraForStop /
+// _photoSetupStopAnchor). Unlike _selectPhotoSetupAddr (a user tap), this
+// doesn't touch the address field or show a toast — the field is already
+// prefilled from the stop, this just adds the visual match on the map.
+// Parcel addresses come from ArcGIS (e.g. "2906 KEOKUK ST") and won't
+// always match a stop's address string exactly (different casing/
+// abbreviations from Nominatim or manual entry), so this compares via
+// normalizeAddr rather than requiring an exact match. Silently no-ops if
+// nothing currently drawn matches — same "visual bonus, not load-bearing"
+// tolerance _highlightPhotoSetupParcel already documents.
+function _highlightPhotoSetupStopAddress(addr) {
+  if (!addr) return;
+  var norm = normalizeAddr(addr);
+  var matchKey = null;
+  for (var k in _photoSetupParcelMarkers) {
+    if (Object.prototype.hasOwnProperty.call(_photoSetupParcelMarkers, k) && normalizeAddr(k) === norm) { matchKey = k; break; }
+  }
+  if (matchKey) _highlightPhotoSetupParcel(matchKey);
 }
 
 
@@ -22097,16 +22395,18 @@ function _getPhotoLog(stopId) {
 }
 
 function _buildPhotoFilename(addr, dt, seqNum) {
-  // Desired: streetaddress_[NN_]mmddyy_hhmmssSSS (no spaces, no separators
-  // WITHIN the address itself, but underscores BETWEEN the three blocks so
-  // the filename is actually parseable at a glance instead of one long run
-  // of digits).
+  // Desired: addrnum_streetname_suffix_[NN_]mmddyy_hhmmssSSS — the address
+  // itself is split into underscore-separated tokens (house number / street
+  // name words / suffix) so a flat dump of photos into one folder can be
+  // searched by street name alone (e.g. searching "keokuk" finds every photo
+  // on Keokuk St). Underscores also separate that address block from the
+  // optional sequence number and the date/time block.
   //   - seqNum (optional): zero-padded 2-digit sequence like "_03" — counts photos
   //     taken at this stop. Lets users sort their gallery in the order shots were
   //     taken, even when timestamps are very close.
-  // Example: "2801 Dalton Avenue" + 2026-04-23 10:18:32.847 + seq=3
-  //   → "2801daltonavenue_03_042326_101832847.jpg"
-  //   (no seq)  → "2801daltonavenue_042326_101832847.jpg"
+  // Example: "2906 Keokuk St" + 2026-07-21 12:14:59.977 + seq=1
+  //   → "2906_keokuk_st_01_072126_121459977.jpg"
+  //   (no seq)  → "2906_keokuk_st_072126_121459977.jpg"
   // Fallback: if parsing fails, uses a lowercased compact form of the whole string.
   // The trailing 3-digit millisecond is a tiebreaker for rapid double-taps — without it,
   // two photos captured in the same second at the same address would produce identical
@@ -22114,11 +22414,18 @@ function _buildPhotoFilename(addr, dt, seqNum) {
   var cleanAddr = (addr || 'photo').toString().toLowerCase();
   // Strip a trailing ", St. Louis, MO" or similar city/state tail
   cleanAddr = cleanAddr.replace(/,.*$/, '');
-  // Remove non-alphanumerics (keep letters + digits)
-  var addrCompact = cleanAddr.replace(/[^a-z0-9]/g, '');
+  // Split into word/number tokens on any run of non-alphanumeric characters
+  // (spaces, periods, dashes, etc.), drop empties, then rejoin with
+  // underscores so each address component stays separately searchable.
+  var addrTokens = cleanAddr.split(/[^a-z0-9]+/).filter(Boolean);
+  var addrCompact = addrTokens.join('_');
   if (!addrCompact) addrCompact = 'photo';
   // Guard against pathologically long filenames
   addrCompact = addrCompact.slice(0, 60);
+  // Slicing by raw character count could leave a dangling trailing
+  // underscore (or a half-cut token) if the address was very long — trim
+  // any stray trailing underscore left behind by the slice.
+  addrCompact = addrCompact.replace(/_+$/, '');
 
   var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
   var pad3 = function(n){ return n < 10 ? '00'+n : n < 100 ? '0'+n : ''+n; };
