@@ -16249,7 +16249,6 @@ function _streetLabelMidpointAndAngle(map, latlngs) {
 // at the top of the setup modal. Lazily created on first Photostamp open,
 // then just recentered/invalidated on later opens.
 var _photoSetupMap = null;
-var _photoSetupLabelLayer = null;  // CARTO 'light_only_labels' overlay tile — hidden/shown by zoom tier, see _updatePhotoSetupLabelVisibility
 var _photoSetupPinMarker = null;   // the inspector's GPS position — persists across zoom/pan redraws
 var _photoSetupMapLayers = [];     // parcel polygons + labels + street lines ONLY — cleared/rebuilt on every redraw
 var _photoSetupParcelMarkers = {}; // address -> Leaflet marker, so the candidate list can highlight one on tap
@@ -16297,23 +16296,7 @@ function _initPhotoSetupMap() {
     // out that far comfortably shows the whole city on this basemap.
     _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false, minZoom: 12 })
       .setView(STL_CENTER, 16);
-    // 2026-07-22: split the basemap into a no-labels base tile plus a
-    // separate labels-only overlay tile (both are standard CARTO Positron
-    // style variants, same basemaps.cartocdn.com host already allowed by
-    // CSP). Previously this used the combined 'light_all' tile, which
-    // bakes street-name labels into the raster at CARTO's own zoom-based
-    // density — that density stayed high through the moderately-zoomed-out
-    // range even after our own parcel address labels had already dropped
-    // to house-number-only (see _parcelZoomTier, which does that on ANY
-    // zoom-out at all), so the view still felt crowded with street names
-    // zoomed out "a little." Splitting the tiles lets the labels overlay
-    // be hidden by _updatePhotoSetupLabelVisibility on the exact same
-    // tier boundary our own labels already use — see that function and
-    // its call sites in _drawPhotoSetupParcels / _onPhotoSetupMapViewChange.
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd', maxZoom: 20, minZoom: 12
-    }).addTo(_photoSetupMap);
-    _photoSetupLabelLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd', maxZoom: 20, minZoom: 12
     }).addTo(_photoSetupMap);
     setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch(_e) {} }, 60);
@@ -16391,17 +16374,6 @@ function _parcelZoomTier(zoom) {
   return { mode: 'none', fontRem: 0, interactive: false };
 }
 
-// 2026-07-22: the basemap's own street-name labels (light_only_labels
-// tile — see _initPhotoSetupMap) fall away on the same tier boundary our
-// parcel labels already use, rather than lingering at CARTO's own zoom
-// density through the "zoomed out a little" range. Called from every
-// place _parcelZoomTier's result gets used for a real redraw decision, so
-// panning/zooming stays in sync even without a fresh parcel query.
-function _updatePhotoSetupLabelVisibility(tierMode) {
-  if (!_photoSetupLabelLayer) return;
-  try { _photoSetupLabelLayer.setOpacity(tierMode === 'full' ? 1 : 0); } catch(_e) {}
-}
-
 // The leading house number from a "1256 N Grand Blvd"-style address, for
 // the houseNumber zoom tier. Falls back to the full address if it somehow
 // doesn't start with a number (defensive — shouldn't happen given how
@@ -16416,22 +16388,24 @@ function _parcelDisplayText(addr, mode) {
 }
 
 function _parcelLabelHtml(addr, highlighted, fontRem, mode) {
-  // The selected/highlighted parcel keeps a distinct bordered box — it's
-  // meant to stand out, and there's only ever one on screen at once, so it
-  // doesn't contribute to the "too busy" problem the way a box on every
-  // single label did. Font size AND content here are fixed regardless of
-  // zoom tier — this is a deliberate one-off emphasis (the one parcel you
-  // tapped stays fully readable even if you then zoom out), not part of
-  // the base density tiers.
+  // 2026-07-22: highlighted parcel now renders at the SAME text content
+  // and font size as every other label at the current zoom tier — only
+  // the background/border color marks it as selected. Previously this
+  // always showed the full address at a fixed larger font regardless of
+  // tier, which made the highlighted label balloon in size relative to
+  // its neighbors the moment you zoomed out into house-number-only
+  // territory (everything else shrinks to just a number; this stayed
+  // full-address-sized). Padding is kept minimal — just enough for the
+  // highlight color to read as a highlight, not a size jump.
+  var text = _parcelDisplayText(addr, mode);
   if (highlighted) {
-    return '<div style="background:#ffd54a;border:2.5px solid #1a1a1a;border-radius:5px;padding:3px 7px;font-family:Syne,sans-serif;font-size:0.68rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 2px 10px rgba(0,0,0,0.45);cursor:pointer">' + escHtml(addr) + '</div>';
+    return '<div style="background:#ffd54a;border:1.5px solid #1a1a1a;border-radius:4px;padding:1px 4px;font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,0.4);cursor:pointer">' + escHtml(text) + '</div>';
   }
   // Every other label: plain text, no background/border/bubble — a strong
   // white halo (same technique as the street-name labels) keeps it legible
   // over both basemap and the gold parcel fill without a box. Font size
   // comes from the current zoom tier; content is the full address or just
   // the house number depending on tier mode (see _parcelDisplayText).
-  var text = _parcelDisplayText(addr, mode);
   return '<div style="font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a1a1a;white-space:nowrap;font-weight:800;text-shadow:0 0 2px rgba(255,255,255,0.95),0 0 3px rgba(255,255,255,0.95),0 0 5px rgba(255,255,255,0.85)">' + escHtml(text) + '</div>';
 }
 
@@ -16454,15 +16428,14 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
   var zoom = _photoSetupMap.getZoom();
   var tier = _parcelZoomTier(zoom);
   _photoSetupLastDrawnTierMode = tier.mode; // single source of truth — every draw path updates this
-  _updatePhotoSetupLabelVisibility(tier.mode);
   if (tier.mode === 'none') return { parcels: [] };
 
   // 2026-07-19: no longer queries or draws street lines/name labels here —
-  // the basemap tile layers (cartocdn light_nolabels + light_only_labels,
-  // set up in _initPhotoSetupMap) already render real street lines and
-  // name labels on their own. This overlay was drawing a second, redundant
-  // copy on top of that — same street names doubled up, extra clutter, no
-  // added information. ParcelLookup.queryStreets/_geoJsonLineToLatLngs/
+  // the basemap tile layer (cartocdn light_all, set up in
+  // _initPhotoSetupMap) already renders real street lines and name labels
+  // on its own. This overlay was drawing a second, redundant copy on top
+  // of that — same street names doubled up, extra clutter, no added
+  // information. ParcelLookup.queryStreets/_geoJsonLineToLatLngs/
   // _streetLabelMidpointAndAngle are left defined but unused rather than
   // deleted outright, in case a future need for a custom (non-basemap)
   // street layer comes up — flagged as dead code for a future cleanup
@@ -16531,7 +16504,6 @@ function _onPhotoSetupMapViewChange() {
   var statusEl = document.getElementById('photo-setup-map-status');
   var tier = _parcelZoomTier(_photoSetupMap.getZoom());
   var tierChanged = tier.mode !== _photoSetupLastDrawnTierMode;
-  _updatePhotoSetupLabelVisibility(tier.mode);
 
   if (tier.mode === 'none') {
     if (tierChanged) {
@@ -16641,16 +16613,18 @@ async function _refreshPhotoSetupParcels(gps) {
 // mode matters here now too (2026-07-19) — a house-number-only label
 // ("1256") is much shorter than the full address it used to always size
 // for, so the box needs to actually shrink to match, not just the font.
+// 2026-07-22: highlighted and non-highlighted now size off the SAME
+// displayed text (_parcelDisplayText) and the SAME tier fontRem — only a
+// few px of padding differ, for the highlight's thin border/background,
+// not a real size jump.
 function _parcelIconSize(addr, highlighted, fontRem, mode) {
   fontRem = fontRem || 0.64;
-  var text = highlighted ? (addr || '') : _parcelDisplayText(addr, mode);
-  // Per-char width scales with font size; highlighted keeps extra room for
-  // its border/padding, plain labels are tighter since there's no box.
+  var text = _parcelDisplayText(addr, mode);
   var charW = fontRem * 10.5;
   var w = highlighted
-    ? Math.min(230, Math.max(90, text.length * charW + 26))
+    ? Math.min(210, Math.max(50, text.length * charW + 12))
     : Math.min(210, Math.max(50, text.length * charW + 6));
-  var h = highlighted ? 30 : Math.max(14, Math.round(fontRem * 22) + 4);
+  var h = Math.max(14, Math.round(fontRem * 22) + (highlighted ? 6 : 4));
   return { iconSize: [w, h], iconAnchor: [w/2, h/2] };
 }
 
@@ -16670,7 +16644,7 @@ function _highlightPhotoSetupParcel(addr) {
   var marker = _photoSetupParcelMarkers[addr];
   if (marker) {
     try {
-      var dims = _parcelIconSize(addr, true, 0.68, tier.mode); // highlighted always renders at a fixed size — see _parcelLabelHtml
+      var dims = _parcelIconSize(addr, true, tier.fontRem, tier.mode); // same size as every other label at this tier — see _parcelLabelHtml
       marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true, tier.fontRem, tier.mode), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }));
       marker.setZIndexOffset(500);
     } catch(_e) {}
