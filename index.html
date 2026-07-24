@@ -1729,10 +1729,10 @@ header{
   <div class="modal-sheet" style="padding-bottom:24px">
     <div class="modal-handle"></div>
     <div class="modal-title" id="delete-all-modal-title">🗑 Delete All Stops?</div>
-    <div style="font-size:0.65rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:16px;line-height:1.7">This will permanently remove ALL stops from the app.<br>Completed stops will also be removed.<br>This cannot be undone.</div>
+    <div id="delete-all-modal-body" style="font-size:0.65rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:16px;line-height:1.7">This will permanently remove ALL stops from the app.<br>Completed stops will also be removed.<br>This cannot be undone.</div>
     <div style="display:flex;gap:8px">
       <button onclick="closeDeleteAllModal()" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:none;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
-      <button data-fn="confirmDeleteAll" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--danger);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer">YES, DELETE ALL</button>
+      <button id="delete-all-modal-confirm-btn" data-fn="confirmDeleteAll" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--danger);color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer">YES, DELETE ALL</button>
     </div>
   </div>
 </div>
@@ -2073,7 +2073,8 @@ header{
     <span class="section-title">Stops</span>
     <div style="display:flex;align-items:center;gap:7px">
       <span class="badge-count" id="stop-count">0</span>
-      <button onclick="openDeleteAllModal()" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 ALL</button>
+      <button onclick="openDeleteAllModal('active')" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 CURRENT</button>
+      <button onclick="openDeleteAllModal('all')" style="padding:4px 9px;border:1px solid var(--danger);border-radius:7px;background:none;color:var(--danger);font-family:'Syne',sans-serif;font-weight:700;font-size:0.58rem;cursor:pointer">🗑 ALL</button>
     </div>
   </div>
   <div id="stops-list">
@@ -6529,7 +6530,18 @@ function switchTab(name) {
   if (name === 'map') {
     setTimeout(async () => {
       if (window._routeMap) window._routeMap.invalidateSize();
-      if (_mapNeedsRefresh && !_mapRefreshInProgress) {
+      // 2026-07-23 fix: also force a refresh when routeMap hasn't been
+      // initialized yet at all (!window._routeMap), not just when a route
+      // change flagged one as needed. `_mapNeedsRefresh` starts false on
+      // every fresh page load and only flips true after an add/close/
+      // delete/optimize action — so the very FIRST time the Map tab was
+      // opened after a reload (before any such action had happened),
+      // this branch was skipped entirely, initRouteMap() never ran, and
+      // the tab showed a genuinely empty container until a manual GPS
+      // ping/Optimize/Refresh action called refreshRouteMap() directly.
+      // Once routeMap exists, this condition is false on every later
+      // visit (same as before) and behaves exactly as it did previously.
+      if ((_mapNeedsRefresh || !window._routeMap) && !_mapRefreshInProgress) {
         _mapNeedsRefresh = false;
         await refreshRouteMap();
       } else {
@@ -8746,7 +8758,26 @@ function _initClock() {
 // SECTION: delete-all
 // DELETE ALL
 // ============================================================
-function openDeleteAllModal() {
+// 2026-07-23: 'all' | 'active' — set by openDeleteAllModal, read by
+// confirmDeleteAll. Reusing one modal/confirm-flow for both Delete All
+// and the new Delete Current button rather than duplicating the modal
+// HTML + confirm function for what's otherwise identical behavior.
+var _deleteStopsModalMode = 'all';
+
+function openDeleteAllModal(mode) {
+  _deleteStopsModalMode = (mode === 'active') ? 'active' : 'all';
+  var titleEl = document.getElementById('delete-all-modal-title');
+  var bodyEl = document.getElementById('delete-all-modal-body');
+  var confirmBtn = document.getElementById('delete-all-modal-confirm-btn');
+  if (_deleteStopsModalMode === 'active') {
+    if (titleEl) titleEl.textContent = '🗑 Delete Current Stops?';
+    if (bodyEl) bodyEl.innerHTML = 'This will permanently remove all ACTIVE (not yet completed) stops.<br>Completed stops will NOT be touched.<br>This cannot be undone.';
+    if (confirmBtn) confirmBtn.textContent = 'YES, DELETE CURRENT';
+  } else {
+    if (titleEl) titleEl.textContent = '🗑 Delete All Stops?';
+    if (bodyEl) bodyEl.innerHTML = 'This will permanently remove ALL stops from the app.<br>Completed stops will also be removed.<br>This cannot be undone.';
+    if (confirmBtn) confirmBtn.textContent = 'YES, DELETE ALL';
+  }
   var modal = document.getElementById('delete-all-modal');
   modal.style.display = 'flex';
   Accessibility.modalOpened(modal, { onEscape: closeDeleteAllModal });
@@ -8759,6 +8790,21 @@ function closeDeleteAllModal() {
 }
 
 function confirmDeleteAll() {
+  if (_deleteStopsModalMode === 'active') {
+    var count = stops.filter(function(s) { return !s.done; }).length;
+    if (!count) { closeDeleteAllModal(); return; }
+    stops = stops.filter(function(s) { return s.done; });
+    routeOrder = routeOrder.filter(function(id) { return stops.some(function(s) { return s.id === id; }); });
+    pinnedStartId = null; // almost certainly pointed at an active stop that just got removed
+    LS.remove('inspector-pinned-start');
+    _scrubPinnedIdsAfterDelete(null);
+    saveStops();
+    renderAll();
+    markRouteChanged();
+    closeDeleteAllModal();
+    showToast(count + ' active stop' + (count === 1 ? '' : 's') + ' deleted');
+    return;
+  }
   stops = [];
   routeOrder = [];
   pinnedStartId = null;
@@ -16401,6 +16447,7 @@ var _photoSetupMap = null;
 var _photoSetupPinMarker = null;   // the inspector's GPS position — persists across zoom/pan redraws
 var _photoSetupMapLayers = [];     // parcel polygons + labels + street lines ONLY — cleared/rebuilt on every redraw
 var _photoSetupParcelMarkers = {}; // address -> Leaflet marker, so the candidate list can highlight one on tap
+var _photoSetupParcelOrientation = {}; // address -> 'portrait' | 'landscape', computed at draw time — see _parcelOrientation. Read back by _highlightPhotoSetupParcel so re-icon-ing on highlight/unhighlight keeps the same rotation.
 var _photoSetupHighlightedAddr = null;
 // Set by openStampedCameraForStop when the stop being photographed already
 // has resolved coordinates — { lat, lng, address } or null. Non-null tells
@@ -16470,6 +16517,7 @@ function _clearPhotoSetupMapLayers() {
   _photoSetupMapLayers.forEach(function(l) { try { _photoSetupMap.removeLayer(l); } catch(_e) {} });
   _photoSetupMapLayers = [];
   _photoSetupParcelMarkers = {};
+  _photoSetupParcelOrientation = {};
 }
 
 // Radius (meters) to search, derived from what's actually visible on
@@ -16505,21 +16553,61 @@ var _PHOTO_SETUP_PRESS_ZOOM = 1;
 // started (in fractional "presses" of the +/- control — NOT rounded to
 // whole clicks, since pinch/scroll-wheel zoom can land between them):
 //   at or inside standard/baseline zoom (0 presses out, or zoomed IN past
-//     it) : full address (house # + street), tappable — Property Search
-//     popup works
-//   any amount zoomed out beyond standard, up to 1 press out : HOUSE
-//     NUMBER ONLY, not tappable — the content itself changes here, not
-//     just the font size. This is deliberately sensitive — even a small
-//     zoom-out nudge (not just a full button click) drops the street name.
-//   beyond 1 press out : no parcel labels (or parcel/street data) at all
+//     it) : abbreviated address (house # + short street code), tappable —
+//     Property Search popup + Select button both work
+//   any amount zoomed out beyond standard, up to 2 presses out : HOUSE
+//     NUMBER ONLY, but still tappable (2026-07-23: extended from 1 press
+//     to 2, and made interactive here too, on explicit request — the
+//     Select/Property-Search popup needs to stay usable through a couple
+//     of zoom-out clicks, not just at full zoom). The label content
+//     itself changes right at 0 presses regardless — this is deliberately
+//     sensitive, even a small zoom-out nudge (not just a full button
+//     click) drops the abbreviated street code down to house-number-only.
+//   beyond 2 presses out : no parcel labels (or parcel/street data) at all
 //     — _drawPhotoSetupParcels and _onPhotoSetupMapViewChange
 //     both skip the network query entirely at this tier, so zooming out
 //     further to see the whole city doesn't spam the ArcGIS endpoint for
 //     an ever-growing empty result.
+// 2026-07-23: approximates a parcel's footprint as portrait or landscape
+// by comparing its bounding-box extents in real-world meters — longitude
+// degrees cover less ground than latitude degrees the farther you are
+// from the equator, and St. Louis (~38.6°N) is far enough that skipping
+// that correction would meaningfully skew the comparison. This is an
+// axis-aligned approximation, not a true oriented bounding box, so a
+// diagonally-rotated parcel could be misjudged — but St. Louis' platted
+// lots are overwhelmingly grid-aligned, so this is a reasonable trade for
+// staying simple. Near-square parcels (within ~15%) are left 'landscape'
+// (i.e. not rotated) rather than guessing, since a vertical label on an
+// ambiguously-shaped lot is more confusing than helpful.
+function _parcelOrientation(geometry, centerLat) {
+  try {
+    if (!geometry) return 'landscape';
+    var ring = null;
+    if (geometry.type === 'Polygon') ring = geometry.coordinates[0];
+    else if (geometry.type === 'MultiPolygon' && geometry.coordinates.length) ring = geometry.coordinates[0][0];
+    if (!ring || ring.length < 3) return 'landscape';
+    var minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    for (var i = 0; i < ring.length; i++) {
+      var lng = ring[i][0], lat = ring[i][1];
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+    var metersPerDegLat = 110540;
+    var metersPerDegLng = 111320 * Math.cos((centerLat || 38.6) * Math.PI / 180);
+    var widthM  = (maxLng - minLng) * metersPerDegLng;
+    var heightM = (maxLat - minLat) * metersPerDegLat;
+    if (widthM <= 0 || heightM <= 0) return 'landscape';
+    if (heightM > widthM * 1.15) return 'portrait';
+    return 'landscape';
+  } catch(_e) { return 'landscape'; }
+}
+
 function _parcelZoomTier(zoom) {
   var presses = (_photoSetupBaselineZoom - zoom) / _PHOTO_SETUP_PRESS_ZOOM;
   if (presses <= 0) return { mode: 'full', fontRem: 0.64, interactive: true };
-  if (presses <= 1) return { mode: 'houseNumber', fontRem: 0.58, interactive: false };
+  if (presses <= 2) return { mode: 'houseNumber', fontRem: 0.58, interactive: true };
   return { mode: 'none', fontRem: 0, interactive: false };
 }
 
@@ -16528,15 +16616,81 @@ function _parcelZoomTier(zoom) {
 // doesn't start with a number (defensive — shouldn't happen given how
 // ParcelLookup.queryParcels builds these strings, but a label showing
 // SOMETHING beats a label silently showing nothing).
+// 2026-07-23: 'full' tier no longer shows the complete address — see
+// _abbreviatedParcelLabel below. That was a major source of crowding even
+// at the least-zoomed-out tier, and most of a full address (the street
+// type, the rest of a long name) doesn't add much identifying value once
+// you already know the house number and roughly which street.
 function _parcelDisplayText(addr, mode) {
   if (mode === 'houseNumber') {
     var m = (addr || '').match(/^\d+/);
-    if (m) return m[0];
+    return m ? m[0] : (addr || '');
+  }
+  if (mode === 'full') {
+    return _abbreviatedParcelLabel(addr);
   }
   return addr || '';
 }
 
-function _parcelLabelHtml(addr, highlighted, fontRem, mode) {
+// Splits a leading house number off a raw address string —
+// "1415 N 13TH ST" -> { num: "1415", rest: "N 13TH ST" }. Falls back to
+// an empty num if the address doesn't start with digits (the rare
+// street-name-only fallback from ParcelLookup — see _addrFromRange /
+// _fullStreetNameFromParcel).
+function _splitHouseNumber(addr) {
+  var m = (addr || '').match(/^(\d+)\s*(.*)$/);
+  if (!m) return { num: '', rest: addr || '' };
+  return { num: m[1], rest: m[2] };
+}
+
+var _STREET_TYPE_WORDS = ['ST','STREET','AVE','AVENUE','BLVD','BOULEVARD','DR','DRIVE','CT','COURT','LN','LANE','PL','PLACE','RD','ROAD','PKWY','PARKWAY','TER','TERRACE','WAY','CIR','CIRCLE','LOOP','HWY','HIGHWAY','PLZ','PLAZA','ROW','WALK','SQ','SQUARE','EXPY','EXPRESSWAY','FWY','FREEWAY','ALY','ALLEY','TRL','TRAIL'];
+var _DIRECTION_WORDS = { N:'N', NORTH:'N', S:'S', SOUTH:'S', E:'E', EAST:'E', W:'W', WEST:'W' };
+
+// Builds the compact "house# + abbreviated street" label used at the
+// 'full' zoom tier — e.g. "2801 Dal" for 2801 Dalton, "1520 Mar" for 1520
+// Market, "1415 N13" for 1415 North 13th. The North/South (or East/West)
+// prefix is kept — and not abbreviated away like everything else — only
+// when it's actually needed to tell two streets apart: St. Louis' grid
+// has both a North and a South side for its numbered streets (and for
+// some named ones too), meeting at Market/the river, so dropping the
+// direction there would make the label ambiguous. Ordinary named streets
+// don't have that problem, so they just get their first 3 letters.
+function _abbreviatedParcelLabel(addr) {
+  var split = _splitHouseNumber(addr);
+  var num = split.num;
+  var rest = split.rest.trim();
+  if (!rest) return num || (addr || '');
+
+  var tokens = rest.split(/\s+/).filter(Boolean);
+  // Drop a trailing street-type word (ST/AVE/BLVD/...) if there's still
+  // something left afterward to identify the street by.
+  if (tokens.length > 1) {
+    var lastUpper = tokens[tokens.length - 1].toUpperCase().replace(/[.,]/g, '');
+    if (_STREET_TYPE_WORDS.indexOf(lastUpper) !== -1) tokens.pop();
+  }
+  if (!tokens.length) return num || (addr || '');
+
+  var firstUpper = tokens[0].toUpperCase();
+  var dirLetter = _DIRECTION_WORDS[firstUpper];
+  var core = (dirLetter && tokens.length > 1) ? tokens[1] : tokens[0];
+  var coreIsNumbered = /^\d/.test(core);
+
+  var abbrev;
+  if (dirLetter && coreIsNumbered) {
+    var digits = core.match(/^\d+/);
+    abbrev = dirLetter + (digits ? digits[0] : core);
+  } else if (dirLetter) {
+    abbrev = dirLetter + core.charAt(0).toUpperCase() + core.slice(1, 3).toLowerCase();
+  } else if (coreIsNumbered) {
+    var digitsOnly = core.match(/^\d+/);
+    abbrev = digitsOnly ? digitsOnly[0] : core;
+  } else {
+    abbrev = core.charAt(0).toUpperCase() + core.slice(1, 3).toLowerCase();
+  }
+  return num ? (num + ' ' + abbrev) : abbrev;
+}
+
+function _parcelLabelHtml(addr, highlighted, fontRem, mode, vertical) {
   // 2026-07-22: highlighted parcel now renders at the SAME text content
   // and font size as every other label at the current zoom tier — only
   // the background/border color marks it as selected. Previously this
@@ -16547,15 +16701,25 @@ function _parcelLabelHtml(addr, highlighted, fontRem, mode) {
   // full-address-sized). Padding is kept minimal — just enough for the
   // highlight color to read as a highlight, not a size jump.
   var text = _parcelDisplayText(addr, mode);
+  var inner;
   if (highlighted) {
-    return '<div style="background:#ffd54a;border:1.5px solid #1a1a1a;border-radius:4px;padding:1px 4px;font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,0.4);cursor:pointer">' + escHtml(text) + '</div>';
+    inner = '<div style="background:#ffd54a;border:1.5px solid #1a1a1a;border-radius:4px;padding:1px 4px;font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a0f00;white-space:nowrap;font-weight:800;box-shadow:0 1px 5px rgba(0,0,0,0.4);cursor:pointer">' + escHtml(text) + '</div>';
+  } else {
+    // Every other label: plain text, no background/border/bubble — a strong
+    // white halo (same technique as the street-name labels) keeps it legible
+    // over both basemap and the gold parcel fill without a box. Font size
+    // comes from the current zoom tier; content comes from _parcelDisplayText.
+    inner = '<div style="font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a1a1a;white-space:nowrap;font-weight:800;text-shadow:0 0 2px rgba(255,255,255,0.95),0 0 3px rgba(255,255,255,0.95),0 0 5px rgba(255,255,255,0.85)">' + escHtml(text) + '</div>';
   }
-  // Every other label: plain text, no background/border/bubble — a strong
-  // white halo (same technique as the street-name labels) keeps it legible
-  // over both basemap and the gold parcel fill without a box. Font size
-  // comes from the current zoom tier; content is the full address or just
-  // the house number depending on tier mode (see _parcelDisplayText).
-  return '<div style="font-family:Syne,sans-serif;font-size:' + fontRem + 'rem;color:#1a1a1a;white-space:nowrap;font-weight:800;text-shadow:0 0 2px rgba(255,255,255,0.95),0 0 3px rgba(255,255,255,0.95),0 0 5px rgba(255,255,255,0.85)">' + escHtml(text) + '</div>';
+  if (!vertical) return inner;
+  // 2026-07-23: portrait-oriented parcel (see _parcelOrientation) — rotate
+  // the label to run along the lot's long axis instead of overflowing
+  // sideways across a narrow footprint. The inner div keeps its natural
+  // horizontal layout and just gets spun -90deg; the OUTER box that
+  // Leaflet positions/sizes gets the width/height already swapped by
+  // _parcelIconSize (vertical=true there), so the rotated text ends up
+  // centered inside a tall-not-wide footprint instead of overflowing it.
+  return '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%"><div style="transform:rotate(-90deg)">' + inner + '</div></div>';
 }
 
 // Fetches + draws parcels for the given center + radius. Does NOT touch
@@ -16595,28 +16759,37 @@ async function _drawPhotoSetupParcels(centerLat, centerLng, radiusM) {
   } catch(_e) {}
 
   // Parcel outlines + address labels. Detail level (font size, label
-  // content, whether the tap-to-search popup is even wired up) depends on
-  // how far zoomed out the map currently is relative to where it opened —
-  // see _parcelZoomTier. At a glance-out zoom level this deliberately does
-  // LESS, not more: no popup binding at all, so a zoomed-out view is free
-  // to pan/zoom without a label grabbing the tap.
+  // content) depends on how far zoomed out the map currently is relative
+  // to where it opened — see _parcelZoomTier. The popup (Select +
+  // Property Search) stays tappable through the 'full' and 'houseNumber'
+  // tiers — up to 2 zoom-out presses — and only goes away entirely at the
+  // 'none' tier, so a zoomed-out glance-around view is still usable for
+  // picking an address, not just the initial full-zoom view.
   parcels.forEach(function(p) {
     try {
       if (p.geometry) {
         var poly = L.geoJSON(p.geometry, { style: { color:'#a85d00', weight:2, fillOpacity:0.12 }, interactive:false }).addTo(_photoSetupMap);
         _photoSetupMapLayers.push(poly);
       }
+      var orientation = _parcelOrientation(p.geometry, p.lat);
+      _photoSetupParcelOrientation[p.address] = orientation;
+      var vertical = orientation === 'portrait';
       var highlighted = (p.address === _photoSetupHighlightedAddr);
-      var effFontRem = highlighted ? 0.68 : tier.fontRem; // highlighted always renders at a fixed size — see _parcelLabelHtml
-      var dims = _parcelIconSize(p.address, highlighted, effFontRem, tier.mode);
+      // Same tier.fontRem for size AND html — an initial draw that happens
+      // to already be highlighted (e.g. a stop-anchor auto-highlight) needs
+      // to match the same fix applied in _highlightPhotoSetupParcel, or the
+      // box gets sized for the old fixed-larger highlight font while the
+      // text itself renders at the tier's actual size.
+      var dims = _parcelIconSize(p.address, highlighted, tier.fontRem, tier.mode, vertical);
       var marker = L.marker([p.lat, p.lng], {
-        icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted, tier.fontRem, tier.mode), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }),
+        icon: L.divIcon({ className: '', html: _parcelLabelHtml(p.address, highlighted, tier.fontRem, tier.mode, vertical), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }),
         interactive: tier.interactive,
         zIndexOffset: highlighted ? 500 : 0
       }).addTo(_photoSetupMap);
       if (tier.interactive) {
         marker.bindPopup(
           '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#5c3400;margin-bottom:6px">' + escHtml(p.address) + '</div>' +
+          '<button data-fn="selectPhotoSetupParcelFromPopup" data-arg="' + escHtml(p.address) + '" style="width:100%;padding:7px 10px;margin-bottom:6px;background:linear-gradient(135deg,#1a5e20,#2e7d32);border:none;border-radius:7px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">✓ Select This Address</button>' +
           '<button data-fn="openPropertySearch" data-arg="' + escHtml(p.address) + '" style="width:100%;padding:7px 10px;background:linear-gradient(135deg,#1a5276,#2874a6);border:none;border-radius:7px;color:white;font-family:Syne,sans-serif;font-weight:800;font-size:0.6rem;cursor:pointer">🔍 Property Search</button>',
           { closeButton: true, autoPan: true }
         );
@@ -16766,7 +16939,12 @@ async function _refreshPhotoSetupParcels(gps) {
 // displayed text (_parcelDisplayText) and the SAME tier fontRem — only a
 // few px of padding differ, for the highlight's thin border/background,
 // not a real size jump.
-function _parcelIconSize(addr, highlighted, fontRem, mode) {
+// 2026-07-23: added a `vertical` param — for portrait-oriented parcels
+// (see _parcelOrientation) the label gets rotated 90deg in
+// _parcelLabelHtml, so the box Leaflet actually positions/sizes needs its
+// width and height swapped from the normal horizontal-text calculation,
+// or the rotated text would overflow a box sized for the wrong axis.
+function _parcelIconSize(addr, highlighted, fontRem, mode, vertical) {
   fontRem = fontRem || 0.64;
   var text = _parcelDisplayText(addr, mode);
   var charW = fontRem * 10.5;
@@ -16774,6 +16952,7 @@ function _parcelIconSize(addr, highlighted, fontRem, mode) {
     ? Math.min(210, Math.max(50, text.length * charW + 12))
     : Math.min(210, Math.max(50, text.length * charW + 6));
   var h = Math.max(14, Math.round(fontRem * 22) + (highlighted ? 6 : 4));
+  if (vertical) return { iconSize: [h, w], iconAnchor: [h/2, w/2] };
   return { iconSize: [w, h], iconAnchor: [w/2, h/2] };
 }
 
@@ -16783,8 +16962,9 @@ function _highlightPhotoSetupParcel(addr) {
     var prev = _photoSetupParcelMarkers[_photoSetupHighlightedAddr];
     if (prev) {
       try {
-        var prevDims = _parcelIconSize(_photoSetupHighlightedAddr, false, tier.fontRem, tier.mode);
-        prev.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(_photoSetupHighlightedAddr, false, tier.fontRem, tier.mode), iconSize: prevDims.iconSize, iconAnchor: prevDims.iconAnchor }));
+        var prevVertical = _photoSetupParcelOrientation[_photoSetupHighlightedAddr] === 'portrait';
+        var prevDims = _parcelIconSize(_photoSetupHighlightedAddr, false, tier.fontRem, tier.mode, prevVertical);
+        prev.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(_photoSetupHighlightedAddr, false, tier.fontRem, tier.mode, prevVertical), iconSize: prevDims.iconSize, iconAnchor: prevDims.iconAnchor }));
         prev.setZIndexOffset(0);
       } catch(_e) {}
     }
@@ -16793,8 +16973,9 @@ function _highlightPhotoSetupParcel(addr) {
   var marker = _photoSetupParcelMarkers[addr];
   if (marker) {
     try {
-      var dims = _parcelIconSize(addr, true, tier.fontRem, tier.mode); // same size as every other label at this tier — see _parcelLabelHtml
-      marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true, tier.fontRem, tier.mode), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }));
+      var vertical = _photoSetupParcelOrientation[addr] === 'portrait';
+      var dims = _parcelIconSize(addr, true, tier.fontRem, tier.mode, vertical); // same size as every other label at this tier — see _parcelLabelHtml
+      marker.setIcon(L.divIcon({ className: '', html: _parcelLabelHtml(addr, true, tier.fontRem, tier.mode, vertical), iconSize: dims.iconSize, iconAnchor: dims.iconAnchor }));
       marker.setZIndexOffset(500);
     } catch(_e) {}
   }
@@ -16805,6 +16986,17 @@ function _selectPhotoSetupAddr(addr) {
   if (addrField) addrField.value = addr;
   showToast('📍 Address set');
   _highlightPhotoSetupParcel(addr);
+}
+
+// 2026-07-23: the parcel popup's "Select This Address" button — same
+// effect as tapping a candidate in the address list below the map
+// (fills the address field, highlights the parcel), just reachable
+// straight from the map itself. Closes the popup afterward so the map
+// isn't left with a popup sitting over the parcel that was just picked.
+function selectPhotoSetupParcelFromPopup(addr) {
+  _selectPhotoSetupAddr(addr);
+  var marker = _photoSetupParcelMarkers[addr];
+  if (marker) { try { marker.closePopup(); } catch(_e) {} }
 }
 
 // 2026-07-22: auto-highlights the parcel matching a stop's address after
@@ -18822,12 +19014,34 @@ async function _populateSurveyAreaPicker() {
     }
     if (!items.length) { _showSurveyPickerLoadError(sel); return; }
     items.sort(function(a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
+
+    // 2026-07-23: pin the last 6 distinct picks for this area type to the
+    // top, in their own optgroup, ahead of the full alphabetical list.
+    // Shown regardless of whether GeoCache's current fetch happens to
+    // include a matching item — this is just a shortcut back to what was
+    // picked before, not a re-validation that it still exists.
+    var recent = _getRecentSurveyAreas(type);
+    if (recent.length) {
+      var recentGroup = document.createElement('optgroup');
+      recentGroup.label = 'Recent';
+      recent.forEach(function(n) {
+        var opt = document.createElement('option');
+        opt.value = (n.num != null) ? String(n.num) : '';
+        opt.textContent = n.name;
+        opt.dataset.name = n.name;
+        recentGroup.appendChild(opt);
+      });
+      sel.appendChild(recentGroup);
+    }
+
+    var allGroup = recent.length ? document.createElement('optgroup') : null;
+    if (allGroup) { allGroup.label = 'All ' + AREA_TYPE_LABELS[type] + 's'; sel.appendChild(allGroup); }
     items.forEach(function(n) {
       var opt = document.createElement('option');
       opt.value = (n.num != null) ? String(n.num) : '';
       opt.textContent = n.name;
       opt.dataset.name = n.name;
-      sel.appendChild(opt);
+      (allGroup || sel).appendChild(opt);
     });
   } catch(_e) {
     // 2026-07-18: this used to fail completely silently — the placeholder
@@ -18873,6 +19087,7 @@ function startSurveyFromPicker() {
   // gets the same treatment even though it wasn't the one reported.
   try {
     SurveySession.start(type, num, name);
+    try { _recordRecentSurveyArea(type, num, name); } catch(_e) {}
     // Fresh session starts with tracking un-paused, regardless of how a
     // prior session was left — otherwise a forgotten pause silently
     // carries over and the next day's survey collects no trail at all.
@@ -18957,6 +19172,33 @@ function endActiveSurvey() {
 // the type selector is one tap either way.
 var _surveyPickerAreaType = 'neighborhood';
 var AREA_TYPE_LABELS = { neighborhood: 'Neighborhood', ward: 'Ward', policeDistrict: 'Police District' };
+
+// 2026-07-23: remembers the last 6 distinct areas started per area type
+// (neighborhood/ward/policeDistrict tracked separately — the picker is
+// shared code for all three, so this generalizes rather than special-
+// casing just neighborhoods), so _populateSurveyAreaPicker can pin them
+// to the top of the dropdown. Most-recent-first, deduped by name.
+var SURVEY_RECENT_AREAS_MAX = 6;
+function _getRecentSurveyAreas(type) {
+  try {
+    var raw = LS.get('survey-recent-areas');
+    var all = raw ? JSON.parse(raw) : {};
+    return Array.isArray(all[type]) ? all[type] : [];
+  } catch(_e) { return []; }
+}
+function _recordRecentSurveyArea(type, num, name) {
+  if (!name) return;
+  try {
+    var raw = LS.get('survey-recent-areas');
+    var all = raw ? JSON.parse(raw) : {};
+    var list = Array.isArray(all[type]) ? all[type] : [];
+    list = list.filter(function(e) { return e.name !== name; }); // dedupe — moves existing entry to front instead of listing it twice
+    list.unshift({ num: (num != null ? num : null), name: name });
+    if (list.length > SURVEY_RECENT_AREAS_MAX) list = list.slice(0, SURVEY_RECENT_AREAS_MAX);
+    all[type] = list;
+    LS.set('survey-recent-areas', JSON.stringify(all));
+  } catch(_e) {}
+}
 
 function setSurveyAreaTypeUI(type) {
   if (SurveySession.AREA_TYPES.indexOf(type) === -1) return;
@@ -20177,8 +20419,22 @@ window._recordChronicFromSession = _recordChronicFromSession;
 // static GeoCache polygon or a fixed custom-address list). Redrawn on
 // settings changes, new recorded photos, and Map tab open.
 var _chronicMapLayer = null;
+// 2026-07-23: defaults to VISIBLE now — same "just there when you open the
+// map" behavior as the other layers, rather than requiring a first-ever
+// manual opt-in. An explicit off (LS '0') still stays off across reloads;
+// this only changes the behavior for someone who's never touched the
+// toggle at all. Note: the "I keep having to re-enable it" symptom this
+// was meant to fix was actually a SEPARATE bug in the Map tab's initial
+// load path (see the switchTab 'map' branch) — this stored preference was
+// already being honored correctly, it just wasn't reliably re-checked on
+// a fresh tab open when the route map itself hadn't initialized yet.
+// Both are fixed together here.
 function _isChronicLayerVisible() {
-  try { return LS.get('chronic-layer-visible') === '1'; } catch(_e) { return false; }
+  try {
+    var v = LS.get('chronic-layer-visible');
+    if (v === null || v === undefined) return true;
+    return v === '1';
+  } catch(_e) { return true; }
 }
 function _setChronicLayerVisible(v) {
   try { LS.set('chronic-layer-visible', v ? '1' : '0'); } catch(_e) {}
