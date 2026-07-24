@@ -19795,8 +19795,15 @@ async function _fitMapToActiveSurveyArea() {
   if (_surveyAreaOutlineLayer) { try { routeMap.removeLayer(_surveyAreaOutlineLayer); } catch(_e) {} _surveyAreaOutlineLayer = null; }
   var active = SurveySession.getActive();
   if (!active) { _currentSurveyAreaRings = null; _currentSurveyAreaRingsKey = null; return; }
+  var _preAwaitAreaKey = SurveySession.areaKey(active);
   var feature = await _findActiveSurveyAreaFeature();
   if (!feature || !feature.geometry) return;
+  // Recheck after the await: the survey may have ended or switched areas
+  // while _findActiveSurveyAreaFeature() was in flight. If so, bail out
+  // without drawing — otherwise this stale lookup redraws the gray mask
+  // (or the wrong area's mask) after the session already moved on.
+  var _postAwaitActive = SurveySession.getActive();
+  if (!_postAwaitActive || SurveySession.areaKey(_postAwaitActive) !== _preAwaitAreaKey) return;
 
   var rings = _geoJsonPolygonRingsLatLng(feature.geometry);
   if (!rings.length) return;
