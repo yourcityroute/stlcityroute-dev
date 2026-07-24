@@ -2536,6 +2536,19 @@ header{
       </div>
     </div>
 
+    <!-- Ward / Neighborhood / District Report — reuses the period already
+         selected above in Period Reports (Day/Week/Month/Year + ‹ › nav)
+         rather than duplicating a second period navigator; adds the one
+         axis Period Reports and Coverage Report each lack on their own:
+         period AND area together. -->
+    <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.68rem;color:var(--forest);margin-bottom:6px">📍 Ward / Neighborhood / District Report</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:10px;line-height:1.5">
+        One area, one period — stops, chronic hotspots, and coverage for just the ward/neighborhood/district you pick, using the period selected above. Good for a per-alderperson weekly report.
+      </div>
+      <button data-fn="openAreaPeriodReportModal" style="width:100%;padding:10px;background:var(--forest);border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;color:white;cursor:pointer">📍 Build Area Report</button>
+    </div>
+
     <!-- Storage usage -->
     <div style="background:white;border-radius:10px;padding:12px 14px;margin:0 2px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -6854,6 +6867,8 @@ setTimeout(function() {
                     if (s.neighborhood == null && meta.neighborhood != null)         s.neighborhood     = meta.neighborhood;
                     if (s.neighborhoodName == null && meta.neighborhoodName != null) s.neighborhoodName = meta.neighborhoodName;
                     if (s.ward == null && meta.ward != null)                         s.ward             = meta.ward;
+                    if (s.policeDistrict == null && meta.policeDistrict != null)     s.policeDistrict   = meta.policeDistrict;
+                    if (s.fireDistrict == null && meta.fireDistrict != null)         s.fireDistrict     = meta.fireDistrict;
                     s.geoLookedUpAt = s.geoLookedUpAt || new Date().toISOString();
                     if (s.ward == null) s.geoBackfilledAt = new Date().toISOString();
                   }
@@ -8052,6 +8067,8 @@ async function _populateGeoMetadata(stop) {
     if (stop.neighborhood == null && meta.neighborhood != null)         { stop.neighborhood     = meta.neighborhood;     changed = true; }
     if (stop.neighborhoodName == null && meta.neighborhoodName != null) { stop.neighborhoodName = meta.neighborhoodName; changed = true; }
     if (stop.ward == null && meta.ward != null)                         { stop.ward             = meta.ward;             changed = true; }
+    if (stop.policeDistrict == null && meta.policeDistrict != null)     { stop.policeDistrict   = meta.policeDistrict;   changed = true; }
+    if (stop.fireDistrict == null && meta.fireDistrict != null)         { stop.fireDistrict     = meta.fireDistrict;     changed = true; }
     stop.geoLookedUpAt = stop.geoLookedUpAt || new Date().toISOString();
     if (alreadyLookedUp && wardMissing) stop.geoBackfilledAt = new Date().toISOString();
     if (changed) saveStops();
@@ -19171,7 +19188,7 @@ function endActiveSurvey() {
 // remembering the last choice across app sessions — deliberately simple;
 // the type selector is one tap either way.
 var _surveyPickerAreaType = 'neighborhood';
-var AREA_TYPE_LABELS = { neighborhood: 'Neighborhood', ward: 'Ward', policeDistrict: 'Police District' };
+var AREA_TYPE_LABELS = { neighborhood: 'Neighborhood', ward: 'Ward', policeDistrict: 'Police District', fireDistrict: 'Fire District' };
 
 // 2026-07-23: remembers the last 6 distinct areas started per area type
 // (neighborhood/ward/policeDistrict tracked separately — the picker is
@@ -19461,6 +19478,32 @@ var SurveyCoverage = (function() {
     } catch(_e) { return []; }
   }
 
+  // Every stored trail, across every area a survey was ever run in —
+  // used by AreaPeriodReport to geographically clip breadcrumb points
+  // against a DIFFERENT area's polygon (e.g. pulling the Ward-3-crossing
+  // portion of a Wells-Goodfellow survey's trail into a Ward 3 report).
+  // Deliberately returns bare point arrays, not {areaKey, trail} pairs —
+  // callers doing geographic clipping don't care which area a point was
+  // originally recorded under, only where it actually is. Relies on
+  // LS.keys() (already used elsewhere for backup/export enumeration) to
+  // find every 'survey-breadcrumb:*' key, which naturally covers both
+  // the composite-key format and pre-2026-07-19 legacy bare-name keys
+  // without needing to special-case either.
+  function getAllTrails() {
+    var out = [];
+    try {
+      var keys = (typeof LS !== 'undefined' && typeof LS.keys === 'function') ? LS.keys() : [];
+      keys.forEach(function(k) {
+        if (k.indexOf('survey-breadcrumb:') !== 0) return;
+        try {
+          var arr = JSON.parse(LS.get(k) || '[]');
+          if (Array.isArray(arr) && arr.length) out.push(arr);
+        } catch(_e) {}
+      });
+    } catch(_e) {}
+    return out;
+  }
+
   // Appends a point if it's the first one, or far enough from the last
   // stored point. Returns true if a point was actually added (caller uses
   // this to know whether a map redraw is worthwhile). Point shape is
@@ -19498,6 +19541,7 @@ var SurveyCoverage = (function() {
 
   return {
     getBreadcrumb: getBreadcrumb,
+    getAllTrails: getAllTrails,
     addBreadcrumbPoint: addBreadcrumbPoint,
     clearBreadcrumb: clearBreadcrumb,
     SEGMENT_GAP_MS: SEGMENT_GAP_MS
@@ -19988,7 +20032,7 @@ var ChronicIndex = (function() {
     if (!key) return null;
     var entry = _readEntry(key) || {
       displayLabel: null, address: null, gps: null,
-      neighborhoodName: null, ward: null, photos: []
+      neighborhoodName: null, ward: null, policeDistrict: null, fireDistrict: null, photos: []
     };
     // Keep the freshest known metadata — an address that arrives later
     // (e.g. this location was first seen GPS-only) upgrades the entry.
@@ -19996,6 +20040,8 @@ var ChronicIndex = (function() {
     if (meta.gps) entry.gps = meta.gps;
     if (meta.neighborhoodName) entry.neighborhoodName = meta.neighborhoodName;
     if (meta.ward) entry.ward = meta.ward;
+    if (meta.policeDistrict) entry.policeDistrict = meta.policeDistrict;
+    if (meta.fireDistrict) entry.fireDistrict = meta.fireDistrict;
     entry.displayLabel = entry.address || (entry.gps ? ('~' + entry.gps.lat.toFixed(4) + ', ' + entry.gps.lng.toFixed(4)) : key);
 
     entry.photos.push({
@@ -20050,6 +20096,8 @@ var ChronicIndex = (function() {
     target.gps = target.gps || source.gps;
     target.neighborhoodName = target.neighborhoodName || source.neighborhoodName;
     target.ward = target.ward || source.ward;
+    target.policeDistrict = target.policeDistrict || source.policeDistrict;
+    target.fireDistrict = target.fireDistrict || source.fireDistrict;
     target.displayLabel = target.address || target.displayLabel;
     _writeEntry(targetKey, target);
     try { LS.set(_entryKey(sourceKey), ''); } catch(_e) {}
@@ -20359,15 +20407,22 @@ window.ChronicReport = ChronicReport;
 
 // Called from the two PhotoStamp commit points below. Idempotent per shot
 // via the chronicRecorded flag set on the caller's own object.
-function _recordChronicFromContext() {
+async function _recordChronicFromContext() {
   if (_photoContext.chronicRecorded) return;
   try {
     var active = (typeof SurveySession !== 'undefined') ? SurveySession.getActive() : null;
+    var geo = null;
+    if (_photoContext.gps && typeof _photoContext.gps.lat === 'number' && typeof geoLookup === 'function') {
+      try { geo = await geoLookup(_photoContext.gps.lat, _photoContext.gps.lng); } catch(_g) {}
+    }
     ChronicIndex.record({
       address: _photoContext.address || null,
       gps: _photoContext.gps || null,
       ts: (_photoContext.capturedAt || new Date()).toISOString(),
       neighborhoodName: active ? active.neighborhoodName : null,
+      ward: geo ? geo.ward : null,
+      policeDistrict: geo ? geo.policeDistrict : null,
+      fireDistrict: geo ? geo.fireDistrict : null,
       caseType: _photoContext.caseType || null,
       stopId: _photoContext.stopId
     });
@@ -20389,24 +20444,32 @@ function _recordChronicFromContext() {
 // Records every not-yet-recorded shot in the active session — used by the
 // iOS batch-share success path, where individual shots never went through
 // downloadStampedPhoto() (see shareStampedPhoto below).
-function _recordChronicFromSession() {
+async function _recordChronicFromSession() {
   if (!_photoSession.active || !Array.isArray(_photoSession.shots)) return;
   try {
     var active = (typeof SurveySession !== 'undefined') ? SurveySession.getActive() : null;
-    _photoSession.shots.forEach(function(shot) {
-      if (shot.chronicRecorded) return;
+    for (var si = 0; si < _photoSession.shots.length; si++) {
+      var shot = _photoSession.shots[si];
+      if (shot.chronicRecorded) continue;
       try {
+        var geo = null;
+        if (shot.gps && typeof shot.gps.lat === 'number' && typeof geoLookup === 'function') {
+          try { geo = await geoLookup(shot.gps.lat, shot.gps.lng); } catch(_g) {}
+        }
         ChronicIndex.record({
           address: _photoSession.address || null,
           gps: shot.gps || null,
           ts: (shot.capturedAt || new Date()).toISOString(),
           neighborhoodName: active ? active.neighborhoodName : null,
+          ward: geo ? geo.ward : null,
+          policeDistrict: geo ? geo.policeDistrict : null,
+          fireDistrict: geo ? geo.fireDistrict : null,
           caseType: _photoContext.caseType || null,
           stopId: _photoSession.stopId
         });
       } catch(_e2) {}
       shot.chronicRecorded = true;
-    });
+    }
   } catch(_e) {}
   try { if (typeof _redrawChronicLayer === 'function') _redrawChronicLayer(); } catch(_e2) {}
 }
@@ -20946,6 +21009,17 @@ const GeoCache = (function() {
   var SOURCES_POLICE_DISTRICTS = [
     'https://maps8.stlouis-mo.gov/arcgis/rest/services/STLOUIS/POLICE_DISTRICT/MapServer/0/query?where=1%3D1&outFields=*&f=geojson&returnGeometry=true&outSR=4326'
   ];
+  // Fire district/battalion boundaries. UNCONFIRMED — no live endpoint has
+  // been verified yet (checked candidate paths under both maps8.stlouis-mo.gov
+  // and a second city GIS host, stlgis.stlouis-mo.gov/arcgis/rest/services/
+  // public/*, without a confirmed hit). Left empty on purpose: getFireDistricts()
+  // below already no-ops to null when this list is empty (same guard
+  // getPoliceDistricts() uses), so every caller — geoLookup, MapLayerRenderer,
+  // reports — degrades gracefully with fireDistrict:null until a URL is
+  // added here. Adding a confirmed URL is the ONLY change needed to light
+  // the whole pipeline up; nothing downstream needs touching.
+  var SOURCES_FIRE_DISTRICTS = [
+  ];
 
   var _dbPromise = null;
   // 2026-07-18 fix: some environments (Safari private browsing is the
@@ -21145,6 +21219,28 @@ const GeoCache = (function() {
     return null;
   }
 
+  // Get fire district polygons. Same shape/caching contract as
+  // getPoliceDistricts() — IndexedDB first, then network. Returns null
+  // immediately (no network attempt) while SOURCES_FIRE_DISTRICTS is
+  // empty, which is the current state (endpoint unconfirmed).
+  async function getFireDistricts() {
+    try {
+      var rec = await _txGet('fireDistricts');
+      if (rec && rec.geojson) return rec.geojson;
+    } catch(_) { /* fall through to network */ }
+    if (!SOURCES_FIRE_DISTRICTS.length) return null;
+    try {
+      var fresh = await _fetchOne(SOURCES_FIRE_DISTRICTS);
+      if (fresh) {
+        await _tryLogAsync('geocache-put-fire-districts', function() {
+          return _txPut({ kind: 'fireDistricts', fetchedAt: new Date().toISOString(), geojson: fresh });
+        });
+        return fresh;
+      }
+    } catch(_) {}
+    return null;
+  }
+
   async function clear() {
     try {
       var db = await _open();
@@ -21156,7 +21252,7 @@ const GeoCache = (function() {
     } catch(_) { return false; }
   }
 
-  return { getNeighborhoods: getNeighborhoods, getWards: getWards, getPoliceDistricts: getPoliceDistricts, clear: clear };
+  return { getNeighborhoods: getNeighborhoods, getWards: getWards, getPoliceDistricts: getPoliceDistricts, getFireDistricts: getFireDistricts, clear: clear };
 })();
 
 // ── MapLayers: registry + storage for togglable map overlays ─────────────────
@@ -21263,6 +21359,32 @@ const MapLayers = (function() {
     var s = String(raw).trim();
     if (/^\d+$/.test(s)) return 'District ' + s;
     return s;
+  }
+
+  // ── Shared helper for fire-district label/popup text ──────────────
+  // Unlike wards/police districts, no live schema has been confirmed yet
+  // (SOURCES_FIRE_DISTRICTS is empty — see GeoCache). This checks a broad
+  // fallback chain of plausible field names from common ArcGIS fire/EMS
+  // layer conventions seen elsewhere (battalion number, district number,
+  // a bare NAME) so that whenever a real endpoint is wired in, there's a
+  // decent chance the label resolves without needing this function
+  // touched again — same defensive spirit as _wardLabelFromProps's legacy
+  // fallbacks. Prefixes "Battalion "/"District " only when the value is a
+  // bare number; passes through as-is otherwise (e.g. "Battalion 3").
+  function _fireDistrictLabelFromProps(props) {
+    var battRaw = props.BATTALION || props.BATT || props.BATT_NUM || props.BattalionNumber;
+    if (battRaw != null && battRaw !== '') {
+      var bs = String(battRaw).trim();
+      return /^\d+$/.test(bs) ? ('Battalion ' + bs) : bs;
+    }
+    var distRaw = props.FIRE_DIST || props.FIREDIST || props.FirstDueDistrict || props.DISTRICT || props.DIST_NUM || props.DISTNO;
+    if (distRaw != null && distRaw !== '') {
+      var ds = String(distRaw).trim();
+      return /^\d+$/.test(ds) ? ('District ' + ds) : ds;
+    }
+    if (typeof props.NAME === 'string' && props.NAME.trim()) return props.NAME.trim();
+    if (typeof props.STATION === 'string' && props.STATION.trim()) return props.STATION.trim();
+    return null;
   }
 
   var BUILTIN_LAYERS = [
@@ -21424,6 +21546,48 @@ const MapLayers = (function() {
               _escHtmlBuiltin(label) +
             '</div>' +
             '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:#555;line-height:1.5">SLMPD police district</div>'
+        };
+      }
+    },
+    {
+      id: 'stl-fire-districts',
+      kind: 'builtin',
+      label: 'Fire Districts',
+      group: 'Boundaries',
+      defaultOn: false,
+      refreshDays: 365,  // district boundaries are very stable
+      source: 'geocache',
+      geocacheKind: 'fireDistricts',
+      geomType: 'polygon',
+      // No confirmed data source yet (SOURCES_FIRE_DISTRICTS in GeoCache
+      // is empty) — this entry is fully wired and will render the moment
+      // a URL is added there; until then it shows the same "boundaries
+      // unavailable offline" banner every other geocache-backed layer
+      // shows when it has nothing cached (see _renderBuiltin). St. Louis
+      // Fire has 7 battalions citywide (per STLFD's own public figures),
+      // so styling assumes a similarly small, always-visible feature
+      // count once real data lands — same reasoning wards/police
+      // districts used for skipping min-zoom label gating. Amber/gold
+      // reads as "fire" without colliding with the red-orange already
+      // used for police districts or the yellow breadcrumb highlight
+      // layer elsewhere on the map.
+      style: { color: '#b45309', fillColor: '#b45309', fillOpacity: 0.05, weight: 3.5, opacity: 0.85, dashArray: '2,6' },
+      labelOptions: {
+        getText: function(props) {
+          return _fireDistrictLabelFromProps(props) || '';
+        },
+        minZoom: 0,
+        className: 'boundary-label-fire'
+      },
+      popup: function(props) {
+        var label = _fireDistrictLabelFromProps(props) || '(fire district)';
+        return {
+          address: '',
+          html:
+            '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.78rem;color:#7c3d0a;margin-bottom:3px">' +
+              _escHtmlBuiltin(label) +
+            '</div>' +
+            '<div style="font-family:\'Space Mono\',monospace;font-size:0.55rem;color:#555;line-height:1.5">STLFD fire district</div>'
         };
       }
     }
@@ -21630,7 +21794,8 @@ const MapLayers = (function() {
     updateCustom: updateCustom,
     deleteCustom: deleteCustom,
     wardLabelFromProps: _wardLabelFromProps,
-    policeDistrictLabelFromProps: _policeDistrictLabelFromProps
+    policeDistrictLabelFromProps: _policeDistrictLabelFromProps,
+    fireDistrictLabelFromProps: _fireDistrictLabelFromProps
   };
 })();
 
@@ -21740,6 +21905,8 @@ const MapLayerRenderer = (function() {
         fc = await GeoCache.getWards();
       } else if (layer.geocacheKind === 'policeDistricts' && typeof GeoCache !== 'undefined') {
         fc = await GeoCache.getPoliceDistricts();
+      } else if (layer.geocacheKind === 'fireDistricts' && typeof GeoCache !== 'undefined') {
+        fc = await GeoCache.getFireDistricts();
       }
       if (!fc || !Array.isArray(fc.features) || !fc.features.length) {
         // No polygons available (offline + never cached, or no source URL configured)
@@ -22651,7 +22818,7 @@ function _pointInGeom(lng, lat, geom) {
 // precision (~1.1 meters) which is finer than GPS resolution anyway.
 async function geoLookup(lat, lng) {
   if (typeof lat !== 'number' || typeof lng !== 'number') {
-    return { neighborhood: null, neighborhoodName: null, ward: null };
+    return { neighborhood: null, neighborhoodName: null, ward: null, policeDistrict: null, fireDistrict: null };
   }
   // Per-point LS cache — short-circuit if we've looked up these coords before.
   // Drop AP.4 (2026-05-09): cache key version bumped from v1 (implicit) to v2
@@ -22660,7 +22827,12 @@ async function geoLookup(lat, lng) {
   // exist on the inline ward GeoJSON (which uses NAME and DISTRICT). All
   // pre-AP.4 cache entries are poisoned. Bumping the cache key avoids
   // having to walk LS and clean them — they just get ignored.
-  var key = 'geo-pt:v2:' + lat.toFixed(5) + ',' + lng.toFixed(5);
+  // Report-system drop (2026-07-24): bumped v2 -> v3 because the cached
+  // shape gained policeDistrict/fireDistrict fields. v2 entries are still
+  // valid for neighborhood/ward but would come back missing the two new
+  // keys if reused as-is — bumping the key is simpler and cheaper than
+  // patching every cached entry, same reasoning as the v1->v2 bump.
+  var key = 'geo-pt:v3:' + lat.toFixed(5) + ',' + lng.toFixed(5);
   try {
     var cached = LS.get(key);
     if (cached) {
@@ -22669,7 +22841,7 @@ async function geoLookup(lat, lng) {
     }
   } catch(_) {}
 
-  var out = { neighborhood: null, neighborhoodName: null, ward: null };
+  var out = { neighborhood: null, neighborhoodName: null, ward: null, policeDistrict: null, fireDistrict: null };
 
   // Neighborhood lookup
   try {
@@ -22736,6 +22908,45 @@ async function geoLookup(lat, lng) {
             }
           }
           if (wnum != null && !isNaN(wnum)) out.ward = wnum;
+          break;
+        }
+      }
+    }
+  } catch(_) {}
+
+  // Police district lookup. Reuses MapLayers._policeDistrictLabelFromProps
+  // (exposed as MapLayers.policeDistrictLabelFromProps) so the label text
+  // stays identical to what the map layer/popup already shows — one
+  // source of truth for the field-name precedence instead of duplicating
+  // it here.
+  try {
+    var policeGeo = await GeoCache.getPoliceDistricts();
+    if (policeGeo && Array.isArray(policeGeo.features)) {
+      for (var p = 0; p < policeGeo.features.length; p++) {
+        var pf = policeGeo.features[p];
+        if (_pointInGeom(lng, lat, pf.geometry)) {
+          var plabel = (typeof MapLayers !== 'undefined') ? MapLayers.policeDistrictLabelFromProps(pf.properties || {}) : null;
+          if (plabel) out.policeDistrict = plabel;
+          break;
+        }
+      }
+    }
+  } catch(_) {}
+
+  // Fire district lookup. GeoCache.getFireDistricts() returns null while
+  // SOURCES_FIRE_DISTRICTS is empty (endpoint unconfirmed), so this block
+  // is a no-op today and out.fireDistrict stays null — same graceful
+  // degradation as the police-district block would have before that
+  // endpoint was confirmed. Nothing else needs to change when a fire
+  // district URL is eventually added.
+  try {
+    var fireGeo = await GeoCache.getFireDistricts();
+    if (fireGeo && Array.isArray(fireGeo.features)) {
+      for (var fd = 0; fd < fireGeo.features.length; fd++) {
+        var ff = fireGeo.features[fd];
+        if (_pointInGeom(lng, lat, ff.geometry)) {
+          var flabel = (typeof MapLayers !== 'undefined') ? MapLayers.fireDistrictLabelFromProps(ff.properties || {}) : null;
+          if (flabel) out.fireDistrict = flabel;
           break;
         }
       }
@@ -28854,6 +29065,723 @@ const CoverageReport = (function() {
 })();
 window.CoverageReport = CoverageReport;
 
+// ============================================================
+// SECTION: area-period-report
+// ============================================================
+// ── AREA + PERIOD REPORT — the axis neither PeriodReports (time-only) nor
+// CoverageReport (area-only, all-time) covers: "my activity in Ward 3,
+// this week." Deliberately a third module rather than folding into
+// either — same reasoning CoverageReport's own header comment gives for
+// not becoming a new PeriodReports "kind": forcing a two-axis filter into
+// a single-axis module means special-casing half its assumptions either
+// way. See STLCityRoute-Report-System-Spec-2026-07-23.md for the full
+// design writeup this implements.
+//
+// Build-order note (that spec doc, §7): this drop is step 2 only — the
+// filter logic itself, no HTML/CSV/JSON formatters and no UI yet (steps
+// 3/4/6). Callable and independently testable today via
+// AreaPeriodReport.buildReport(...).
+//
+// areaType values match the four kinds a stop/chronic-location can now
+// carry post-geoLookup-extension: 'ward' | 'neighborhood' |
+// 'policeDistrict' | 'fireDistrict'. Note 'fireDistrict' is NOT a
+// SurveySession.AREA_TYPES member (Survey Mode itself doesn't support
+// starting a fire-district-scoped survey yet) — so fire-district reports
+// will always show 0 sessions/breadcrumb points even once real fire
+// district boundaries land, until Survey Mode gains that area type
+// separately. Stops and chronic locations are unaffected by that gap;
+// they're tagged straight from geoLookup regardless of what area type
+// any survey session was run under.
+const AreaPeriodReport = (function() {
+
+  function _wardMatches(stopWard, areaName) {
+    if (stopWard == null) return false;
+    return String(stopWard) === String(areaName).replace(/^\D+/, '');
+  }
+
+  // Does a stop (or chronic-index entry — both carry the same four
+  // geo fields post-Drop AP-districts) belong to the requested area?
+  function _matchesArea(rec, areaType, areaName) {
+    if (!rec) return false;
+    if (areaType === 'ward') return _wardMatches(rec.ward, areaName);
+    if (areaType === 'neighborhood') return rec.neighborhoodName === areaName;
+    if (areaType === 'policeDistrict') return rec.policeDistrict === areaName;
+    if (areaType === 'fireDistrict') return rec.fireDistrict === areaName;
+    return false;
+  }
+
+  // ── Stops: period ∩ area ─────────────────────────────────────────
+  // Same dual-source (live `stops` + StopArchive) pattern as both
+  // PeriodReports._collectStops and CoverageReport._collectStops, with
+  // both filters applied together instead of either alone. Period check
+  // reuses PeriodReports' own "addedAt OR completedAt falls in bounds"
+  // rule — a stop added Monday and completed Tuesday is relevant to
+  // whichever week's report is asking.
+  function _collectStops(startMs, endMs, areaType, areaName) {
+    var byId = {};
+    function consider(s) {
+      if (!s || s.id == null) return;
+      if (!_matchesArea(s, areaType, areaName)) return;
+      var addedT = s.addedAt ? new Date(s.addedAt).getTime() : (s.id || 0);
+      var completedT = s.completedAt ? new Date(s.completedAt).getTime() : null;
+      var addedIn = addedT >= startMs && addedT < endMs;
+      var completedIn = completedT != null && completedT >= startMs && completedT < endMs;
+      if (addedIn || completedIn) byId[s.id] = s;
+    }
+    try { (stops || []).forEach(consider); } catch(_) {}
+    try {
+      if (typeof StopArchive !== 'undefined') {
+        StopArchive.getAll().forEach(consider);
+      }
+    } catch(_) {}
+    return Object.keys(byId).map(function(k) { return byId[k]; });
+  }
+
+  // ── Chronic locations: period ∩ area ─────────────────────────────
+  // "In period" means at least one photo event at that location falls in
+  // [startMs, endMs) — the location itself isn't dated, only its photo
+  // history is. countInPeriod (used for severity below) counts ONLY the
+  // photos within this report's bounds, not ChronicIndex's own
+  // independently-configured rolling window — a weekly ward report
+  // should reflect that week's activity, not an all-time or differently-
+  // windowed severity figure.
+  function _photosInRange(entry, startMs, endMs) {
+    return (entry.photos || []).filter(function(p) {
+      var t = new Date(p.ts).getTime();
+      return isFinite(t) && t >= startMs && t < endMs;
+    }).length;
+  }
+  function _collectChronicLocations(startMs, endMs, areaType, areaName) {
+    if (typeof ChronicIndex === 'undefined') return [];
+    var settings = ChronicIndex.getSettings();
+    return ChronicIndex.getAll()
+      .filter(function(loc) { return _matchesArea(loc, areaType, areaName); })
+      .map(function(loc) {
+        var countInPeriod = _photosInRange(loc, startMs, endMs);
+        return { loc: loc, countInPeriod: countInPeriod };
+      })
+      .filter(function(x) { return x.countInPeriod > 0; })
+      .map(function(x) {
+        var sev = ChronicIndex.severityFor(x.countInPeriod, settings);
+        return {
+          displayLabel: x.loc.displayLabel, address: x.loc.address, gps: x.loc.gps,
+          countInPeriod: x.countInPeriod, totalPhotosEver: (x.loc.photos || []).length,
+          severityLabel: sev ? sev.label : null, severityColor: sev ? sev.color : null
+        };
+      })
+      .sort(function(a, b) { return b.countInPeriod - a.countInPeriod; });
+  }
+
+  // ── Generic area-boundary feature lookup ──────────────────────────
+  // Same job as _findActiveSurveyAreaFeature (defined earlier, for
+  // Survey Mode's fit-to-area mask) but parameterized to any
+  // (areaType, areaName) instead of only the currently active survey,
+  // and extended to cover 'fireDistrict' (which Survey Mode itself
+  // doesn't support yet — see the fireDistrict note above). Kept as a
+  // separate function rather than generalizing the existing one in
+  // place, since that one is load-bearing for the live map mask and
+  // touching it isn't part of this drop. Returns null (not a thrown
+  // error) whenever the boundary can't be resolved — offline with
+  // nothing cached, unknown area name, or (today) any fireDistrict
+  // lookup, since GeoCache.getFireDistricts() itself returns null until
+  // an endpoint is confirmed. Every caller treats null as "skip the
+  // geography-dependent parts, the rest of the report still works."
+  async function _findAreaFeature(areaType, areaName) {
+    if (typeof GeoCache === 'undefined' || typeof MapLayers === 'undefined') return null;
+    try {
+      if (areaType === 'ward') {
+        var fcW = await GeoCache.getWards();
+        if (!fcW || !Array.isArray(fcW.features)) return null;
+        return fcW.features.find(function(f) {
+          return MapLayers.wardLabelFromProps(f.properties || {}) === ('Ward ' + String(areaName).replace(/^\D+/, ''));
+        }) || null;
+      }
+      if (areaType === 'policeDistrict') {
+        var fcP = await GeoCache.getPoliceDistricts();
+        if (!fcP || !Array.isArray(fcP.features)) return null;
+        return fcP.features.find(function(f) {
+          return MapLayers.policeDistrictLabelFromProps(f.properties || {}) === areaName;
+        }) || null;
+      }
+      if (areaType === 'fireDistrict') {
+        var fcF = await GeoCache.getFireDistricts();
+        if (!fcF || !Array.isArray(fcF.features)) return null;
+        return fcF.features.find(function(f) {
+          return MapLayers.fireDistrictLabelFromProps(f.properties || {}) === areaName;
+        }) || null;
+      }
+      // neighborhood — matches the same fallback chain geoLookup() uses
+      // (NHD_NAME first, but not only, unlike _findActiveSurveyAreaFeature
+      // which checks NHD_NAME alone; broadening it here is new code, not
+      // a change to that existing function).
+      var fcN = await GeoCache.getNeighborhoods();
+      if (!fcN || !Array.isArray(fcN.features)) return null;
+      return fcN.features.find(function(f) {
+        var props = f.properties || {};
+        var name = props.name || props.NAME || props.Name || props.NHD_NAME || props.neighborhood || null;
+        return name === areaName;
+      }) || null;
+    } catch(_e) { return null; }
+  }
+
+  // ── Sessions: period ∩ area, SAME-AREA case only ──────────────────
+  // Session *count* genuinely can't be anything but same-area — a
+  // session's area type/name is what it was, there's no geography to
+  // reinterpret. (Breadcrumb *points* are different — see below.)
+  function _collectSessionCount(startMs, endMs, areaType, areaName) {
+    var none = { sessionCount: 0, activeInPeriod: false };
+    // Guard: SurveySession.getLogFor() silently reinterprets an
+    // unrecognized areaType as 'neighborhood' rather than erroring —
+    // calling it with 'fireDistrict' would return the WRONG sessions
+    // instead of none. Short-circuit instead of calling through.
+    if (typeof SurveySession === 'undefined' || SurveySession.AREA_TYPES.indexOf(areaType) === -1) {
+      return none;
+    }
+    var log = [];
+    try { log = SurveySession.getLogFor(areaName, areaType); } catch(_e) {}
+    var inPeriod = log.filter(function(s) {
+      var t = s.startedAt ? new Date(s.startedAt).getTime() : null;
+      return t != null && t >= startMs && t < endMs;
+    });
+    var active = null;
+    try {
+      var a = SurveySession.getActive();
+      if (a && a.neighborhoodName === areaName && (a.areaType || 'neighborhood') === areaType) {
+        var at = a.startedAt ? new Date(a.startedAt).getTime() : null;
+        if (at != null && at >= startMs && at < endMs) active = a;
+      }
+    } catch(_e) {}
+    return { sessionCount: inPeriod.length + (active ? 1 : 0), activeInPeriod: !!active };
+  }
+
+  // ── Breadcrumb: period ∩ area, GEOGRAPHIC clipping ────────────────
+  // The step-5 upgrade: pulls every recorded trail point from EVERY
+  // session ever run (SurveyCoverage.getAllTrails, any area), not just
+  // ones scoped to this exact area, then keeps only the points that are
+  // both in the period AND geographically inside the target area's
+  // polygon (_pointInSurveyAreaRings — the same point-in-polygon test
+  // Survey Mode's own highlight-bleed fix already uses). This is what
+  // makes a Ward 3 report correctly include the Ward-3-crossing portion
+  // of a neighborhood survey that was never scoped to Ward 3 itself.
+  //
+  // Falls back to the old same-area-only sum when no boundary polygon
+  // is available (offline, unknown area name, or any fireDistrict
+  // lookup today) — degraded but not broken; `clipped: false` on the
+  // result tells the caller/UI which mode it got.
+  async function _collectBreadcrumb(startMs, endMs, areaType, areaName) {
+    var feature = await _findAreaFeature(areaType, areaName);
+    var rings = (feature && feature.geometry) ? _geoJsonPolygonRingsLatLng(feature.geometry) : [];
+    if (rings.length && typeof SurveyCoverage !== 'undefined' && typeof SurveyCoverage.getAllTrails === 'function'
+        && typeof _pointInSurveyAreaRings === 'function') {
+      var points = [];
+      try {
+        SurveyCoverage.getAllTrails().forEach(function(trail) {
+          trail.forEach(function(pt) {
+            var lat = pt[0], lng = pt[1], ts = pt[2];
+            if (ts == null || ts < startMs || ts >= endMs) return;
+            if (_pointInSurveyAreaRings(lat, lng, rings)) points.push([lat, lng, ts]);
+          });
+        });
+      } catch(_e) {}
+      return { points: points, clipped: true, boundaryRings: rings };
+    }
+    // Fallback: same-area-only sum (step 2 behavior), no polygon needed.
+    var sessionCount = _collectSessionCount(startMs, endMs, areaType, areaName);
+    var fallbackPoints = [];
+    if ((sessionCount.sessionCount > 0) && typeof SurveySession !== 'undefined' &&
+        SurveySession.AREA_TYPES.indexOf(areaType) !== -1 && typeof SurveyCoverage !== 'undefined') {
+      try {
+        var areaKeyStr = SurveySession.areaKey({ neighborhoodName: areaName, areaType: areaType });
+        var trail = areaKeyStr ? SurveyCoverage.getBreadcrumb(areaKeyStr) : [];
+        fallbackPoints = trail.filter(function(pt) {
+          var t = pt[2];
+          return t != null && t >= startMs && t < endMs;
+        });
+      } catch(_e) {}
+    }
+    return { points: fallbackPoints, clipped: false, boundaryRings: rings };
+  }
+
+  // Human-readable label for an arbitrary [startMs, endMs) range — same
+  // same-month/same-year collapsing PeriodReports.periodBoundsFor uses
+  // for its 'week' label, generalized to any span since AreaPeriodReport
+  // isn't tied to calendar-period kinds the way PeriodReports is (callers
+  // typically pass PeriodReports.periodBoundsFor's own startMs/endMs, but
+  // nothing here requires that).
+  function _periodLabel(startMs, endMs) {
+    var s = new Date(startMs);
+    var lastDay = new Date(endMs - 1);
+    var sameMonth = s.getMonth() === lastDay.getMonth() && s.getFullYear() === lastDay.getFullYear();
+    var sameDay = s.toDateString() === lastDay.toDateString();
+    if (sameDay) {
+      return s.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    var sameYear = s.getFullYear() === lastDay.getFullYear();
+    if (sameMonth) {
+      return s.toLocaleDateString('en-US', { month: 'short' }) + ' ' + s.getDate() + '–' + lastDay.getDate() + ', ' + s.getFullYear();
+    } else if (sameYear) {
+      return s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' +
+             lastDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + s.getFullYear();
+    }
+    return s.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' – ' +
+           lastDay.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // buildReport is now ASYNC as of step 5 (was sync in steps 2–4) — the
+  // geographic breadcrumb clipping needs an async GeoCache polygon
+  // fetch, same as Survey Mode's own _fitMapToActiveSurveyArea/
+  // _findActiveSurveyAreaFeature are already async for the same reason.
+  // No shipped UI calls buildReport yet (step 6 is still pending), so
+  // this is a clean point to make the change — nothing breaks.
+  async function buildReport(opts) {
+    opts = opts || {};
+    var startMs = opts.startMs, endMs = opts.endMs;
+    var areaType = opts.areaType, areaName = opts.areaName;
+    if (typeof startMs !== 'number' || typeof endMs !== 'number' || !areaType || !areaName) {
+      throw new Error('AreaPeriodReport.buildReport requires startMs, endMs, areaType, areaName');
+    }
+
+    var areaStops = _collectStops(startMs, endMs, areaType, areaName);
+    var completedStops = areaStops.filter(function(s) { return s.done; });
+    var chronicLocations = _collectChronicLocations(startMs, endMs, areaType, areaName);
+    var sessionCount = _collectSessionCount(startMs, endMs, areaType, areaName);
+    var breadcrumb = await _collectBreadcrumb(startMs, endMs, areaType, areaName);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      period: { startMs: startMs, endMs: endMs, label: _periodLabel(startMs, endMs) },
+      area: {
+        type: areaType, name: areaName,
+        label: (typeof AREA_TYPE_LABELS !== 'undefined' && AREA_TYPE_LABELS[areaType]) || areaType,
+        boundaryRings: breadcrumb.boundaryRings.length ? breadcrumb.boundaryRings : null
+      },
+      stops: {
+        list: areaStops,
+        total: areaStops.length,
+        completed: completedStops.length,
+        completionRate: areaStops.length ? Math.round((completedStops.length / areaStops.length) * 100) : 0
+      },
+      chronic: { locations: chronicLocations },
+      coverage: {
+        sessionCount: sessionCount.sessionCount,
+        activeInPeriod: sessionCount.activeInPeriod,
+        breadcrumbPointCount: breadcrumb.points.length,
+        breadcrumbClipped: breadcrumb.clipped,
+        breadcrumbPoints: breadcrumb.points
+      }
+    };
+  }
+
+  // ── Formatters — same conventions as PeriodReports/CoverageReport:
+  // CSV escaping, plain text for pasting, self-contained HTML document
+  // (KPI row + @media print rules) for viewing/printing/PDF. Title
+  // combines the area label and period label, e.g. "Ward 3 — Jul 20–26,
+  // 2026", so a stack of weekly PDFs for different wards/neighborhoods
+  // stays distinguishable by filename/title alone. ──────────────────────
+
+  function formatAsCSV(report) {
+    function esc(v) {
+      if (v == null) return '';
+      var s = String(v);
+      if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }
+    var rows = [];
+    rows.push(['# CityRoute Report — ' + report.area.label + ' ' + report.area.name + ' — ' + report.period.label].join(','));
+    rows.push(['# Generated ' + new Date(report.generatedAt).toLocaleString()].join(','));
+    rows.push([]);
+
+    rows.push(['SUMMARY'].join(','));
+    rows.push(['Stops', 'Completed', 'CompletionRate', 'ChronicLocations', 'Sessions', 'BreadcrumbPoints'].join(','));
+    rows.push([
+      esc(report.stops.total), esc(report.stops.completed), esc(report.stops.completionRate + '%'),
+      esc(report.chronic.locations.length), esc(report.coverage.sessionCount), esc(report.coverage.breadcrumbPointCount)
+    ].join(','));
+    rows.push([]);
+
+    rows.push(['STOPS'].join(','));
+    rows.push(['Address', 'Type', 'Status', 'Neighborhood', 'AddedAt', 'CompletedAt', 'Notes'].join(','));
+    report.stops.list.forEach(function(s) {
+      var status = s.done ? 'Completed' : (s.followup ? 'Followup' : 'Open');
+      rows.push([
+        esc(s.address), esc(s.type), esc(status), esc(s.neighborhoodName),
+        esc(s.addedAt), esc(s.completedAt), esc((s.notes || '').slice(0, 280))
+      ].join(','));
+    });
+    rows.push([]);
+
+    rows.push(['CHRONIC LOCATIONS'].join(','));
+    rows.push(['Location', 'PhotosThisPeriod', 'TotalPhotosEver', 'Severity'].join(','));
+    report.chronic.locations.forEach(function(loc) {
+      rows.push([esc(loc.displayLabel), esc(loc.countInPeriod), esc(loc.totalPhotosEver), esc(loc.severityLabel || '')].join(','));
+    });
+    return rows.join('\n');
+  }
+
+  function formatAsText(report) {
+    var st = report.stops, ch = report.chronic, cov = report.coverage;
+    var lines = [];
+    lines.push('CityRoute Report — ' + report.area.label + ' ' + report.area.name);
+    lines.push(report.period.label);
+    lines.push('—');
+    lines.push('Generated ' + new Date(report.generatedAt).toLocaleString());
+    lines.push('');
+    lines.push(st.total + ' stops · ' + st.completed + ' completed (' + st.completionRate + '%)');
+    if (cov.sessionCount) lines.push(cov.sessionCount + ' survey session' + (cov.sessionCount === 1 ? '' : 's') + (cov.activeInPeriod ? ' (1 in progress)' : ''));
+    lines.push('');
+
+    if (ch.locations.length) {
+      lines.push('CHRONIC LOCATIONS (' + ch.locations.length + ')');
+      ch.locations.slice(0, 10).forEach(function(loc) {
+        lines.push('  ' + loc.displayLabel + ' — ' + loc.countInPeriod + ' photo' + (loc.countInPeriod === 1 ? '' : 's') + ' this period' + (loc.severityLabel ? ' · ' + loc.severityLabel : ''));
+      });
+      lines.push('');
+    }
+
+    if (st.list.length) {
+      lines.push('STOPS (' + st.list.length + ')');
+      st.list.slice().sort(function(a, b) {
+        var ta = a.completedAt ? new Date(a.completedAt).getTime() : (a.addedAt ? new Date(a.addedAt).getTime() : 0);
+        var tb = b.completedAt ? new Date(b.completedAt).getTime() : (b.addedAt ? new Date(b.addedAt).getTime() : 0);
+        return ta - tb;
+      }).forEach(function(s) {
+        var mark = s.done ? '✓' : (s.followup ? '⚑' : '○');
+        lines.push('  ' + mark + ' ' + (s.address || '(no address)') + (s.neighborhoodName ? ' · ' + s.neighborhoodName : ''));
+      });
+    }
+
+    return lines.join('\n');
+  }
+
+  // ── Static SVG map — plain shapes, no basemap tiles (see spec doc §4
+  // for why: avoids a rasterization library + CDN dependency purely to
+  // flatten a Leaflet map to a PNG, and keeps the CSP inline-handler
+  // cleanup effort from picking up a new external script domain). Shows
+  // the area boundary, the clipped breadcrumb trail, and chronic
+  // location markers colored by severity, scaled to the boundary's own
+  // bounding box. Returns null when there's no boundary polygon to draw
+  // against (caller should omit the map section entirely in that case,
+  // not show an empty/misleading box).
+  //
+  // Longitude is compressed by cos(latitude) so the shape isn't visibly
+  // stretched east-west — at St. Louis's ~38.6°N, a degree of longitude
+  // covers noticeably less ground than a degree of latitude, and
+  // plotting both on the same raw scale measurably distorts ward/
+  // neighborhood shapes people would otherwise recognize at a glance.
+  function _buildStaticSVG(report) {
+    var rings = report.area.boundaryRings;
+    if (!rings || !rings.length) return null;
+
+    var W = 640, H = 640, PAD = 24;
+    var minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    rings.forEach(function(ring) {
+      ring.forEach(function(pt) {
+        if (pt[0] < minLat) minLat = pt[0];
+        if (pt[0] > maxLat) maxLat = pt[0];
+        if (pt[1] < minLng) minLng = pt[1];
+        if (pt[1] > maxLng) maxLng = pt[1];
+      });
+    });
+    if (!isFinite(minLat) || !isFinite(minLng)) return null;
+
+    var latMid = (minLat + maxLat) / 2;
+    var lngScale = Math.cos(latMid * Math.PI / 180) || 1;
+    var spanLat = Math.max(maxLat - minLat, 1e-6);
+    var spanLngAdj = Math.max((maxLng - minLng) * lngScale, 1e-6);
+    var innerW = W - PAD * 2, innerH = H - PAD * 2;
+    var scale = Math.min(innerW / spanLngAdj, innerH / spanLat);
+    var offsetX = PAD + (innerW - spanLngAdj * scale) / 2;
+    var offsetY = PAD + (innerH - spanLat * scale) / 2;
+
+    function project(lat, lng) {
+      var x = offsetX + (lng - minLng) * lngScale * scale;
+      var y = offsetY + (maxLat - lat) * scale;
+      return [x, y];
+    }
+    function ringPath(ring) {
+      return ring.map(function(pt, i) {
+        var p = project(pt[0], pt[1]);
+        return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1);
+      }).join(' ') + ' Z';
+    }
+
+    var boundaryPath = rings.map(ringPath).join(' ');
+
+    var breadcrumbPath = '';
+    var pts = report.coverage.breadcrumbPoints || [];
+    if (pts.length > 1) {
+      // Break the line wherever consecutive points are more than 5
+      // minutes apart — same SEGMENT_GAP_MS threshold Survey Mode's own
+      // breadcrumb layer uses, hardcoded here rather than read from
+      // SurveyCoverage.SEGMENT_GAP_MS since this SVG string may be
+      // handed off/printed outside the running app entirely.
+      var GAP_MS = 5 * 60 * 1000;
+      var segs = [];
+      var cur = [];
+      var lastTs = null;
+      pts.slice().sort(function(a, b) { return (a[2] || 0) - (b[2] || 0); }).forEach(function(pt) {
+        var ts = pt[2];
+        if (lastTs != null && ts != null && (ts - lastTs) > GAP_MS) {
+          if (cur.length > 1) segs.push(cur);
+          cur = [];
+        }
+        cur.push(pt);
+        lastTs = ts;
+      });
+      if (cur.length > 1) segs.push(cur);
+      breadcrumbPath = segs.map(function(seg) {
+        return seg.map(function(pt, i) {
+          var p = project(pt[0], pt[1]);
+          return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1);
+        }).join(' ');
+      }).join(' ');
+    }
+
+    var markers = (report.chronic.locations || []).filter(function(l) { return l.gps && typeof l.gps.lat === 'number'; }).map(function(loc) {
+      var p = project(loc.gps.lat, loc.gps.lng);
+      var color = loc.severityColor || '#888';
+      return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="6" fill="' + color + '" stroke="white" stroke-width="1.5"/>';
+    }).join('');
+
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;background:#fafaf6;border-radius:8px">' +
+      '<path d="' + boundaryPath + '" fill="#eef4e9" stroke="#5c8a3e" stroke-width="2.5" fill-rule="evenodd"/>' +
+      (breadcrumbPath ? '<path d="' + breadcrumbPath + '" fill="none" stroke="#f5c518" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>' : '') +
+      markers +
+      '</svg>';
+  }
+
+  function formatAsHTML(report) {
+    var safe = function(x) {
+      if (x == null) return '';
+      return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    };
+    var st = report.stops, ch = report.chronic, cov = report.coverage;
+
+    var chronicRows = ch.locations.map(function(loc) {
+      return '<tr><td style="padding:4px 8px">' + safe(loc.displayLabel) + '</td>' +
+        '<td style="padding:4px 8px;text-align:right"><b>' + loc.countInPeriod + '</b></td>' +
+        '<td style="padding:4px 8px;color:' + safe(loc.severityColor || '#888') + ';font-weight:700">' + safe(loc.severityLabel || '') + '</td></tr>';
+    }).join('');
+
+    var stopRows = st.list.slice().sort(function(a, b) {
+      var ta = a.completedAt ? new Date(a.completedAt).getTime() : (a.addedAt ? new Date(a.addedAt).getTime() : 0);
+      var tb = b.completedAt ? new Date(b.completedAt).getTime() : (b.addedAt ? new Date(b.addedAt).getTime() : 0);
+      return ta - tb;
+    }).map(function(s) {
+      var statusLabel = s.done ? '✓' : (s.followup ? '⚑' : '○');
+      var statusColor = s.done ? '#2d5a3d' : (s.followup ? '#a86a00' : '#888');
+      var when = '';
+      try {
+        if (s.completedAt) when = new Date(s.completedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        else if (s.addedAt) when = new Date(s.addedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' (added)';
+      } catch(_) {}
+      return '<tr style="border-bottom:1px solid #eee">' +
+        '<td style="padding:5px 8px;color:' + statusColor + ';width:24px;text-align:center;font-size:14px">' + statusLabel + '</td>' +
+        '<td style="padding:5px 8px"><b>' + safe(s.address || '(no address)') + '</b>' +
+          (s.type ? '<br><span style="font-size:11px;color:#888">' + safe(s.type.replace(/_/g, ' ')) + '</span>' : '') +
+        '</td>' +
+        '<td style="padding:5px 8px;font-size:11px;color:#666;white-space:nowrap">' + safe(when) + '</td>' +
+        '<td style="padding:5px 8px;font-size:11px;color:#666">' + safe(s.neighborhoodName || '') + '</td>' +
+        '</tr>' +
+        (s.notes ? '<tr><td></td><td colspan="3" style="padding:0 8px 8px;font-size:11px;color:#555;font-style:italic">' + safe((s.notes || '').slice(0, 280)) + '</td></tr>' : '');
+    }).join('');
+
+    var title = report.area.label + ' ' + report.area.name;
+
+    // Map section: only built when there's something worth drawing — a
+    // boundary polygon, breadcrumb points, or at least one chronic
+    // location with a GPS fix. A report with none of those (e.g. a
+    // police-district report before boundaries are wired, with a couple
+    // of address-only stops and no chronic activity) just omits the
+    // section rather than showing an empty box.
+    var hasBoundary = !!(report.area.boundaryRings && report.area.boundaryRings.length);
+    var mapMarkers = ch.locations.filter(function(l) { return l.gps && typeof l.gps.lat === 'number'; });
+    var hasMapContent = hasBoundary || cov.breadcrumbPointCount > 0 || mapMarkers.length > 0;
+    var staticSVG = hasMapContent ? _buildStaticSVG(report) : null;
+
+    var head = '<!doctype html><html><head><meta charset="utf-8">' +
+      '<title>CityRoute — ' + safe(title) + ' — ' + safe(report.period.label) + '</title>' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      (hasMapContent ? '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">' +
+        '<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>' : '') +
+      '<style>' +
+        'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#222;margin:0;padding:24px;background:#fafaf6;line-height:1.5}' +
+        '.report{max-width:780px;margin:0 auto;background:white;padding:32px 36px;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}' +
+        'h1{font-size:24px;margin:0 0 4px;color:#1a3320;letter-spacing:-0.5px}' +
+        'h2{font-size:16px;margin:24px 0 10px;color:#444;letter-spacing:0.5px;text-transform:uppercase}' +
+        '.meta{color:#888;font-size:12px;margin-bottom:18px}' +
+        '.kpi-row{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 18px}' +
+        '.kpi{flex:1;min-width:120px;background:#f1f8e9;border-radius:10px;padding:12px 14px;border:1px solid #e0eed5}' +
+        '.kpi-num{font-size:26px;font-weight:800;color:#1a5c34;line-height:1.1}' +
+        '.kpi-label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}' +
+        'table{border-collapse:collapse;width:100%;font-size:13px}' +
+        '#area-map{height:380px;border-radius:10px;margin-top:6px;background:#eee}' +
+        // Screen: live Leaflet map visible, static SVG fallback hidden.
+        // Print/PDF: the opposite — Leaflet tiles rarely print cleanly
+        // and #area-map's height:380px div would just print blank/gray,
+        // so @media print swaps to the plain-shapes SVG instead (see
+        // _buildStaticSVG's own comment for why it has no basemap tiles
+        // at all, not just "hidden until print").
+        '.static-map-print{display:none}' +
+        '@media print{body{background:white;padding:0}.report{box-shadow:none;border-radius:0;padding:18mm 16mm;max-width:none}h1{font-size:20px}.kpi{break-inside:avoid}#area-map{display:none}.static-map-print{display:block}}' +
+      '</style></head><body><div class="report">';
+
+    var html = head +
+      '<h1>' + safe(title) + '</h1>' +
+      '<div class="meta">' + safe(report.period.label) + ' · Generated ' + new Date(report.generatedAt).toLocaleString() + '</div>' +
+      '<div class="kpi-row">' +
+        '<div class="kpi"><div class="kpi-num">' + st.total + '</div><div class="kpi-label">Stops</div></div>' +
+        '<div class="kpi"><div class="kpi-num">' + st.completed + '</div><div class="kpi-label">Completed</div></div>' +
+        '<div class="kpi"><div class="kpi-num">' + st.completionRate + '%</div><div class="kpi-label">Close rate</div></div>' +
+        '<div class="kpi"><div class="kpi-num">' + ch.locations.length + '</div><div class="kpi-label">Chronic locations</div></div>' +
+        (cov.sessionCount ? '<div class="kpi"><div class="kpi-num">' + cov.sessionCount + '</div><div class="kpi-label">Survey sessions</div></div>' : '') +
+      '</div>';
+
+    if (hasMapContent) {
+      html += '<h2>Map</h2><div id="area-map"></div>' +
+        (staticSVG ? '<div class="static-map-print">' + staticSVG + '</div>' : '');
+    }
+
+    if (ch.locations.length) {
+      html += '<h2>Chronic locations (' + ch.locations.length + ')</h2><table>' + chronicRows + '</table>';
+    }
+    if (st.list.length) {
+      html += '<h2>Stops (' + st.list.length + ')</h2><table>' + stopRows + '</table>';
+    } else {
+      html += '<h2>Stops</h2><div style="font-size:13px;color:#999">No stops in this period for ' + safe(title) + '.</div>';
+    }
+
+    html += '</div>';
+
+    if (hasMapContent) {
+      var boundaryLatLngsJson = JSON.stringify(report.area.boundaryRings || []);
+      var breadcrumbLatLngsJson = JSON.stringify((cov.breadcrumbPoints || []).map(function(p) { return [p[0], p[1]]; }));
+      var markersJson = JSON.stringify(mapMarkers.map(function(l) {
+        return { lat: l.gps.lat, lng: l.gps.lng, label: l.displayLabel, count: l.countInPeriod, color: l.severityColor, severity: l.severityLabel };
+      }));
+      html += '<script>' +
+        '(function(){' +
+          'var boundaryRings = ' + boundaryLatLngsJson + ';' +
+          'var breadcrumb = ' + breadcrumbLatLngsJson + ';' +
+          'var markers = ' + markersJson + ';' +
+          'var map = L.map("area-map", {zoomControl:true, attributionControl:true});' +
+          'L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {subdomains:"abcd", maxZoom:20}).addTo(map);' +
+          'var fitGroup = L.featureGroup();' +
+          'if (boundaryRings.length) { L.polygon(boundaryRings, {color:"#1a4a8c", weight:3, fillOpacity:0.04}).addTo(map).addTo(fitGroup); }' +
+          'if (breadcrumb.length > 1) { L.polyline(breadcrumb, {color:"#f5c518", weight:8, opacity:0.5, lineCap:"round"}).addTo(map).addTo(fitGroup); }' +
+          'markers.forEach(function(p){' +
+            'var m = L.circleMarker([p.lat, p.lng], {radius: 8 + Math.min(p.count,10), color: p.color, weight:2, fillColor: p.color, fillOpacity:0.55});' +
+            'm.bindPopup("<b>" + p.label.replace(/</g,"&lt;") + "</b><br>" + p.count + " photo(s) this period &middot; " + (p.severity||""));' +
+            'm.addTo(map).addTo(fitGroup);' +
+          '});' +
+          'try { var b = fitGroup.getBounds(); if (b.isValid()) map.fitBounds(b.pad(0.08)); else map.setView([38.6270,-90.1994], 12); } catch(_e) { map.setView([38.6270,-90.1994], 12); }' +
+        '})();' +
+      '<\/script>';
+    }
+
+    html += '</body></html>';
+    return html;
+  }
+
+  // ── External export — matches stlcityroute_export_spec.md exactly ──
+  // Deliberately NOT area-scoped, unlike everything above: the spec
+  // describes a single weekly (or arbitrary-range) file covering every
+  // stop, with the report-generator tool doing its own per-ward grouping
+  // on the receiving end. Scoping this to one area would mean running it
+  // once per ward/neighborhood just to reassemble the same city-wide
+  // file the spec asks for — the opposite of what it wants. Period-only
+  // collection, so it needs its own collector rather than reusing
+  // _collectStops(.... areaType, areaName) above; kept local rather than
+  // calling into PeriodReports._collectStops (a private closure there,
+  // not exposed, and PeriodReports.buildReport only accepts a calendar
+  // kind/anchor, not an arbitrary range — the spec explicitly allows
+  // "per week (or per date range)").
+  function _collectAllStopsInPeriod(startMs, endMs) {
+    var byId = {};
+    function consider(s) {
+      if (!s || s.id == null) return;
+      var addedT = s.addedAt ? new Date(s.addedAt).getTime() : (s.id || 0);
+      var completedT = s.completedAt ? new Date(s.completedAt).getTime() : null;
+      var addedIn = addedT >= startMs && addedT < endMs;
+      var completedIn = completedT != null && completedT >= startMs && completedT < endMs;
+      if (addedIn || completedIn) byId[s.id] = s;
+    }
+    try { (stops || []).forEach(consider); } catch(_) {}
+    try { if (typeof StopArchive !== 'undefined') StopArchive.getAll().forEach(consider); } catch(_) {}
+    return Object.keys(byId).map(function(k) { return byId[k]; });
+  }
+
+  function buildExport(opts) {
+    opts = opts || {};
+    var startMs = opts.startMs, endMs = opts.endMs;
+    if (typeof startMs !== 'number' || typeof endMs !== 'number') {
+      throw new Error('AreaPeriodReport.buildExport requires startMs, endMs');
+    }
+    return {
+      generatedAt: new Date().toISOString(),
+      period: { startMs: startMs, endMs: endMs, label: _periodLabel(startMs, endMs) },
+      stops: _collectAllStopsInPeriod(startMs, endMs)
+    };
+  }
+
+  // Local-time YYYY-MM-DDTHH:MM — the spec accepts either a bare date or
+  // this ISO-ish form ("if a stop has a specific time"), and every stop
+  // here has one, so always include it. Local time (not UTC) on purpose:
+  // a stop logged at 8am on a St. Louis morning should read as 8am in
+  // the export, not shift to whatever UTC offset happens to apply.
+  function _pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function _specDate(iso) {
+    if (!iso) return null;
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return d.getFullYear() + '-' + _pad2(d.getMonth() + 1) + '-' + _pad2(d.getDate()) +
+      'T' + _pad2(d.getHours()) + ':' + _pad2(d.getMinutes());
+  }
+
+  // One flat array, one object per stop, exactly the six spec fields
+  // (address/ward/date/category/details/status) — extra fields are
+  // explicitly fine per the spec ("easier to ignore extra fields later
+  // than to add a field that was never exported") but there's nothing
+  // here worth adding that isn't already covered, so kept to exactly
+  // that shape. `date` prefers completedAt (the more meaningful "this is
+  // when the activity actually happened" timestamp) and falls back to
+  // addedAt for stops still open at export time.
+  function formatAsExportJSON(exportReport) {
+    var records = exportReport.stops.map(function(s) {
+      var status = s.done ? 'Closed' : (s.followup ? 'Followup' : 'Open');
+      return {
+        address: s.address || null,
+        ward: (s.ward != null) ? String(s.ward) : null,
+        date: _specDate(s.completedAt || s.addedAt) || null,
+        category: s.type ? s.type.replace(/_/g, ' ') : null,
+        details: s.notes || '',
+        status: status
+      };
+    });
+    return JSON.stringify(records, null, 2);
+  }
+
+  return {
+    buildReport: buildReport,
+    formatAsCSV: formatAsCSV,
+    formatAsText: formatAsText,
+    formatAsHTML: formatAsHTML,
+    buildExport: buildExport,
+    formatAsExportJSON: formatAsExportJSON,
+    staticMapSVG: _buildStaticSVG,
+    // Exposed for the smoke-test harness — not part of the "public API"
+    // in a load-bearing sense, but no reason to hide pure functions
+    // behind a closure that later steps will need to call anyway.
+    _matchesArea: _matchesArea,
+    _photosInRange: _photosInRange,
+    _findAreaFeature: _findAreaFeature
+  };
+})();
+window.AreaPeriodReport = AreaPeriodReport;
+
+
 // ── Coverage Report UI — same share/download conventions as the Period
 // Report handlers (copyPeriodReport/downloadPeriodCSV/downloadPeriodHTML),
 // scoped to a neighborhood picker instead of a period navigator. ──────────
@@ -29387,11 +30315,11 @@ function downloadPeriodHTML() {
 // Internal: write text content to a blob, trigger download. Falls back to
 // clipboard then to a modal view if neither works (matches the existing
 // exportDataCSV fallback chain).
-function _periodDownload(content, ext, mime) {
+function _periodDownload(content, ext, mime, filenameOverride) {
   var label = _lastPeriodReport && _lastPeriodReport.bounds && _lastPeriodReport.bounds.label || 'report';
   // Sanitize label into a filename-safe slug
   var slug = label.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  var filename = 'CityRoute_' + _periodKind + '_' + slug + '.' + ext;
+  var filename = filenameOverride ? (filenameOverride + '.' + ext) : ('CityRoute_' + _periodKind + '_' + slug + '.' + ext);
   try {
     var blob = new Blob([content], { type: mime });
     var url = URL.createObjectURL(blob);
@@ -29423,6 +30351,266 @@ window.renderPeriodReport        = renderPeriodReport;
 window.copyPeriodReport          = copyPeriodReport;
 window.downloadPeriodCSV         = downloadPeriodCSV;
 window.downloadPeriodHTML        = downloadPeriodHTML;
+
+// ────────────────────────────────────────────────────────────────────────
+// Area + Period Report — UI handlers (step 6, report-system build)
+// ────────────────────────────────────────────────────────────────────────
+// Deliberately does NOT duplicate a second period navigator — reuses
+// _periodKind/_periodAnchor (and PeriodReports.periodBoundsFor) straight
+// from the Period Reports panel above. The area picker is the only new
+// axis this modal adds; the period is whatever's already selected there.
+var _areaReportType = 'ward';
+var _areaReportName = '1';
+var _lastAreaPeriodReport = null;
+
+var AREA_REPORT_WARD_OPTIONS = (function() {
+  var out = [];
+  for (var i = 1; i <= 14; i++) out.push(String(i));
+  return out;
+})();
+// Confirmed live field schema (see MapLayers._policeDistrictLabelFromProps
+// comment): six polygons, districts 1-6.
+var AREA_REPORT_POLICE_OPTIONS = ['District 1', 'District 2', 'District 3', 'District 4', 'District 5', 'District 6'];
+
+function openAreaPeriodReportModal() {
+  var modal = document.getElementById('area-period-report-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  _renderAreaPeriodReportModal();
+  Accessibility.modalOpened(modal, { onEscape: closeAreaPeriodReportModal });
+}
+function closeAreaPeriodReportModal() {
+  var modal = document.getElementById('area-period-report-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+window.openAreaPeriodReportModal  = openAreaPeriodReportModal;
+window.closeAreaPeriodReportModal = closeAreaPeriodReportModal;
+
+function _areaReportShortlist() {
+  try {
+    var arr = JSON.parse(LS.get('area-report-neighborhood-shortlist') || '[]');
+    return Array.isArray(arr) ? arr : [];
+  } catch(_e) { return []; }
+}
+function _saveAreaReportShortlist(arr) {
+  return LS.set('area-report-neighborhood-shortlist', JSON.stringify(arr));
+}
+function toggleAreaReportShortlistCurrent() {
+  if (_areaReportType !== 'neighborhood' || !_areaReportName) return;
+  var list = _areaReportShortlist();
+  var idx = list.indexOf(_areaReportName);
+  if (idx === -1) {
+    list.push(_areaReportName);
+    if (!_saveAreaReportShortlist(list)) { showToast('Could not save — storage full?'); return; }
+    showToast('★ Added to My Neighborhoods');
+  } else {
+    list.splice(idx, 1);
+    if (!_saveAreaReportShortlist(list)) { showToast('Could not save — storage full?'); return; }
+    showToast('Removed from My Neighborhoods');
+  }
+  _renderAreaPeriodReportModal();
+}
+window.toggleAreaReportShortlistCurrent = toggleAreaReportShortlistCurrent;
+
+function setAreaReportType(type) {
+  if (['ward', 'neighborhood', 'policeDistrict', 'fireDistrict'].indexOf(type) === -1) return;
+  _areaReportType = type;
+  document.querySelectorAll('#area-report-type-ward,#area-report-type-neighborhood,#area-report-type-policeDistrict,#area-report-type-fireDistrict').forEach(function(b) {
+    b.classList.remove('active-period');
+  });
+  var btn = document.getElementById('area-report-type-' + type);
+  if (btn) btn.classList.add('active-period');
+  // Reset to a sensible default name for the new type — first option,
+  // or the first shortlisted neighborhood if there is one.
+  if (type === 'ward') _areaReportName = AREA_REPORT_WARD_OPTIONS[0];
+  else if (type === 'policeDistrict') _areaReportName = AREA_REPORT_POLICE_OPTIONS[0];
+  else if (type === 'neighborhood') {
+    var shortlist = _areaReportShortlist();
+    _areaReportName = shortlist.length ? shortlist[0] : Object.keys(STL_NEIGHBORHOODS_BY_NAME).sort()[0];
+  } else {
+    _areaReportName = ''; // fireDistrict — free text, no known values yet
+  }
+  _renderAreaPeriodReportModal();
+}
+window.setAreaReportType = setAreaReportType;
+
+function setAreaReportName(name) {
+  _areaReportName = name;
+  renderAreaPeriodReport();
+  _updateAreaReportShortlistToggle();
+}
+window.setAreaReportName = setAreaReportName;
+
+function _updateAreaReportShortlistToggle() {
+  var btn = document.getElementById('area-report-shortlist-toggle');
+  if (!btn) return;
+  if (_areaReportType !== 'neighborhood' || !_areaReportName) { btn.style.display = 'none'; return; }
+  btn.style.display = 'block';
+  var starred = _areaReportShortlist().indexOf(_areaReportName) !== -1;
+  btn.textContent = starred ? '★ Saved to My Neighborhoods (tap to remove)' : '☆ Save to My Neighborhoods';
+  btn.style.color = starred ? '#a86a00' : '#888';
+  btn.style.borderStyle = starred ? 'solid' : 'dashed';
+}
+
+// Rebuilds the whole modal body: type pills already have their own
+// handler (setAreaReportType), this fills the shortlist row and the name
+// picker beneath them, then triggers the report render.
+function _renderAreaPeriodReportModal() {
+  var noteEl = document.getElementById('area-report-period-note');
+  if (noteEl && typeof PeriodReports !== 'undefined') {
+    try {
+      var bounds = PeriodReports.periodBoundsFor(_periodKind, _periodAnchor);
+      noteEl.innerHTML = 'Using the period from <b>Period Reports</b> above: <b>' + escHtml(bounds.label) + '</b>' +
+        (bounds.isCurrent ? ' <span style="color:#7a5000">(in progress)</span>' : '') +
+        '. Close this and change it up there if needed, then reopen.';
+    } catch(_e) { noteEl.textContent = ''; }
+  }
+
+  document.querySelectorAll('#area-report-type-ward,#area-report-type-neighborhood,#area-report-type-policeDistrict,#area-report-type-fireDistrict').forEach(function(b) {
+    b.classList.remove('active-period');
+  });
+  var typeBtn = document.getElementById('area-report-type-' + _areaReportType);
+  if (typeBtn) typeBtn.classList.add('active-period');
+
+  var shortlistRow = document.getElementById('area-report-shortlist-row');
+  var pickerEl = document.getElementById('area-report-name-picker');
+  if (!shortlistRow || !pickerEl) return;
+
+  if (_areaReportType === 'neighborhood') {
+    var shortlist = _areaReportShortlist();
+    if (shortlist.length) {
+      shortlistRow.style.display = 'flex';
+      shortlistRow.innerHTML = shortlist.map(function(name) {
+        var active = name === _areaReportName;
+        return '<button data-fn="setAreaReportName" data-arg="' + escHtml(name) + '" style="padding:5px 10px;border-radius:14px;border:1.5px solid ' + (active ? 'var(--forest)' : '#ddd') + ';background:' + (active ? 'var(--forest)' : 'white') + ';color:' + (active ? 'white' : '#555') + ';font-family:\'Space Mono\',monospace;font-size:0.56rem;cursor:pointer">★ ' + escHtml(name) + '</button>';
+      }).join('');
+    } else {
+      shortlistRow.style.display = 'none';
+      shortlistRow.innerHTML = '';
+    }
+    var allNames = Object.keys(STL_NEIGHBORHOODS_BY_NAME).sort();
+    if (allNames.indexOf(_areaReportName) === -1) _areaReportName = allNames[0];
+    pickerEl.innerHTML = '<select onchange="setAreaReportName(this.value)" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-family:\'Space Mono\',monospace;font-size:0.64rem;background:white">' +
+      allNames.map(function(n) { return '<option value="' + escHtml(n) + '"' + (n === _areaReportName ? ' selected' : '') + '>' + escHtml(n) + '</option>'; }).join('') +
+      '</select>';
+  } else if (_areaReportType === 'ward') {
+    shortlistRow.style.display = 'none'; shortlistRow.innerHTML = '';
+    if (AREA_REPORT_WARD_OPTIONS.indexOf(_areaReportName) === -1) _areaReportName = AREA_REPORT_WARD_OPTIONS[0];
+    pickerEl.innerHTML = '<select onchange="setAreaReportName(this.value)" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-family:\'Space Mono\',monospace;font-size:0.64rem;background:white">' +
+      AREA_REPORT_WARD_OPTIONS.map(function(n) { return '<option value="' + n + '"' + (n === _areaReportName ? ' selected' : '') + '>Ward ' + n + '</option>'; }).join('') +
+      '</select>';
+  } else if (_areaReportType === 'policeDistrict') {
+    shortlistRow.style.display = 'none'; shortlistRow.innerHTML = '';
+    if (AREA_REPORT_POLICE_OPTIONS.indexOf(_areaReportName) === -1) _areaReportName = AREA_REPORT_POLICE_OPTIONS[0];
+    pickerEl.innerHTML = '<select onchange="setAreaReportName(this.value)" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-family:\'Space Mono\',monospace;font-size:0.64rem;background:white">' +
+      AREA_REPORT_POLICE_OPTIONS.map(function(n) { return '<option value="' + escHtml(n) + '"' + (n === _areaReportName ? ' selected' : '') + '>' + escHtml(n) + '</option>'; }).join('') +
+      '</select>';
+  } else { // fireDistrict — no known values yet, free text
+    shortlistRow.style.display = 'none'; shortlistRow.innerHTML = '';
+    pickerEl.innerHTML = '<input type="text" value="' + escHtml(_areaReportName) + '" placeholder="e.g. Battalion 3 (boundaries not confirmed yet)" ' +
+      'oninput="setAreaReportName(this.value)" style="width:100%;padding:9px;border:1px solid #ddd;border-radius:7px;font-family:\'Space Mono\',monospace;font-size:0.64rem;background:white;box-sizing:border-box">' +
+      '<div style="font-size:0.5rem;color:#999;margin-top:4px">Fire district boundaries aren\'t wired up yet, so this report will only show stops/chronic locations you\'ve manually confirmed are in this district — no map, no automatic matching.</div>';
+  }
+
+  _updateAreaReportShortlistToggle();
+  renderAreaPeriodReport();
+}
+window._renderAreaPeriodReportModal = _renderAreaPeriodReportModal;
+
+// The only async render in the report UI layer — AreaPeriodReport.buildReport
+// itself is async as of step 5 (polygon fetch for breadcrumb clipping).
+// Shows a lightweight loading state so a slow/offline GeoCache fetch
+// doesn't look like a frozen modal.
+var _areaReportRenderToken = 0;
+async function renderAreaPeriodReport() {
+  var preview = document.getElementById('area-report-preview');
+  if (!preview || typeof AreaPeriodReport === 'undefined' || typeof PeriodReports === 'undefined') return;
+  if (!_areaReportName) {
+    preview.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:#999;padding:8px 2px">Enter a district to generate a report.</div>';
+    return;
+  }
+  var myToken = ++_areaReportRenderToken;
+  preview.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:#999;padding:12px 2px;text-align:center">Building report…</div>';
+
+  var bounds = PeriodReports.periodBoundsFor(_periodKind, _periodAnchor);
+  var report;
+  try {
+    report = await AreaPeriodReport.buildReport({
+      startMs: bounds.startMs, endMs: bounds.endMs,
+      areaType: _areaReportType, areaName: _areaReportName
+    });
+  } catch(e) {
+    if (myToken !== _areaReportRenderToken) return; // a newer render superseded this one
+    preview.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.6rem;color:#c0392b;padding:8px 2px">Couldn\'t build report: ' + escHtml(e && e.message || 'unknown error') + '</div>';
+    return;
+  }
+  // A newer render (area/period changed while this one was in flight)
+  // already took over — drop this stale result rather than flashing it
+  // in over the current selection.
+  if (myToken !== _areaReportRenderToken) return;
+
+  _lastAreaPeriodReport = report;
+  var st = report.stops, ch = report.chronic, cov = report.coverage;
+  preview.innerHTML =
+    '<div style="background:#fafafa;border:1.5px solid #e5e7eb;border-radius:9px;padding:12px;margin-bottom:12px;font-family:\'Space Mono\',monospace;font-size:0.62rem;color:#444;line-height:1.9">' +
+      '<div>' + st.total + ' stop' + (st.total === 1 ? '' : 's') + ' · ' + st.completed + ' completed (' + st.completionRate + '%)</div>' +
+      '<div>' + ch.locations.length + ' chronic location' + (ch.locations.length === 1 ? '' : 's') + '</div>' +
+      (cov.sessionCount ? '<div>' + cov.sessionCount + ' survey session' + (cov.sessionCount === 1 ? '' : 's') + (cov.activeInPeriod ? ' <span style="color:#7a5000">(1 in progress)</span>' : '') + '</div>' : '') +
+      (cov.breadcrumbPointCount ? '<div>' + cov.breadcrumbPointCount + ' breadcrumb point' + (cov.breadcrumbPointCount === 1 ? '' : 's') + (cov.breadcrumbClipped ? '' : ' <span style="color:#999">(same-area sessions only — boundary unavailable)</span>') + '</div>' : '') +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:7px">' +
+      '<button data-fn="copyAreaPeriodReport" style="width:100%;padding:10px;background:#444;color:white;border:none;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">📋 Copy Text Summary</button>' +
+      '<button data-fn="downloadAreaPeriodReportCSV" style="width:100%;padding:10px;background:none;border:1.5px solid #444;color:#444;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">⬇ Download CSV</button>' +
+      '<button data-fn="downloadAreaPeriodReportHTML" style="width:100%;padding:10px;background:none;border:1.5px solid #444;color:#444;border-radius:7px;font-family:Syne,sans-serif;font-weight:800;font-size:0.62rem;cursor:pointer">⬇ Download HTML (prints to PDF)</button>' +
+    '</div>';
+}
+window.renderAreaPeriodReport = renderAreaPeriodReport;
+
+function copyAreaPeriodReport() {
+  if (!_lastAreaPeriodReport || typeof AreaPeriodReport === 'undefined') return;
+  var text = AreaPeriodReport.formatAsText(_lastAreaPeriodReport);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('📋 Copied to clipboard ✓');
+    }).catch(function() { _showDataModal(text); });
+  } else {
+    _showDataModal(text);
+  }
+}
+window.copyAreaPeriodReport = copyAreaPeriodReport;
+
+function _areaReportSlug() {
+  if (!_lastAreaPeriodReport) return 'area_report';
+  var r = _lastAreaPeriodReport;
+  var name = (r.area.label + '_' + r.area.name + '_' + r.period.label).replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return 'CityRoute_' + name;
+}
+function downloadAreaPeriodReportCSV() {
+  if (!_lastAreaPeriodReport || typeof AreaPeriodReport === 'undefined') return;
+  _periodDownload(AreaPeriodReport.formatAsCSV(_lastAreaPeriodReport), 'csv', 'text/csv', _areaReportSlug());
+}
+function downloadAreaPeriodReportHTML() {
+  if (!_lastAreaPeriodReport || typeof AreaPeriodReport === 'undefined') return;
+  _periodDownload(AreaPeriodReport.formatAsHTML(_lastAreaPeriodReport), 'html', 'text/html', _areaReportSlug());
+}
+window.downloadAreaPeriodReportCSV  = downloadAreaPeriodReportCSV;
+window.downloadAreaPeriodReportHTML = downloadAreaPeriodReportHTML;
+
+// Period-only, all-areas — matches the uploaded stlcityroute_export_spec.md.
+// Uses the same period as everything else in this modal, ignores the area
+// picker entirely (by design — see AreaPeriodReport.buildExport's own
+// comment on why this export isn't area-scoped).
+function downloadAreaReportExportJSON() {
+  if (typeof AreaPeriodReport === 'undefined' || typeof PeriodReports === 'undefined') return;
+  var bounds = PeriodReports.periodBoundsFor(_periodKind, _periodAnchor);
+  var exportReport = AreaPeriodReport.buildExport({ startMs: bounds.startMs, endMs: bounds.endMs });
+  var json = AreaPeriodReport.formatAsExportJSON(exportReport);
+  var slug = ('CityRoute_export_' + bounds.label).replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  _periodDownload(json, 'json', 'application/json', slug);
+}
+window.downloadAreaReportExportJSON = downloadAreaReportExportJSON;
 
 // ── Logging toggle ────────────────────────────────────────────────────────────
 function toggleDataLogging(enabled) {
@@ -30263,6 +31451,40 @@ function wizSaveRole() {
       Sessions, coverage checklist, chronic locations, and the photo log — everything tracked for one neighborhood, pulled into one exportable report.
     </div>
     <div id="coverage-report-body"><!-- filled by _renderCoverageReportModal() --></div>
+  </div>
+</div>
+
+<div id="area-period-report-modal" class="modal-overlay" style="display:none;z-index:9765" role="dialog" aria-modal="true" aria-labelledby="area-period-report-modal-title" data-backdrop-close data-fn="closeAreaPeriodReportModal">
+  <div class="modal-sheet" style="padding-bottom:24px;background:white;max-height:92dvh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div id="area-period-report-modal-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem;color:#444">📍 Area Report</div>
+      <button data-fn="closeAreaPeriodReportModal" style="background:none;border:none;font-size:1.4rem;color:#aaa;cursor:pointer;padding:0 4px;line-height:1">✕</button>
+    </div>
+    <div id="area-report-period-note" style="font-family:'Space Mono',monospace;font-size:0.58rem;color:#666;margin-bottom:10px;line-height:1.5">
+      <!-- filled by _renderAreaPeriodReportModal() with the active Period Reports selection -->
+    </div>
+
+    <!-- Area type pills -->
+    <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap">
+      <button data-fn="setAreaReportType" data-arg="ward" id="area-report-type-ward" class="period-kind-btn active-period">Ward</button>
+      <button data-fn="setAreaReportType" data-arg="neighborhood" id="area-report-type-neighborhood" class="period-kind-btn">Neighborhood</button>
+      <button data-fn="setAreaReportType" data-arg="policeDistrict" id="area-report-type-policeDistrict" class="period-kind-btn">Police</button>
+      <button data-fn="setAreaReportType" data-arg="fireDistrict" id="area-report-type-fireDistrict" class="period-kind-btn">Fire</button>
+    </div>
+
+    <!-- My Neighborhoods shortlist — only shown for areaType=neighborhood -->
+    <div id="area-report-shortlist-row" style="display:none;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+
+    <!-- Area name picker — repopulated per area type -->
+    <div id="area-report-name-picker" style="margin-bottom:6px"></div>
+    <button data-fn="toggleAreaReportShortlistCurrent" id="area-report-shortlist-toggle" style="display:none;width:100%;padding:6px;margin-bottom:10px;background:none;border:1px dashed #bbb;color:#888;border-radius:6px;font-family:'Space Mono',monospace;font-size:0.56rem;cursor:pointer">☆ Save to My Neighborhoods</button>
+
+    <div id="area-report-preview" style="margin-top:6px"><!-- filled by renderAreaPeriodReport() --></div>
+
+    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed #ddd">
+      <button data-fn="downloadAreaReportExportJSON" style="width:100%;padding:8px;background:none;border:1px solid #ccc;color:#555;border-radius:7px;font-family:'Space Mono',monospace;font-size:0.56rem;cursor:pointer">📤 Export JSON for report-generator (this period, all areas)</button>
+    </div>
   </div>
 </div>
 
