@@ -1433,11 +1433,11 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
           <button id="drive-sync-disconnect-btn" data-fn="disconnectDriveSync" style="flex:1;padding:10px;border:1.5px solid #c0392b;border-radius:9px;background:white;color:#c0392b;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer;display:none">DISCONNECT</button>
         </div>
         <div style="display:flex;gap:6px;margin-bottom:10px">
-          <button id="drive-sync-passphrase-btn" data-fn="openSyncPassphraseModal" style="flex:1;padding:10px;border:1.5px solid #1a4a8c;border-radius:9px;background:white;color:#1a4a8c;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer">🔒 Enter Passphrase</button>
+          <button id="drive-sync-passphrase-btn" data-fn="enterDriveSyncPin" style="flex:1;padding:10px;border:1.5px solid #1a4a8c;border-radius:9px;background:white;color:#1a4a8c;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer">🔒 Enter PIN</button>
           <button id="drive-sync-now-btn" data-fn="syncDriveNow" style="flex:1;padding:10px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer" disabled>🔄 SYNC NOW</button>
         </div>
         <div style="font-size:0.5rem;color:#999;font-family:'Space Mono',monospace;line-height:1.7">
-          <b>Setup (once, on each device):</b> Connect Google Drive, then set the same sync passphrase you used on your other device(s) — that passphrase is what lets each device decrypt what the others wrote, and it's never sent anywhere.<br><br>
+          <b>Setup (once, on each device):</b> Connect Google Drive, then enter your <b>app PIN</b> — the same 4-digit PIN you use to unlock AI features. No separate passphrase to remember; same PIN on every device you sync.<br><br>
           <b>What syncs:</b> the same data Profile Backup's merge covers — stops, archives, transactions, custom types, map layers, photo tracker, survey sessions. Identity, ID photo, API key, and preferences stay device-local, same as a merge import.<br><br>
           <b>Not live in the traditional sense:</b> this pulls when the app opens and whenever you tap Sync Now — there's no push notification or background sync while the app is fully closed (phone browsers don't reliably support that). For a field tool you open throughout the day, this is close enough to feel live in practice.
         </div>
@@ -1885,36 +1885,13 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
 <div id="pin-entry-modal" class="modal-overlay" style="display:none;z-index:10003" role="dialog" aria-modal="true" aria-labelledby="pin-entry-modal-title" data-backdrop-close data-fn="cancelPinEntry">
   <div class="modal-sheet" style="padding-bottom:24px;max-width:380px">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="pin-entry-modal-title">🔒 Unlock API Key</div>
-    <div style="font-size:0.62rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:14px;line-height:1.6">Enter your PIN to unlock photo scanning.</div>
+    <div class="modal-title" id="pin-entry-modal-title">🔒 Enter App PIN</div>
+    <div style="font-size:0.62rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:14px;line-height:1.6">Enter your 4-digit app PIN — the same one unlocks AI features and Google Drive Sync.</div>
     <input type="password" id="pin-entry-input" autocomplete="off" inputmode="numeric" placeholder="PIN"
       style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-family:'Space Mono',monospace;font-size:1rem;text-align:center;letter-spacing:6px;margin-bottom:14px;box-sizing:border-box">
     <div style="display:flex;gap:8px">
       <button data-fn="cancelPinEntry" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:none;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
       <button data-fn="submitPinEntry" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer">UNLOCK</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== SYNC PASSPHRASE MODAL (Drop AS, 2026-07-28) =====
-     Used by Google Drive Sync. This passphrase is the ONLY thing standing
-     between the encrypted blob and anyone with access to the Drive
-     appDataFolder file — it never leaves the device, lives in
-     sessionStorage only (not localStorage), and must be entered
-     identically on every device you want to sync. Same security posture
-     as the existing API-key PIN. -->
-<div id="sync-passphrase-modal" class="modal-overlay" style="display:none;z-index:10003" role="dialog" aria-modal="true" aria-labelledby="sync-passphrase-modal-title" data-backdrop-close data-fn="closeSyncPassphraseModal">
-  <div class="modal-sheet" style="padding-bottom:24px;max-width:400px">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="sync-passphrase-modal-title">🔒 Sync Passphrase</div>
-    <div style="font-size:0.6rem;color:#666;font-family:'Space Mono',monospace;text-align:center;margin-bottom:14px;line-height:1.7">
-      Encrypts your data before it's stored in your Google Drive. Use the <b>same passphrase on every device</b> you want to sync — write it down somewhere safe. This device forgets it when you close the tab; you'll re-enter it once per session.
-    </div>
-    <input type="password" id="sync-passphrase-input" autocomplete="off" placeholder="At least 6 characters"
-      style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-family:'Space Mono',monospace;font-size:0.85rem;text-align:center;margin-bottom:14px;box-sizing:border-box">
-    <div style="display:flex;gap:8px">
-      <button data-fn="closeSyncPassphraseModal" style="flex:1;padding:11px;border:1.5px solid #ddd;border-radius:10px;background:none;color:#555;font-family:'Syne',sans-serif;font-weight:700;font-size:0.76rem;cursor:pointer">CANCEL</button>
-      <button data-fn="saveSyncPassphrase" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--forest);color:var(--lime);font-family:'Syne',sans-serif;font-weight:800;font-size:0.76rem;cursor:pointer">SET</button>
     </div>
   </div>
 </div>
@@ -5391,8 +5368,16 @@ var DriveSync = (function() {
   // ---- passphrase: sessionStorage ONLY, mirrors the API-key PIN model.
   // Survives reloads within the same tab session; forgotten when the tab
   // closes. Never written to localStorage/IndexedDB/Drive. ----
-  function hasPassphrase() { return !!sessionStorage.getItem('drive-sync-passphrase'); }
-  function getPassphrase() { return sessionStorage.getItem('drive-sync-passphrase') || null; }
+  // Drop AU (2026-07-28): the sync passphrase IS the same 4-digit PIN used
+  // to unlock AI features — one shared secret instead of two. getPassphrase
+  // falls back to the shared PIN cache ('shared-app-pin', populated by
+  // _promptForPin() whenever the user types it, for either purpose) so
+  // that whichever feature the user unlocks first in a session silently
+  // covers the other. setPassphrase/clearPassphrase still write/clear
+  // DriveSync's own key only — disconnecting Drive must never blow away
+  // an already-unlocked AI session, and vice versa.
+  function hasPassphrase() { return !!(sessionStorage.getItem('drive-sync-passphrase') || sessionStorage.getItem('shared-app-pin')); }
+  function getPassphrase() { return sessionStorage.getItem('drive-sync-passphrase') || sessionStorage.getItem('shared-app-pin') || null; }
   function setPassphrase(p) { if (p) sessionStorage.setItem('drive-sync-passphrase', p); }
   function clearPassphrase() { sessionStorage.removeItem('drive-sync-passphrase'); }
 
@@ -5644,11 +5629,11 @@ function updateDriveSyncStatusUI() {
   var el = document.getElementById('drive-sync-status');
   if (el) {
     if (!status.configured) {
-      el.innerHTML = '⚠ Not set up yet — see the setup note below (one-time developer step).';
+      el.innerHTML = '⚠ Not set up yet — the developer setup step below (Google Cloud Console → Client ID) hasn\'t been done on this deployment yet. The Connect button won\'t do anything until then — that\'s expected, not a bug.';
     } else if (!status.connected) {
       el.innerHTML = 'Not connected.';
     } else if (!status.hasPassphrase) {
-      el.innerHTML = '✅ Connected to Google Drive — 🔒 enter your sync passphrase to start syncing.';
+      el.innerHTML = '✅ Connected to Google Drive — 🔒 enter your app PIN to start syncing.';
     } else {
       var last = status.lastSync ? new Date(status.lastSync).toLocaleString() : 'never yet';
       el.innerHTML = '✅ Connected · 🔓 unlocked · Last synced: ' + escHtml(last);
@@ -5661,7 +5646,7 @@ function updateDriveSyncStatusUI() {
   if (connectBtn) connectBtn.style.display = status.connected ? 'none' : '';
   if (disconnectBtn) disconnectBtn.style.display = status.connected ? '' : 'none';
   if (syncBtn) syncBtn.disabled = !(status.connected && status.hasPassphrase);
-  if (passBtn) passBtn.textContent = status.hasPassphrase ? '🔓 Change Passphrase' : '🔒 Enter Passphrase';
+  if (passBtn) passBtn.textContent = status.hasPassphrase ? '🔓 Re-enter PIN' : '🔒 Enter PIN';
 }
 
 async function connectDriveSync() {
@@ -5674,7 +5659,7 @@ async function connectDriveSync() {
     await DriveSync.connect();
     showToast('✅ Connected to Google Drive');
     updateDriveSyncStatusUI();
-    if (!DriveSync.hasPassphrase()) openSyncPassphraseModal();
+    if (!DriveSync.hasPassphrase()) await enterDriveSyncPin();
   } catch(e) {
     showToast('Connect failed: ' + (e && e.message ? e.message : 'unknown'));
   }
@@ -5687,30 +5672,19 @@ function disconnectDriveSync() {
   showToast('Disconnected');
 }
 
-function openSyncPassphraseModal() {
-  var modal = document.getElementById('sync-passphrase-modal');
-  if (!modal) return;
-  var input = document.getElementById('sync-passphrase-input');
-  if (input) input.value = '';
-  modal.style.display = 'flex';
-  try { Accessibility.modalOpened(modal, { onEscape: closeSyncPassphraseModal }); } catch(_e) {}
-}
-function closeSyncPassphraseModal() {
-  var modal = document.getElementById('sync-passphrase-modal');
-  if (modal) modal.style.display = 'none';
-  try { Accessibility.modalClosed(modal); } catch(_e) {}
-}
-function saveSyncPassphrase() {
-  var input = document.getElementById('sync-passphrase-input');
-  var val = input ? input.value : '';
-  if (!val || val.length < 6) {
-    showToast('Use at least 6 characters — this protects your data on Drive');
-    return;
-  }
-  DriveSync.setPassphrase(val);
-  closeSyncPassphraseModal();
+// Drop AU: Drive sync's passphrase entry now reuses the shared PIN modal
+// instead of its own 6+ character passphrase modal — one 4-digit PIN for
+// both AI features and Drive sync. If a PIN is already cached this
+// session (the user unlocked AI features first, or synced earlier), it's
+// used silently with no prompt at all.
+async function enterDriveSyncPin() {
+  var cached = null;
+  try { cached = sessionStorage.getItem('shared-app-pin'); } catch(_e) {}
+  var pin = cached || await _promptForPin();
+  if (!pin) return;
+  DriveSync.setPassphrase(pin);
   updateDriveSyncStatusUI();
-  showToast('Passphrase set for this session — enter the SAME passphrase on your other device(s)');
+  showToast(cached ? '🔒 Using your app PIN' : '🔒 PIN set for this session');
 }
 
 async function syncDriveNow() {
@@ -7296,7 +7270,7 @@ var HOSTED_URL = 'https://stlcityroute.com';
 //   5. Paste the generated Client ID below, replacing the placeholder.
 // See the Drop AS Version Notes for the full walkthrough with screenshots
 // references and troubleshooting.
-var GOOGLE_DRIVE_CLIENT_ID = 'PASTE_YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+var GOOGLE_DRIVE_CLIENT_ID = '872557938817-do6hdbgc3ha0jk83gds2jejsl08n9jjv.apps.googleusercontent.com';
 var DRIVE_SYNC_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 var DRIVE_SYNC_FILENAME = 'stlcityroute-sync.json.enc';
 
@@ -26056,6 +26030,12 @@ function submitPinEntry() {
   var val = (input && input.value || '').trim();
   _closePinEntryModal();
   var r = _pendingPinResolve; _pendingPinResolve = null;
+  // Drop AU: cache the raw PIN for this session so Google Drive Sync can
+  // reuse it silently — one shared PIN unlocks both. Cached regardless of
+  // which decrypt actually validates it against (AI key vs. Drive blob);
+  // if wrong for a given use, that specific unlock still fails its own
+  // check and shows its own error, same as before.
+  if (val) { try { sessionStorage.setItem('shared-app-pin', val); } catch(_e) {} }
   if (r) r(val || null);
 }
 
