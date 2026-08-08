@@ -1150,6 +1150,18 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
       </div>
     </details>
 
+    <!-- 2026-08-09: added alongside per-device photo attribution — see
+         _getDeviceLabel(). Purely a display label; the device id itself
+         (used for actually grouping/counting) is separate, auto-generated,
+         and never shown. -->
+    <details class="settings-panel" id="settings-device-name-panel">
+      <summary>📱 Device Name</summary>
+      <div class="settings-panel-body">
+        <div style="font-size:0.56rem;color:#888;font-family:'Space Mono',monospace;margin-bottom:8px;line-height:1.6">Name THIS device — e.g. "iPad" or "Phone". Shows up when photos or reports need to say which device something came from, if you're syncing more than one. Leave blank and a short anonymous placeholder is used instead.</div>
+        <input type="text" id="settings-device-nickname" placeholder="e.g. iPad" maxlength="30" style="width:100%;padding:9px 10px;border:1.5px solid #ddd;border-radius:8px;font-family:'Space Mono',monospace;font-size:0.7rem;color:#222;background:#fff" onchange="LS.set('device-nickname', this.value.trim())">
+      </div>
+    </details>
+
     <details class="settings-panel" id="settings-diagnostics-panel">
       <summary>🛠 Diagnostics</summary>
       <div class="settings-panel-body">
@@ -1200,10 +1212,14 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
           <button id="drive-sync-passphrase-btn" data-fn="enterDriveSyncPin" style="flex:1;padding:10px;border:1.5px solid #1a4a8c;border-radius:9px;background:white;color:#1a4a8c;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer">🔒 Enter PIN</button>
           <button id="drive-sync-now-btn" data-fn="syncDriveNow" style="flex:1;padding:10px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--moss),var(--leaf));color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:0.66rem;cursor:pointer" disabled>🔄 SYNC NOW</button>
         </div>
+        <!-- 2026-08-08: shown only when a merge queued a conflict it
+             couldn't resolve automatically — see _updateSyncConflictsIndicator,
+             called after every sync/merge. Hidden entirely otherwise. -->
+        <button id="drive-sync-conflicts-btn" data-fn="openSyncConflictsModal" style="display:none;width:100%;padding:10px;border:1.5px solid #c0392b;border-radius:9px;background:#fde8e8;color:#a83232;font-family:'Syne',sans-serif;font-weight:800;font-size:0.64rem;cursor:pointer;margin-bottom:10px">⚠️ <span id="drive-sync-conflicts-count">0</span> stop(s) need review</button>
         <div style="font-size:0.5rem;color:#999;font-family:'Space Mono',monospace;line-height:1.7">
           <b>Setup (once, on each device):</b> Connect Google Drive, then enter your <b>app PIN</b> — the same 4-digit PIN you use to unlock AI features. No separate passphrase to remember; same PIN on every device you sync.<br><br>
           <b>What syncs:</b> the same data Profile Backup's merge covers — stops, archives, transactions, custom types, map layers, photo tracker, survey sessions. Identity, ID photo, API key, and preferences stay device-local, same as a merge import.<br><br>
-          <b>Sync Now</b> pulls, then pushes, in one tap — the right choice every time; there's no separate push/pull step to think about. Once connected, a matching 🔄 button also appears in the header next to Photostamp/PDF Docs, so you don't need to open Settings just to sync. Pulling merges additively (nothing is ever overwritten or deleted by a sync); active stops are also checked for likely duplicates by address on pull — see below.<br><br>
+          <b>Sync Now</b> pulls, then pushes, in one tap — the right choice every time; there's no separate push/pull step to think about. Once connected, a matching 🔄 button also appears in the header next to Photostamp/PDF Docs, so you don't need to open Settings just to sync. Pulling merges additively — an edit on either device survives, notes from both sides are kept rather than one overwriting the other, and a deletion on one device now deletes on the others too (via a small tombstone marker that travels with the sync, not a live push). When two devices genuinely disagree in a way that can't be resolved automatically — the same address active on one device and already completed on another, or a stop edited after it was deleted elsewhere — nothing is guessed at; it's queued here for you to decide.<br><br>
           <b>Not live in the traditional sense:</b> this pulls when the app opens and whenever you tap Sync Now — there's no push notification or background sync while the app is fully closed (phone browsers don't reliably support that). For a field tool you open throughout the day, this is close enough to feel live in practice.
         </div>
       </div>
@@ -1704,6 +1720,27 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
   </div>
 </div>
 
+<!-- ===== SYNC CONFLICTS REVIEW MODAL (2026-08-08) =====
+     Reuses the visual language of #dupe-stop-modal (same card treatment,
+     same button styling) but as a scrollable LIST rather than one item at
+     a time — sync can surface several conflicts in one merge, and syncing
+     itself can happen silently in the background (boot-time auto-sync,
+     the header Sync button), so nothing here is a blocking dialog that
+     interrupts whatever else is happening. It's opened deliberately, by
+     tapping the "N need review" indicator near Sync Now / the header
+     Sync button, whenever pending-sync-conflicts is non-empty. -->
+<div id="sync-conflicts-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="sync-conflicts-modal-title" data-backdrop-close data-fn="closeSyncConflictsModal">
+  <div class="modal-sheet" style="padding-bottom:24px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="sync-conflicts-modal-title">⚠️ Review Sync Conflicts</div>
+    <div style="font-size:0.58rem;color:#888;font-family:'Space Mono',monospace;text-align:center;margin-bottom:12px;padding:0 16px">
+      These stops changed on more than one device in a way that can't be combined automatically. Nothing has been lost — pick what to do with each.
+    </div>
+    <div id="sync-conflicts-list" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:10px;padding:0 4px 4px"></div>
+    <button data-fn="closeSyncConflictsModal" style="margin:12px 4px 0;padding:12px;border:1.5px solid #ccc;border-radius:10px;background:none;color:#666;font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer">Done for now</button>
+  </div>
+</div>
+
 <!-- ===== CLOSE STOP MODAL (Complete vs Delete) ===== -->
 <div id="close-stop-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="close-stop-addr" data-backdrop-close data-fn="closeCloseModal">
   <div class="modal-sheet" style="padding-bottom:28px">
@@ -2011,8 +2048,16 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
       <!-- 2026-08-07: only shown once Drive Sync is connected AND unlocked
            (toggled in updateDriveSyncStatusUI) — hidden entirely otherwise,
            since it's meaningless before setup. Same syncDriveNow() handler
-           the Settings panel's Sync Now button already used. -->
-      <button id="header-sync-btn" data-fn="syncDriveNow" title="Sync with Google Drive" aria-label="Sync" class="sync-header-btn">🔄</button>
+           the Settings panel's Sync Now button already used.
+           2026-08-08: wrapped so a small badge can overlay it when a
+           merge has queued conflicts needing review — see
+           _updateSyncConflictsIndicator. The badge is a separate sibling
+           button (not nested inside header-sync-btn) so tapping it opens
+           the review modal instead of triggering another sync. -->
+      <div style="position:relative;display:inline-flex;flex-shrink:0">
+        <button id="header-sync-btn" data-fn="syncDriveNow" title="Sync with Google Drive" aria-label="Sync" class="sync-header-btn">🔄</button>
+        <button id="header-sync-conflict-badge" data-fn="openSyncConflictsModal" title="Stops need review" aria-label="Sync conflicts need review" style="display:none;position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:#c0392b;color:white;border:1.5px solid white;font-family:Syne,sans-serif;font-weight:800;font-size:0.55rem;line-height:1;padding:0;cursor:pointer;align-items:center;justify-content:center">!</button>
+      </div>
       <button id="fullscreen-btn" data-fn="toggleAppFullscreen" title="Toggle fullscreen" aria-label="Toggle fullscreen" class="fullscreen-header-btn" style="display:none"></button>
     </div>
   </div>
@@ -3505,7 +3550,222 @@ const MIC_ICON_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYA
 const REGULAR_STOPS_ICON_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAn0UlEQVR42t2dd5wV5fX/388zc+veLewusPSlrnRQLIANhdiNLeaLP0tiL4kxGmPsicaSGNtLjYqFxKixG+woGlBQmiDSe4cFtu/td2ae3x8zc/fe3WXZXVj8+p28kHDL3JlznnPO53zOOc8IpZTiBzyUUpgWSCGQMvu9PdUx1m6uZ+XmelZvqmPdljDb98Sprk8RSyiSSRNTKbweDa8uyAlIunTy0atrgEG9Qwztn09Zn1z698rF59Wzzm2YCilASvFD3j7ih1KAZSkUoGUIoLwiwvzlVcxeXMG3q2tZuzlMZU2KuGF/HgUIgRAAApQCAQL7HMr5r3tLmoTcoEaPrn5GDMhn/MhCjju0M8MG5AO2ti1lLwIp3bP8H1eAaSlkWoi20D+cvZNpM3cwb1k1u6tSYAFSOtKxZY0E6RH4vRK/R+Dz6uiaRArbghJJk1jSJJ60MAwFpqMkKezvWwosk0COxrD+uZw6rivnnNCTEYMKG67NdBQh/g8qoLHgZ3+3i6nTNvLRnF2UV6RAyAZBCUVeSKd3SYCyPiGG9MtjYK8cepcE6dzJT17IQ9Cno2sCIQSmpUgkTcIxg8raBDv2xFi/LcLyDbWs2BBm3bYIlTW2YoVHAwQqaRAISo4/tJDLzyrljON64tG1tCI0TRwsBVi2HXeUq1H2KrZ9reK9Wdt48vV1zFpUSTIFQpMoQ6F5BAN7BTl6VCETDuvMmCGF9O0RSgtlP6IM23ZHWLSyhs8X7Oa/CytYuSmMkQTdp2OYFhgpRpXl8qvz+3PhaX3xeXVUhmvqUAVYylId5f0MU6E7K+mzeTu5/4WVzFxUCVJDCIFKmvTu7uP0o0s4b2Ivxo4owu/zNLEc10aF400a/L7rnxzfjx0WyPBcjVdy0jCZt7SCN2ds4z8zy9m6M47m1RBYGHGDEYPyuPXSMv7n5L5N7uFHYwGWpRCOu1m3tZY7n17Gm5/txBISKcA0LMYMzufys0o5b2JPigoCWX44LWxxYPyxpRTKsv9/pkIqa+O8/ulmnn17E9+vrsfjt60tFU9x0vjOPPjrEYwqK7IVa3WMNRxwBTT4T8UjL6/i/hdXU1ln4PHopOIGY4bmceOFA/nZpN7oWoPPteNlxwdApRrcoquMRMrk359s5pFX1rJ0dT2BkJd4IkXAA3/4xSBuu2wompQdEhsOaBB2zXXtllquuX8hn8+tIBDyE4sm6d8ryK2/LOOSM/pmCf5go44myrAahBpPpnj6rXX8ZepadlUmCeV6CdfEOWZMEc/dOYay0vwD7pIOiAIyA9Ybn23i2gcWUxW28GgCLItrz+/HnVcMoTDP3yB47YfB3c2HabAyVveW8jC3PbmUVz7aSjDHTzRuUBjSmHLHaM49sXcTRPeDBmFL2RcDcMdT33HfC6sJBn1EIwbDBgR58g+jOe6wbmkL0X7AFd8aRZgZK/y16Rv5zUPfs6fWIODXiIaT3HPtEO68YlgWMPjBFGA5gSmRMrj0rnm8+sE2QoV+wrUJfvnT3jz2+0PJy/E6greD6o/hsBzkpWmCDdvr+eXd8/lyQRX5hX5qK6Jcel4fptx5BJqUWQvwoAZhV/jhaJLzfvcV0+dUkJPnI5lM8ciNw/nVzw9Jw0hN/jgEv7eYljJMfv3Xb3n29c0UFPqpqYhyzsk9+Pf9Y/HoGor2K6FdMcDVen0kyRk3zGLWwhoCQQ9+XfHqA0dw8rgeP3iA7QhI/dBLK/j9oyvIK/BRVxXjzBNLePOv49E1iaB999pmC3DVFUukOOP6WXyxoBpfQKcwpPH+4+M5bHARhqHQ9R+55Bvds2nZ1vDShxu57I+LCebo1FXHOf+U7rz24Hgsq30wWrYLQ2Nxwe1f88WCavwBnc75Gp89c6wtfPPgCd+0FKbV8VSWEKBrAsNQXHxaX159YAyRcIr8TgHe+GgHv/7rQjRpc1JtvRrZ1hvWpOA3f1vItBnlBENecgOSj588mqH9Cjo8bc/0lkrZVLYmBQeL0NV1Qcqw+NnE3rz4p0OprU1QUBTkqZc38NeXVqBrAtOw2qaA1l66K9yn31zFE//aQCjfD6bBtEfHMqx/YZbwWxJIe4SllM3xuyhKKXtVTv9mG598vc3mldp43vYqzQ7KFhef1peHfzecmsoY+UVBbnlsOR/O3oauyzSdcsCCsLvyv/l+N8dfPguPz0sknOD1vx7B+ZNKO9znu5foUs9SCOYtLWfsRZ8DkjkvTWDsiBIslY24MpXW3Dmbe6+l7zSXL/zqL9/y1KsbCOZ6yPEK5r98IqXdQ2mU2AoXpPaBeGzmsbouwcV3zkdoHiK1Se686hDOn1RK6iAI30YhIssnP/baeoTmQWg6T7yxodng15Ig9/Zea3IVAWmf/9jvRnPM4UUkEiYVtQaX3bPQJv8yAMt+uSCbBYTrH1rEui1RUimLScd04U9XDe9wn99YIO6qWrOllg9nV+DL8eML+fhwTgVrttQipbBLlwfhcKlxXZO8dO8RFORpBHN0vvh6N4+9ujqtoP0KwqZDVL3x2WZefm8zgRwfnfIkz995GEIIu9p3ENGmUwLmyddWEq6O4/NqeD0a9dVJnnxjjVNQO3gVVikFhqko7RbiyVtGEalLEiwIcPfTK1m7pQ5N2/eCkC3erLA58989tgRfyE8snODhm0bQuyRkdxUcxAxXKZvA210V5dXp2/GEfDZlYCk8QZ1XP9nK7qoomiY5mGVuXbOV8D8/KWXy6T2IRpJE4nDjo0vSJaN2KcBygt2fX1jB1u0JkgmL0yaUcMlp/TrU9biIpzlrFMBLH26mskLh92uYlolpWvh9GpV7LP754WYEYFr7Pt+BtQR7wT58wyiKO+n4AzofzCznvS+32a6oBVQk9yp8TbB8fTXPvrURf46HUEDw6G9HpS2jvVCzNcJoHAgtB4VF4imm/GcjesDp8bEaAp0e8PDsuxuJxJLp3KAjrrG596QQmJZFt+Igd18xmFh9Ao/fy13PrCCZMluUl9wbzBLA3c8uI5ZUxKMpfj25PwN756UhaXsQRluDrns1psPHvPPFFtaujxAI6E5fkUhzUwG/YP36MG99sRUhyFp1zV1Pe69/b++5Qfeqc/tz6PACQLFkRQ3//GAjUoosq8xW3l4w/7crK3nvy114fTo9ugf43YVlWIom3Wv7L+CWEbeb8VrK4ul3NiJ1zXndyuanBEiPxjNvb8SyLKQmnCaug9ReIgRKgUfXuOvyMlKJFJ6gl0deXUc8aTpW2awFNH+BD7+yhpQhSMZS/PaC/nTK86XjwsE7hE1yScEXC8uZ+101gRwdpaysm1FKYSkI5OjMW1LN5wvKkUJgmQe36U93UM/px/TgqFGFWBasWh/mrc+32FbZDCLKSsRcX7tmSy3vfbkTzSPp0zPAFWf1T6/Eg324+n7yjfUoU6BJOzdRdh5v/0GgLJz3BE++uT7ruweVvlagScnNFw7ETKXQPBp/f2t9kyy92RjgKuiFaRuJhE3MhMFlZ5aSl+N1/PDBvRnTUggpWLquiulf7yaQ68VyVnu6RwhQwkIpC9NSBHI9fPrNbpasrUS4DOVBhKWaZrua04/pwdCBuSBg/rIa5i6taNYK0i5IKRta1kdTvDFjO8Kj0amTl1+e0RelmgkWHYz5M9P+p95YS7zewKs3+FGBsNN9lG0Etkng0QXxsMlTTmKGOriWYMNgC69H45LTSjGTBqYB//xgUwPCac4FuVH607k72bQ9ijIsTj+6Kz275tgVsEYa6GgY6v7mzooIb8zYgTfkxbIsO7N0YZ1yhA8oaaMhy1J4czy8/UU5O/ZEHHqiY2Fo49ddWU0+qRcFBR6kR+PDOeXU1CfSFtLEBbmr5M0Z20AJpAYXndon3ep3IKBaa5jGzHgkgBff20h1ZQq/T2ugGRQoQRP8oBw36vdJqioMXnhvI0I0T08caBia+boUdjDu2SWHCWM6YxkW28vjfL5gV9q1Zrkg5QSIqroEXy6uBCEY1CfEsaM7IwQ2pDvAxJorMLc5yrQUhmn/SRkWAkF9JMFz765DD3ocpTQSuso2/XTmi0APenj+3TXURxIIbA7fPb9pqXTnQ0eFB8s597kn9MDuixRMm7WjCTiQoNIm+uXi3ezcEwfT5CdHdcbn1TFM1a6mlcbCNc0GAZumE0idi5FOZUvX7D8eXaJpgjc/38rmTRH8PoGZXv0CFwA1/kE3FlhK4fcqtmyJ8uYXW9Ccc7rn16RINwwI0VDzNTKvcT+VJKV97hMO70JRoRc0yZzvq4jEU1k5gQ4Ct5L56dxyu4deF5w0tiRrZbUauWR2Q4iWzdk0TWojKSprEpRXxdlZEWNreZgtOyPsrjaYvbQeX26OjfMthVIN9NbeTqsUWKaFlApvTpC7nl3L9G920bmTlz4lQXqXhOhW5KekyE9xgT1roGsa2j5co6Vs+Nva3lApBJaCbkVBRpflM2NuJVvKYyxdW8NRwzvbsFQIdKXsk1pKsWBFDQBdi30cMbQorcm2wjBXuDX1SSpq4uypSbCrKsH2PVG2746xfU+c8oo4u6riVNQmqYsYROMWpFQDGpAaekDH69Eagi6qEVsrmrU9S4EUEs2j2FUZ542PwqTNXArwQMCvkZ/jpTBfp2uhj27FfroX++nRJUjPLkG6FfkpLvBSWOCjU67P7mfVGkahhNo3vHI5teMP7cyMr/dgJGD+8iqOGt65wQJciLl1V4R126KgYHj/PIrz/VhK0dquOaUgkTK4d8p3fPVdJTVRRUV1kppwgljMtEeGLPfqpX0zukDXJLqmkePXkcEGy0EpTMeP2RltxiyA4zdsCOpYcMa4gFCOJQqBzwtBvxccqsDtYzVNqKg1KK9MsWJtxFaQS28ICbokEIC8kE7XwgCdQjpjh+dz1xWj8Hv1rMmEfSWRR48sRuoCy1B8s6yK6zPe0y2lkAiWrK2htj4FKI4a1snWYCtbTFz+aNGqKu5/fDl08iGEjq5raFInGNSQUiAzmA/lTFE4neKgGgg01fCJjEUvMkKASmP8dCOIyiYSUWBZFkqAadq1P0FDDqFJu5olfIDQEaIhxliWwlIWloKqesXu6jDKMpj1xXbOOLYP40Z0se9ZtIzwXOQ+tH8+XQq9lO9JsXxDPYZpoWsSBUjXFJauq0GlLNAEhw0upC0BQDpdCUP65XPCxG6QEuTlevDqbt1AYFkCw7RImSYpwyRlWCQNy0EnFoalnCxXOVTyXuBvOvvNcEeO1Sixd6rR7mmyF7ppKQxLkbIsUg7qSqUUKUORMi0sZYGyrdOnC/JCHkgJTpjYjaH98h0XJ1oD+1BKUVzgp1+PHECxdVeM7bujDeVe9zwrN9aDglCOxiGleWnBtp6vERSEfLz/6ATOO7kXtbtjaU5eKTBMC9Pxz0rZ0hLCFpKwZ44cQTocQ2Oc3+jfQglUhtAzdeW+rjKLt5mnEe7Lzodc5TgIyrAUSkjn2i1q90Q576SevP/oBPJDvvQ59pUfZBaHyvrkgoK6sMH6beH0opAuQbRhRwSAzp189OgSbDN17CY8Qb+HNx8Yy1WT+xCtSqCUQNMcIs8iLWz73jPdSoNrche/IjPhEjQ2CrGPpkrRKF2QNC1ip39bONUdC3SpoWl2wIpURbnq56W8+eA4gn6P42raDksH9g7ZAMGw2LQzmr4uKYQgljDYVZkAJeha6CMU8Lgz0W3Dvo7JWRY8c+tY7rlhGNG6hN2erpGVhrcFWquGiECGPlqUfuN6bGMwkaVM0XBRUpNICYZhEalL8qfrR/DMbWOxLNGmTL7x0ackmL6oLbsiDRQ2QE19ktqwYUPQIl8WNd2+bNdOtu68fAQlxX6uvn8Rlq7j9dozuqZStApGNCtYkQ7SIiOHaSz4xpbisnINdbQGTSiH29A0iZSCZNLESJk8e9ehXHn2oIzcpj3ysP/uVhxA6BKVtCivTGRzQbXhJNGECSi6FPgaqkz7Wag2DIsrzhrEO38bh1cKolELKUF3bsZdxE5zd7OLOjMcSOddkbmiVUZZoBnTEWTzRqLRd4RSCKSD2CAWM/BIxdsPHcmVZw9yrDe767kt9Lb7taJ8Lz6vnVRV1iTT70mA+qhByrCvtiDXe+AqRLrEMC1+emxvpv/9GLoUaITrDYd6kNmUshtYmwi/QdBZzbmNgmrm5yUiHR9UJkVBBswVDStF0wRSKurDBp3zdaY/dTRnHd+HlGE16f5oqaWxpSM3x4PfY/MTdREjbR0SIJ4wHQwuCPr1A0K6uRepaxLDsBg3ogv/nXI8ZaUB6msSCGl33LlCcpMp0Qj6pF2MaOy7M4e0XIsSTZaeaISoVEMehxASXTrCr0lR1ifAf6ccx/iRXTFMhUeXrWdKRcsm4PNKdOd8iaSZPpcESKSsdDXM65Ec6MO1hENKC5j53ATGHZpPuCqGELYlSJGhBMfVyLRLynBOIntflOaCdYZjTyvU/Z97TqVASomUNqKpr0oxbnQBM6dM4JDSAidREm2OTS3pRddkOqYmDZUdA5SiTYlX+wrWEtNSlBQG+fTJCZx5YlfCVXGkZjOTUiisvaGURiBV7eViRfoTzVhExok1TaJp9gqsr4hy5old+PSp4ykpCmJadpZ6YGtkjVj0xgUZj94QZFJtHDBoE1HnNM/mBLy8+/BxXDW5L/WVMdsdSIHutpi1gDLVPi1+73BTKZf6tpPBcHWSKyaX8s7fjiEn4Gk38ts3iCajNp3dVSgBgn7d/mEF8YTRoTXTdAezEjxz6xHcdnUZ0boEpmWLTjYz8aKacbRWEwvJ4O5VQzKXmelqukDXJfXhFJHKCHdfdwhTbh+LaUlShu2GDVMd0A5r90zJlOksbpFGQ0opOw8IBXS8usTAoiac6vCCuytk01Lcd80ouhcHuOnRFViqYdsypZqvfgnRKANQjaMtbprt/NvOcDVNghLU1ZqMGpTDjRcO4KLTBtpxT2/0XRrm4fbbIpz7CEdNEikLFOQ4rZXKTcTyQh78Pkm0HiprEg3+tB0TJvsSvvsdIQTCId/OPLYHNz++LN2ElS100YT3drknsdfUK5MXtTn5ZMLCoxv89Yah3HzREMDZIm1ZBau2RKiqS+HRoF+PEGMGFzB8YBGaU9t1x1QzJ3VaKw/XmKvqksSTyskJPOn3bAXkeAgFNKoQ7KpOpl1FS/JtX1YomlSZdCmYtWgPsbBJqMCDlW5hUNBkT6CM1Z3B4bgoqbmgLSUkExZF+Rqv3jeeEw7vTnlllL/8YwWvfbqN8s1RSGR2+UpkgcaEwztz00VlnDKuZ6sW3F4XqvN3eWUMy4mv3Yr82VREKOihU56XLSLOrsoEiaSR3jXqYPTULFheAc70i2k1x1KoLLmLLOQmMq5TZEQI+zXTgFBA8P7j4zl8cDHvf7WZ6+5fzNZ1MUQnH8ceW8Jhg/Pp0TlAPGnx/dpaZi2q4POZu/l8YQ3XnLOVx353OB59/+SxpTxiU6NC0Lsk2KAAt5jSvdjHEqXYVZ2gvDJOn24hF9B1KCoC+HZ1DXg0m/61GjcBuH5cZGe9ItPEXejp1o1tyxFSkqiLMuWOMRw+uJj3vtzK+bfMI1ET58RJ3bn3mpGMHV7cRN07KyI8P20jD/5jJU9PXUVFXYJ/33csuLlEO0SydqtNQQtdOLUBh4pQTsTv1yMENOWrO+qwHF++pzrKmi0RPD69EfpoGhgzamFNahFkdS/YCV60PsXJx3fn4lMHsHJTNZfe8y2JqM61vxjE9CcnMHZ452YBbbfiHO68bBjv/OUoinvn8+b7u7lv6gqnS1u1a5Gt2RIGIcnN0enfM5RBRTi/P2JgHkiwkhZL1tZ0uALc8uvyDXXsqUzi9chGQU40QvIqK6qlX1WNKTu3NmEPVt9x6WBAcNtT31O5OcY5p5Tw1C1HoZQNt3ZVRnnu3XXc9Ogi7npmMXOW7E7TBSeN68XUPx6BL6Tz4IvL+X5tRauH7xoaB6A+mmT9NpuC7tHZR6+uDfUW3Q0eo8s64fVLkjGL+SuqOywxdoWsHJw5f0UFJBRaCLsSpVoqqzid0I0/lHbOrgIUsZjJ8IEhxo/swrL1VXz05R7yu/t46PqhNvrQBB/P2czld89lxzYFSTuzuLdgHVee040nbxlLMmVx+tE9ueD0bUx9cRXPvrWGp24tTl97a1Hfms117KyIg1IM65+HR9fSdfQ06htcmke3Yh8IwaJVNcSThlNAUQdU+C5RJ5wfXrC8Jt370hDkVAukRIOVuDdgf12l0zMpBCphcaTTXDBt1g6SexKcPbEH/brnA4r12+uZfMdiduxIMm5cAffdOYqrrigjJyiYMnU9f35xuWOVcOVP+6IV+JnxbS2xhGEX1NW+2VDXUOYvryIZs5yGh8Is7yKFg3VDQS+jyuyL27QjyvL1tQfcDWVuNaBJQTxpsGRtLcKnpTfJzRZ0dr7r9gJpmt3lZloWyrJsekET6WKQ+/2RA/NtJa+oBF3npCO7pc/x9zdWU7s9yRmn9uWLZ07ktl8O4ZlbxzD17sPwFYV46q1N7K6KIgSMGlRIv/55rN8WZcP2+mYF3vwYlP33l4t2gwDdLxk3oijrPZmpqQmHFQMWyZiZbiQ98HPPDf3667bWs3lnFJ9XQzWbSGXfjVuxEkB9fSq9XXE4YtrUrlQ2EkKBhG7Ftq/dXRkBT4qeXXxpC1uwsgIhY1x/fj98Xg/xhIlhWvxsUl9GD8+jckctS9fbrtjv89CnSwCzLkx5RaRVC9NdZPWRJN8sqwIp6V0SYMTATlkND9L+h/2liUeUEMjRQdP4aM5OoCPIKZFW6pI11SQjFh69JVcnkNJe8ZoGsbhJuDrG4UNymf7EeD5+fBxjhoQIV8WIxizHOiRIe5NWwHF3WsZiEiA0kN6G17I2AbcbBzLv3XC2VG5Ld7cCZi/ZzdZdcVAWx4wqIuj3ZA27SNIEGAzpW2CbrRAsWFHLyo21NqLooPH/hatqQGgZab5oIni3WpVMWtRXJSjt5ufpu0bz9T8mMunI7pw8tgdfT53IU3eOpLTET7jWru5pwMZtYZSCstJOiBjMW1aRPvvRIzujDMkjL68hHEvg92pomuCVT9axeGktnXt2Ymi/Tk4WG2Xp+jpCXfIZ0Csvy4Xsi4h+d+Z2LNMuTJ95TLfm6OgGulQIwZnHloBpEo2YvD5j6wF3Q7ZpOm5geSV4NRSZc70CIWzB27SxIlydIqCb3H7lQBa+dAJXn1eGrmnpDZs8msa1PxvMwpdP5I4rB+L3WJh1SeYurUQIOG1cN5RP8er0rSRTBgq45twBdO7jYfqMnUy4eha3PrmEi+/+hkvv+Y5kdYybJpfSuZO9o++7/91M5aYwR48opndJrsMPtQw2NE1QE07w8Te7QJP0LAlwwuElWbmBowDHFzmvnTOhF8GQRHg03vhsGwl3xLKNNdB9IaGdFVFWrK/Co7uJlL33hCZA12woWV+XIpkwuOTsnix4eRJ/vm40nfL8GKZK34g7lG2YFoV5fu69ZiRzp07gosl9mfltFZt2hDllfHf6DQrw3ZIaps8tRwC9uoZ496GxHDIkn4UL63jw4cX865VNKEtw83WDuPmiIViWImWYTJm2CTS48KRuGUlkC13fzoqdNnMb23YkwFCcfFRXCnJ9mGa28nQXW7s8fVmffI47tJBP5lSxakOY6d9s58zjerd62959MajuKl++oZbqWouckMCyLHRdS/dnhqMGKmVy4lHF3H3lEI4Zba8cd9/RxuVCIezX3HmEgb0LeOne8Xw2byerNlVT2r0Xvzp/EDf+eQUP/GMNJ4/tBgjGj+rGwpeL+XD2dlZtqCI/N8AJR5QwfECn9HYM//p4M98trmfIyELOOqGPY8Gyxft26fYXpm1EaBpSmFx8WmmzlSS9MW6VwNXn9Ofj2XuQUufx19dz5nG9W9WKty+WVNjNcWjAt6tqwNScFWwhpCSWsEhFUgwty+X2yw5h8kn2DuamqeyGZU00scDG+wi5O5QoBZOObPC5V54ziGenbeObr8t54T/ruPq8MpIpi5yAh/MnlQKlDQHXebxJZW2UP075HjS445eDyfF79rpPhnsd7kKd+e1Ovl5SDWgcMTSf8aO6NDvqK7PrtvYqOmVcD0YfkoeQMHNBBTO/3Wkzlfs9+CzSgxDzl1eALtJbvtRVhSnKE/zt5uHMf2kik0/qi+UUbTRNNOlTFS1Mwbt5gbv1vV0G9XDHLwaAJvnzi6vZVRXFo8uG6R3DwjCcIUBsZvb+qcvZtKyKY47M5/xJfbCsfW9S4l7Swy+vtnObVJJrzxvg7CfR7KB2U//l0TVumDwQM2mAkNz34soDUrR3a7KJpMF3KyvQvFBTb2P3X13QhwUvTeSmCwfbUM3p798fGOxuk+wqY/LJfZk4oQvbN8S47ell6fYUTbNLlbput4zrmmTBigqeeWsrvsIgD1wzHE3KfbZTmg6l/s3S3XwyZxeaJinrn8u5J/be66B7EwXY0zLw80mlDC/LRUrBjLl7+OCrrfvceqU1uMwtwPfqGkJF45x1XCe+fnECT9wynp5dQhimlUYRB57+ljx2w2jySnz88801vP/lRjujducSnFuLJ1Nc95f5RCsSXH3BIMaP7o5pWq1eDPc8txxLSYy4yQ2TBxHw6XsfdLeUpRofhmG/9uaMTYpRrynPkW+rEf/zoYonU8owLWU1/UqrD8v5cnVdXC1ZtUcp5/dThqVM00q/39z3rBZ+2GrFRbn3dc/zixUDXlSDzn5P1dQn0r+bMkyllFJ/eu47Rf+patBZ/1HVdXFlmpYy93F+99wffLVFMfrfynPk2+qQcz9S0XhKmS1ce7MNMK7JnntCb044qjOWpfh+ZT2PvrLSoWOtfSKhvcFUd1eRglwfI8qKUc5Eiru5d0vBvaWWwNa0C0qHSv79hUM5clxX1iyPctvTS5FSOG2IksWrKvnb1HVoIR+P3DiKglyf20beomtF2B0lf3hiKR6fl1TC4I9XDibg1Dn2Gq/2RZ797Tcj0aUiEPLx5+dXs3JjdbrJqi3138aByg2OIuNhau3ae7mNMwwAPp+Hv996JKHOPp59dQ0ffrUJr0cjGk9x7QPzqK9IcOUFAzntmD5p6Nui73fc0wP/WMay1fWYhmLSuC78/Cd99rl5uWwpgJmmYvQhRVx/QX9i4SSJlOSaB761C+ctzM+2auvHRk+x64h9fZo7pybtUalDDyni978oxYzE+c3DS4knDJ58fQ1z5+xi4OAg918zPG2ZLSWepqXQdcnC5Xv4y9Q1BHJ9+Dzw6I2jMuoTLShAtKKJ6u4rhjF0UC5Swqz5Vdz7wtK0m/oxHpq0LfiWS4Yx9uhurN+Q4txbZvP4G5uRoQCP3zw67Xoy22iaTb6ASCzFpX+aj5I6sbokd1wxmKH9C+ycYB/WI1uagxdOJ0JOwMMLdx0GpklOnp97n1vDZ/N2pHcM/LEd7tiY16Pz7O1HkZsv+GxuOTu21XDtRYM4ZXwrXY/Tx3Tjw9+ydF0EM6U4ekwRv7/4kDQk3dexz51zNSdROnJYF+6/fiiR2jh+v5eL7pjHxu11TmHkx6cENwEc3r+AOy7tR2pXjLJ+Qe67aqizM1jL33dnB6a8s5opb28mmOMjP0fw4t1jnOcJtJIxbc3zAzL3z7/gttn8++OdeDwaIwYEmPn8ieQEvR32nK2OPNwJTiHgXx9s4PBhRQzuW5DFdjbnelKGhUeXfLFgB6dcNxuv30e4Ps67jx7FWcf3sYNyKzusW/0MGftiBdF4kuMu/5yl62IYpsVp44t499Fj0aS234/+a8+G2u1pF2zvb4E9dqXrkiVrKpl01ZdEUhrR2jj3/mYwd1w+PD2E3WpLbBuisGvHbz98NCVFGn6vzgdfVXDBbXNsQk3snztqH8En9msj7kwCriW8nin8NZtrOOP62dTFJdG6JJf9rLcjfNXqld8qFNSc3zRNRWm3XN57bDxBn0Ug6OHNT3cx+dY5GKbRpr6ZHzYQZ9+5rokWrTflCH/VphpOvvZL9tRYJKIpzjyxM8/efnjDfqptjUVthnAO8hlVVsz7T4zHr1vkBL288dkuTr9+FtX18XTg/r9yuD5//rLdTLxqJjuqLeIJi5PGF/H6g+OQUktvZN7WQlW7ZnFc+Dl2eFc++fsxhPwKv1djxrwaTrzyv6zdUpP+jPoR68Hdg86jS6bN3MxJ135FVb0iEUlxxnHF/OfRo/H7PHZnqhDtqha2exjKFfARQzszY8px9OzqRQhYsTHOsZfOZNrMzc4Dl/lRwlTDocOlFNz3wlJ+dvN8UpZOLJzikp/24p2HbeG7j/RqzH+1Vgn7/TRVN+rvrIhy4W1z+WJ+JTk5HhLxBL+9cAD3XDcSv7P12Y/haXqZz7rfWh7mVw8u4r1ZuwgGPcRiSe68cjB/unp4eqpT7mXlt/Y+262ATLjmBqCUYXLTw4t44rWN5AQ8RKIpxgzN57GbRzF+VNc0kmjoYmsbBGwLnGzr9zJzHYBXPtrILY9/z85KAyEhP0fj738Yxc9PKm32YZ7u+VqCxR1iAZn+0n2a3Ksfb+TGh79nT43hzMdaXHF2H/5w6WC6FeekTfx/w4M97Vm1hnrz8vXV3PnUMt6dVY7Xq5OMG4wf1Ynn7hrD4L4F/zsfZ5u5itzn827aUc+Nj3zHu1+U4/N6SCQNenb18NsLBnDFOQPIzfE5VK5q0oXW4UJ3XE3mQ513VkR5/JVVPPvOJmqidk4T8Ah+f/FAbr98qD3x3wEPruiQR5pntrC8/NF67np6BRu3xfH6dJJJg7LSIFee3Zf/d2opXYuCWYFPdNCTtd2pR7c13T22lod5/t0NvDhtE9t2J5C6hmVZnHh4MQ9eP5wxg4vSsaGDHmneMUDRfmy43TpeWRvnoZdW8vy7m6isMdF0iWmY9Ozq46fHdeeCk3szdmQxQsgsnl2pzB2uWq8UN0C6c8OikYWZlsWc7/bwykebee/LnZRXJNPPIRk2IMQfLhnE/zu1X3oxdeTDpzvEAvZmDeu31fLYK2v59/StVNYY9k1bCr9PMmJgiJPGduUnR3VjVFkBoaB37yhFNeVw04raSzYaiSZZvLqG6d/s5JOvy1m6vp5EXKW3LBnWL8TV5/Xj0p/2JeDzZD0lvEMz8o5WQOPYALBxRx0vvb+J1z/bzqrNEZRJevTR6xP0KQkwalABY4YUMGJgAf175tKt2E8o6KE11xqJpdhVGWP9tjDfr6lh/opqvltTw+adcRJxd/9jRSCocdSwTlx6Zh/OndibgE9vsmg6nBI5GArIdEvKagh8sXiKT+eW8/qnW5i5qNLeNtnKzA8VQhfk5ugU53voUuilSyc/hXlecnN0/F57rixpKOojBtX1KfZU25vEVtQkqYuksJJkbTCh+yQDegU5dVwJ50/qyZHDO2dZ68F+BvJBVcDeFAGwuyrG7MV7+HzBbuYtq2bDjgh1EdPedVBlwBeVsdlo5oPdM3dcdKUtwOuBwjwPh5TmMn5kEROP6MKRw4vTq921zh/q4dMdFoTb4pqaDEOYJis31rJ4VTXfr6tj9eYwW8oj7KlJEYk1DGE3ZTghL0ejpNBP3+4BBpfmMnJQASMHFdC3R14TqkEIfvDHrf9/W4adAMKsGdEAAAAASUVORK5CYII=';
 const APP_VERSION        = '${APP_VERSION}'; // stamped by GitHub Actions on every deploy
 const SCHEMA_VERSION     = '3';          // bump when stop object shape changes
-const STOP_DEFAULTS      = { type:'inspection', done:false, notes:'', lat:null, lng:null, addedAt:null, completedAt:null, arrivedAt:null, verified:false, addrNote:null, photoCount:0, lastPhotoAt:null, transactions:null };
+const STOP_DEFAULTS      = { type:'inspection', done:false, notes:'', lat:null, lng:null, addedAt:null, completedAt:null, arrivedAt:null, verified:false, addrNote:null, transactions:null };
+
+// ─── Field-level merge support (2026-08-08) ────────────────────────────────
+// When the same stop id exists on two devices at sync time, the OLD
+// behavior was to just skip the incoming copy entirely — whichever device
+// happened to create the stop kept it forever, and every OTHER device's
+// edits to that stop silently never synced. This replaces that with a
+// real per-field merge (see _mergeStopFields, called from
+// ProfileBackup.applyImportMerge) so information from neither device is
+// lost.
+//
+// Fields fall into three merge strategies:
+//   1. Timestamped groups below — single-value fields where only one
+//      side can be "current" (you can't merge two different addresses).
+//      Whichever side has the newer st._fieldTs[group] wins, and every
+//      field in that group moves together as a unit — e.g. address/lat/
+//      lng/verified can't end up mismatched with each other.
+//   2. notes / addrNote — free text. Handled directly in
+//      _mergeStopFields via concatenation-when-different, not a
+//      timestamp: there's no "current" value to pick, so nothing is ever
+//      dropped, and no mutation site needs to remember to stamp anything.
+//   3. photoCount / lastPhotoAt — monotonically increasing, handled via
+//      MAX in _mergeStopFields. No timestamp needed either.
+// Groups 2 and 3 need zero instrumentation at the ~15 call sites that
+// touch those fields; only groups in STOP_FIELD_GROUPS need an explicit
+// _touchField() call at their mutation sites (see STOPS section).
+const STOP_FIELD_GROUPS = {
+  // Everything that changes together when the address itself changes, or
+  // when a background geocode fixup updates coordinates for the CURRENT
+  // address (see the 8793/9931/12286/12311-area geocode-retry call sites).
+  address: ['address','fullAddress','verified','lat','lng','neighborhood','neighborhoodName','ward','geoLookedUpAt','_geocodeFailed','_geocodeFailedAt'],
+  type:    ['type'],
+  // 2026-08-09: arrival and completion used to share one bundled 'status'
+  // timestamp. That caused a real bug: a device that only ever COMPLETES a
+  // stop (without ever tapping Arrive — e.g. force-closing from a desk)
+  // would win the timestamp comparison and silently overwrite another
+  // device's real arrivedAt with null, even though it never touched
+  // arrival at all. Split into two independent groups so a device can
+  // only affect the fields it actually changed.
+  //
+  // completion (done + completedAt) still moves together as a pair — a
+  // stop being complete and its completion timestamp are the same fact,
+  // always set together by _finalizeStopClose. undoComplete() now clears
+  // completedAt as well as done (previously left it stale — a real but
+  // separate bug, fixed alongside this split since leaving it would have
+  // reopened the same "stale value survives via merge" problem one level
+  // down, just for completedAt specifically instead of arrivedAt).
+  arrival:    ['arrivedAt'],
+  completion: ['done','completedAt']
+};
+
+// Call at every mutation site that changes a field inside one of the
+// STOP_FIELD_GROUPS groups above (NOT for notes/addrNote/photoCount/
+// lastPhotoAt — those don't need timestamps at all, see above).
+function _touchField(s, group) {
+  if (!s._fieldTs) s._fieldTs = {};
+  s._fieldTs[group] = Date.now();
+}
+
+// Merges `incoming`'s fields into `local` IN PLACE when the same stop id
+// is seen on both sides of a sync. Returns true if anything actually
+// changed, so the caller can count it for the merge-summary toast.
+// Idempotent: running this twice with the same inputs (e.g. because
+// syncNow's pull ran more than once before a device made any new local
+// edits) produces no further change the second time — important since
+// Sync Now can run repeatedly across a day.
+function _mergeStopFields(local, incoming) {
+  var changed = false;
+  var localTs = local._fieldTs || {};
+  var incomingTs = incoming._fieldTs || {};
+
+  Object.keys(STOP_FIELD_GROUPS).forEach(function(group) {
+    var lt = localTs[group] || 0;
+    var it = incomingTs[group] || 0;
+    if (it <= lt) return; // local's copy of this group is as new or newer — keep it
+    STOP_FIELD_GROUPS[group].forEach(function(f) {
+      if (f === '_geocodeFailed' || f === '_geocodeFailedAt') {
+        // These are set via plain assignment but CLEARED via `delete`
+        // (see saveEditStop), so `undefined` on the incoming side is a
+        // meaningful "no failure", not just "field not tracked" — copy
+        // it across as an explicit delete rather than skipping it.
+        if (incoming[f] !== undefined) { if (local[f] !== incoming[f]) { local[f] = incoming[f]; changed = true; } }
+        else if (local[f] !== undefined) { delete local[f]; changed = true; }
+        return;
+      }
+      if (incoming[f] !== undefined && incoming[f] !== local[f]) { local[f] = incoming[f]; changed = true; }
+    });
+    if (!local._fieldTs) local._fieldTs = {};
+    local._fieldTs[group] = it;
+  });
+
+  // notes / addrNote: concatenate rather than overwrite when they've
+  // genuinely diverged, so neither device's text is ever lost. The
+  // substring checks make this idempotent across repeated merges in
+  // either direction — without them, syncing twice would duplicate the
+  // appended text every time.
+  ['notes', 'addrNote'].forEach(function(f) {
+    var lv = (local[f] || '').trim();
+    var iv = (incoming[f] || '').trim();
+    if (!iv || iv === lv) return;                              // nothing new, or identical
+    if (lv && lv.indexOf(iv) !== -1) return;                    // incoming's text is already present locally
+    if (!lv) { local[f] = iv; changed = true; return; }         // local was empty — just take incoming
+    if (iv.indexOf(lv) !== -1) { local[f] = iv; changed = true; return; } // incoming is a superset of local (e.g. from an earlier merge the other direction) — take the fuller version
+    local[f] = lv + '\n[synced from another device] ' + iv;     // genuinely divergent — keep both
+    changed = true;
+  });
+
+  // 2026-08-09: photoCount / lastPhotoAt used to be merged here via MAX.
+  // Removed — they're no longer stored on the stop at all. See
+  // _computeAllStopPhotoStats: photo counts are now derived on demand from
+  // the Photo Tracker log, which already merges correctly as a proper
+  // per-event union (dedup by ts+stopId), so there's nothing left for
+  // THIS function to reconcile for those two fields.
+
+  return changed;
+}
+
+// ─── Deletion tombstones (2026-08-08) ──────────────────────────────────────
+// Deletions never used to sync at all — deleting a stop on one device had
+// no effect on any other device, and worse, a device's OWN next pull could
+// silently resurrect its own deletion the moment it merged in another
+// device's still-active copy. Tombstones fix this: deleting a stop now
+// also records a small marker ({id, deletedAt}) in its own LS key, and
+// that marker travels through sync just like the stops themselves. A
+// merge can then tell "this device deleted this stop" apart from "this
+// device just never happened to create it," which a plain stops-array
+// diff can't distinguish on its own.
+//
+// The one thing a tombstone must not do is blindly win: if another device
+// edited the stop AFTER the deletion decision was made elsewhere, blindly
+// deleting would silently throw away that edit. So every tombstone
+// application compares the tombstone's timestamp against the stop's own
+// _stopLastTouchedTs — if the edit is newer than the deletion, this is a
+// genuine conflict and gets queued for review instead of resolved
+// automatically in either direction. See _queueSyncConflict below.
+const TOMBSTONE_LS_KEY = 'deleted-stop-ids';
+const TOMBSTONE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 180; // 180 days — long enough to
+  // cover any realistic gap between a device's syncs, short enough that this
+  // list doesn't grow forever. Pruned opportunistically on every write.
+
+function _loadTombstones() {
+  var list = [];
+  try { list = JSON.parse(LS.get(TOMBSTONE_LS_KEY) || '[]'); } catch(_e) {}
+  return Array.isArray(list) ? list : [];
+}
+
+function _saveTombstones(list) {
+  var cutoff = Date.now() - TOMBSTONE_MAX_AGE_MS;
+  var pruned = list.filter(function(t) { return t && t.id != null && t.deletedAt && t.deletedAt >= cutoff; });
+  LS.set(TOMBSTONE_LS_KEY, JSON.stringify(pruned));
+}
+
+// Call this at every site that permanently removes a stop from the active
+// (or completed) list — see closeStopDelete, confirmDeleteAll,
+// deleteCompletedStop, clearCompletedStops.
+function _recordStopTombstone(id) {
+  var list = _loadTombstones();
+  var existing = list.find(function(t) { return t.id === id; });
+  if (existing) { existing.deletedAt = Date.now(); }
+  else { list.push({ id: id, deletedAt: Date.now() }); }
+  _saveTombstones(list);
+}
+
+// Highest _fieldTs value on a stop, or 0 if it's never been touched via an
+// instrumented mutation site (treated as "no evidence of a later edit" —
+// the same safe-default philosophy as the rest of the field-merge system:
+// an unknown timestamp loses to one that actually exists).
+function _stopLastTouchedTs(s) {
+  if (!s || !s._fieldTs) return 0;
+  var max = 0;
+  Object.keys(s._fieldTs).forEach(function(k) { if (s._fieldTs[k] > max) max = s._fieldTs[k]; });
+  return max;
+}
+
+// ─── Sync conflict queue (2026-08-08) ──────────────────────────────────────
+// Conflicts that can't be resolved automatically without a real chance of
+// losing information — an address that exists both active and completed
+// (could be a genuine revisit, could be an accidental double-entry), or a
+// stop edited after it was deleted elsewhere — are queued here instead of
+// guessed at. Deliberately NOT a blocking modal at merge time: a sync can
+// run silently in the background (boot-time auto-sync, or a tap of the
+// header Sync button while attention is elsewhere), and popping a dialog
+// out of nowhere for that would be worse than just letting the person
+// review a short list when they next open the app. See
+// renderSyncConflictsPanel / resolveSyncConflict for the review UI, and
+// showDupeModal/dupeAction for the sibling single-item picker this reuses
+// the visual language of.
+const SYNC_CONFLICTS_LS_KEY = 'pending-sync-conflicts';
+
+function _loadSyncConflicts() {
+  var list = [];
+  try { list = JSON.parse(LS.get(SYNC_CONFLICTS_LS_KEY) || '[]'); } catch(_e) {}
+  return Array.isArray(list) ? list : [];
+}
+
+function _saveSyncConflicts(list) {
+  if (!LS.set(SYNC_CONFLICTS_LS_KEY, JSON.stringify(list))) console.warn('[sync] pending-sync-conflicts write failed (storage full?)');
+}
+
+// kind: 'address-state' — {localStop, incomingStop}, same normalized
+//         address, differing done/active state.
+//       'delete-edit'    — {tombstone, stop, side} — a stop was edited
+//         after being deleted elsewhere. `side` is 'local' (this device
+//         deleted it, incoming still has an edited copy) or 'incoming'
+//         (another device deleted it, this device has an edited copy).
+function _queueSyncConflict(kind, payload) {
+  var list = _loadSyncConflicts();
+  list.push({
+    conflictId: 'conf_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    kind: kind,
+    detectedAt: new Date().toISOString(),
+    payload: payload
+  });
+  _saveSyncConflicts(list);
+}
+
 const STL_CITY_BOUNDS    = [[38.532, -90.320], [38.774, -90.016]];
 const STL_CITY_CENTER    = [38.627, -90.1994];
 const NOMINATIM_VIEWBOX  = '-90.320,38.774,-90.016,38.532';
@@ -4456,13 +4716,22 @@ const ProfileBackup = (function() {
   var EXCLUDE_EXACT = {
     '_migrated_v1': true,
     'app-device-id': true,
+    'device-nickname': true,  // 2026-08-09: this device's own display label — must not sync, or one device's sync would overwrite another's name
     'pwa-installed': true,
     'pwa-prompt-dismissed': true,
     'swipe-hint-shown': true,
     'analytics-beacon-url': true,    // Per-device beacon URL
     'app-anon-id': true,             // Per-device anon identifier
     'anthropic-api-key': true,       // Old plaintext key — should not exist post-migration
-    'anthropic-api-key-enc': true    // Encrypted with this device's PIN — useless cross-device
+    'anthropic-api-key-enc': true,   // Encrypted with this device's PIN — useless cross-device
+    // 2026-08-08: pending sync conflicts are THIS device's "needs your
+    // attention" queue, generated by ITS OWN most recent merge. A conflict
+    // flagged on the desktop isn't necessarily a conflict on the iPad too
+    // (the iPad's local state may not even have the colliding stop) — so
+    // this stays device-local rather than syncing. deleted-stop-ids
+    // (tombstones) is deliberately NOT excluded here — that one does need
+    // to travel between devices for deletion-sync to work at all.
+    'pending-sync-conflicts': true
   };
 
   // SCHEMA_VERSION lets future versions of the import code recognize old
@@ -4805,6 +5074,9 @@ const ProfileBackup = (function() {
       mode:                 'merge',
       stopsAppended:        0,
       stopsDuplicatesSkipped: 0,
+      stopsFieldsMerged:    0,
+      stopsTombstoned:      0,
+      conflictsQueued:      0,
       archivedStopsAppended:0,
       transactionsAppended: 0,
       customTypesAppended:  0,
@@ -4820,6 +5092,26 @@ const ProfileBackup = (function() {
       exportedBy:           blob.exportedBy || ''
     };
 
+    // ─── Deletion tombstones: merge the two devices' lists first, so the
+    // freshest tombstone data is available below ──────────────────────────
+    var localTombstones = _loadTombstones();
+    var tombstoneById = {};
+    localTombstones.forEach(function(t) { tombstoneById[t.id] = t; });
+    try {
+      var incomingTombRaw = ls[TOMBSTONE_LS_KEY];
+      if (incomingTombRaw) {
+        var incomingTombs = JSON.parse(incomingTombRaw);
+        if (Array.isArray(incomingTombs)) {
+          incomingTombs.forEach(function(t) {
+            if (!t || t.id == null || !t.deletedAt) return;
+            var existing = tombstoneById[t.id];
+            if (!existing || t.deletedAt > existing.deletedAt) { tombstoneById[t.id] = t; localTombstones = localTombstones.filter(function(x){return x.id!==t.id;}).concat([t]); }
+          });
+        }
+      }
+    } catch(e) { console.warn('[merge] tombstone error:', e); }
+    _saveTombstones(localTombstones);
+
     // ─── Active stops: APPEND into inspector-data.stops ───────────────────
     try {
       var incomingInspector = ls['inspector-data'];
@@ -4829,6 +5121,32 @@ const ProfileBackup = (function() {
           var curRaw = LS.get('inspector-data');
           var cur = curRaw ? JSON.parse(curRaw) : { stops: [] };
           if (!Array.isArray(cur.stops)) cur.stops = [];
+
+          // Apply incoming tombstones against LOCAL active stops FIRST —
+          // another device may have deleted a stop this device still has
+          // active. If this device hasn't touched it since the deletion,
+          // remove it here too; if it HAS (an edit newer than the
+          // deletion), that's a genuine conflict — queue it rather than
+          // guess, since either auto-deleting or auto-keeping could be
+          // the wrong call and there's no way to tell from timestamps
+          // alone which one the person actually wants.
+          var idsToRemoveLocally = {};
+          cur.stops.forEach(function(s) {
+            var tomb = tombstoneById[s.id];
+            if (!tomb) return;
+            var lastTouched = _stopLastTouchedTs(s);
+            if (lastTouched <= tomb.deletedAt) {
+              idsToRemoveLocally[s.id] = true;
+              stats.stopsTombstoned++;
+            } else {
+              _queueSyncConflict('delete-edit', { tombstone: tomb, stop: s, side: 'incoming' });
+              stats.conflictsQueued++;
+            }
+          });
+          if (Object.keys(idsToRemoveLocally).length) {
+            cur.stops = cur.stops.filter(function(s) { return !idsToRemoveLocally[s.id]; });
+          }
+
           // Just concat — IDs are timestamp-based so collisions are vanishingly
           // rare across devices. If a collision did occur it would be silently
           // resolved when the user next interacts with the stop (the second
@@ -4841,28 +5159,75 @@ const ProfileBackup = (function() {
           // added on desktop AND on the iPad in the field before the day's
           // first sync) gets two different timestamp-based IDs and would
           // sail right past the check above. So also index existing active
-          // stops by normalized address, and skip an incoming stop whose
-          // normalized address already exists — same normalizeAddr() used
-          // for stop-matching everywhere else in this app, so "2906 Keokuk
-          // St" and "2906 keokuk street" collide correctly. This only
-          // guards ACTIVE (not-yet-completed-and-archived) stops, since
-          // that's the window where the same address could plausibly get
-          // entered twice from two different devices; archived stops are
-          // deduped by ID only (see below), matching their existing
-          // per-date behavior.
+          // stops by normalized address, and compare state (active vs
+          // completed) rather than skip blind — same address in the SAME
+          // state (both active, or both done) is still auto-deduped
+          // silently, since that's the common "typed it twice by accident"
+          // case with no real ambiguity. Same address in DIFFERING state
+          // (one completed, one still active) is queued for review instead
+          // — could be a genuine revisit (a new active stop for an address
+          // already completed earlier), which auto-dropping would silently
+          // destroy. This only guards ACTIVE (not-yet-completed-and-archived)
+          // stops; archived stops are deduped by ID only (see below),
+          // matching their existing per-date behavior.
           var existingAddrs = {};
+          var byId = {};
           for (var ai = 0; ai < cur.stops.length; ai++) {
             var exAddr = cur.stops[ai] && cur.stops[ai].address;
-            if (exAddr) existingAddrs[normalizeAddr(exAddr)] = true;
+            if (exAddr) existingAddrs[normalizeAddr(exAddr)] = cur.stops[ai];
+            if (cur.stops[ai]) byId[cur.stops[ai].id] = cur.stops[ai];
           }
           for (var j = 0; j < incoming.stops.length; j++) {
             var st = incoming.stops[j];
-            if (!st || existingIds[st.id]) continue;
+            if (!st) continue;
+
+            // This device deleted this stop (or a tombstone synced in
+            // above from a third device) — if the incoming copy hasn't
+            // been touched since the deletion, the tombstone wins and it
+            // does NOT get re-added. If it HAS been touched since, that's
+            // an edit-after-delete conflict — queue it.
+            var stTomb = tombstoneById[st.id];
+            if (stTomb) {
+              var stTouched = _stopLastTouchedTs(st);
+              if (stTouched <= stTomb.deletedAt) { stats.stopsTombstoned++; continue; }
+              _queueSyncConflict('delete-edit', { tombstone: stTomb, stop: st, side: 'local' });
+              stats.conflictsQueued++;
+              continue;
+            }
+
+            if (existingIds[st.id]) {
+              // 2026-08-08: same stop id on both sides — used to be a
+              // silent no-op (incoming dropped entirely, local kept
+              // forever). Now does a real per-field merge so an edit made
+              // on EITHER device survives the sync, instead of only the
+              // device that originally created the stop ever being able
+              // to update it. See _mergeStopFields for the per-field
+              // rules (timestamped groups / notes concatenation / MAX for
+              // photo counts).
+              var localStop = byId[st.id];
+              if (localStop && typeof _mergeStopFields === 'function' && _mergeStopFields(localStop, st)) {
+                stats.stopsFieldsMerged++;
+              }
+              continue;
+            }
             var stAddrKey = st.address ? normalizeAddr(st.address) : null;
-            if (stAddrKey && existingAddrs[stAddrKey]) { stats.stopsDuplicatesSkipped++; continue; }
+            var addrMatch = stAddrKey ? existingAddrs[stAddrKey] : null;
+            if (addrMatch) {
+              if (!!addrMatch.done === !!st.done) {
+                // Same state (both active, or both completed) — the
+                // ordinary "typed it twice" case, no real ambiguity.
+                stats.stopsDuplicatesSkipped++;
+              } else {
+                // Differing state — genuinely ambiguous (revisit vs
+                // stale duplicate). Don't guess either way.
+                _queueSyncConflict('address-state', { localStop: addrMatch, incomingStop: st });
+                stats.conflictsQueued++;
+              }
+              continue;
+            }
             cur.stops.push(st);
             existingIds[st.id] = true;
-            if (stAddrKey) existingAddrs[stAddrKey] = true;
+            if (stAddrKey) existingAddrs[stAddrKey] = st;
             stats.stopsAppended++;
           }
           // LS.set never throws — a false return means the appended stops
@@ -5109,6 +5474,7 @@ const ProfileBackup = (function() {
       if (k === 'inspector-data' || k === 'stops-archive' ||
           k === 'transactions-ledger' || k === 'custom-stop-types' ||
           k === 'chronic-index' || k === 'survey-log' ||
+          k === TOMBSTONE_LS_KEY ||
           k.indexOf('chronic-loc:') === 0) return;
       if (_isSkipIfSetKey(k)) {
         var cur = LS.get(k);
@@ -5454,8 +5820,11 @@ var DriveSync = (function() {
       var stats = result.pull && result.pull.stats;
       if (stats) {
         var n = (stats.stopsAppended||0) + (stats.archivedStopsAppended||0) + (stats.transactionsAppended||0) +
-                (stats.photoTrackerPhotosAppended||0) + (stats.surveySessionsAppended||0);
-        if (n > 0 && typeof showToast === 'function') showToast('🔄 Synced — ' + n + ' item' + (n===1?'':'s') + ' from another device');
+                (stats.photoTrackerPhotosAppended||0) + (stats.surveySessionsAppended||0) + (stats.stopsFieldsMerged||0);
+        var conflictNote = stats.conflictsQueued ? (' · ⚠ ' + stats.conflictsQueued + ' need' + (stats.conflictsQueued===1?'s':'') + ' review') : '';
+        if ((n > 0 || stats.conflictsQueued) && typeof showToast === 'function') {
+          showToast('🔄 Synced — ' + n + ' item' + (n===1?'':'s') + ' from another device' + conflictNote);
+        }
       }
     }).catch(function(e) {
       console.warn('[DriveSync] auto-sync on boot failed:', e && e.message);
@@ -5526,6 +5895,21 @@ function updateDriveSyncStatusUI() {
   if (syncBtn) syncBtn.disabled = !ready;
   if (headerSyncBtn) headerSyncBtn.style.display = ready ? 'flex' : 'none';
   if (passBtn) passBtn.textContent = status.hasPassphrase ? '🔓 Re-enter PIN' : '🔒 Enter PIN';
+  try { _updateSyncConflictsIndicator(); } catch(_e) {}
+}
+
+// Shows/hides the "N stops need review" indicators (header badge +
+// Settings button) based on whether pending-sync-conflicts is non-empty.
+// Called after every sync/merge completes, and once at boot in case a
+// previous session ended with unreviewed conflicts still sitting there.
+function _updateSyncConflictsIndicator() {
+  var n = (typeof _loadSyncConflicts === 'function') ? _loadSyncConflicts().length : 0;
+  var headerBadge = document.getElementById('header-sync-conflict-badge');
+  var settingsBtn = document.getElementById('drive-sync-conflicts-btn');
+  var settingsCount = document.getElementById('drive-sync-conflicts-count');
+  if (headerBadge) headerBadge.style.display = n ? 'flex' : 'none';
+  if (settingsBtn) settingsBtn.style.display = n ? '' : 'none';
+  if (settingsCount) settingsCount.textContent = n;
 }
 
 async function connectDriveSync() {
@@ -5580,7 +5964,9 @@ async function syncDriveNow() {
       var n = (stats.stopsAppended||0) + (stats.archivedStopsAppended||0) + (stats.transactionsAppended||0) +
               (stats.photoTrackerPhotosAppended||0) + (stats.surveySessionsAppended||0);
       var dupeNote = stats.stopsDuplicatesSkipped ? (' · ' + stats.stopsDuplicatesSkipped + ' duplicate' + (stats.stopsDuplicatesSkipped===1?'':'s') + ' skipped') : '';
-      showToast((n > 0 ? ('✓ Synced — ' + n + ' new item' + (n===1?'':'s') + ' pulled in') : '✓ Synced — nothing new') + dupeNote);
+      var mergeNote = stats.stopsFieldsMerged ? (' · ' + stats.stopsFieldsMerged + ' stop' + (stats.stopsFieldsMerged===1?'':'s') + ' updated from another device') : '';
+      var conflictNote = stats.conflictsQueued ? (' · ⚠ ' + stats.conflictsQueued + ' need' + (stats.conflictsQueued===1?'s':'') + ' review') : '';
+      showToast((n > 0 ? ('✓ Synced — ' + n + ' new item' + (n===1?'':'s') + ' pulled in') : '✓ Synced — nothing new') + dupeNote + mergeNote + conflictNote);
     } else {
       showToast('✓ Synced');
     }
@@ -6224,6 +6610,9 @@ async function confirmProfileImportMerge() {
     var parts = [];
     if (stats.stopsAppended)         parts.push(stats.stopsAppended + ' stops');
     if (stats.stopsDuplicatesSkipped) parts.push(stats.stopsDuplicatesSkipped + ' duplicate' + (stats.stopsDuplicatesSkipped === 1 ? '' : 's') + ' skipped');
+    if (stats.stopsFieldsMerged)     parts.push(stats.stopsFieldsMerged + ' updated');
+    if (stats.stopsTombstoned)       parts.push(stats.stopsTombstoned + ' deleted (synced)');
+    if (stats.conflictsQueued)       parts.push('⚠ ' + stats.conflictsQueued + ' need' + (stats.conflictsQueued === 1 ? 's' : '') + ' review');
     if (stats.archivedStopsAppended) parts.push(stats.archivedStopsAppended + ' archived');
     if (stats.transactionsAppended)  parts.push(stats.transactionsAppended + ' txns');
     if (stats.customTypesAppended)   parts.push(stats.customTypesAppended + ' types' + (stats.customTypesRenamed ? ' (' + stats.customTypesRenamed + ' renamed)' : ''));
@@ -7979,6 +8368,12 @@ function _initBody() {
   // section header for why this never prompts or blocks boot).
   try { if (typeof DriveSync !== 'undefined') DriveSync.autoSyncOnBoot(); } catch(_e) {}
 
+  // 2026-08-08: show the "N stops need review" badge immediately on load
+  // if conflicts were left over from a previous session — don't make the
+  // person open Settings or trigger a fresh sync just to find out
+  // something's waiting for them.
+  try { _updateSyncConflictsIndicator(); } catch(_e) {}
+
   // Drop AT: reveal the manual fullscreen toggle only on desktop — stays
   // display:none (its markup default) on phones/tablets so it never
   // affects the header-width math flagged in Drop AQ.
@@ -8096,6 +8491,165 @@ function dupeAction(choice) {
     // single-add isn't influenced by an old session's "apply to all".
     _dupeBatchAutoChoice = null;
   }
+}
+
+// ── Sync conflicts review (2026-08-08) ─────────────────────────────────────
+// See _queueSyncConflict for how these get created during a merge. This is
+// the deferred, batch counterpart to showDupeModal/dupeAction above — same
+// underlying vocabulary (keep both / combine / discard), presented as a
+// reviewable list instead of a blocking one-at-a-time dialog, since sync
+// can surface several of these at once and can run in the background.
+function _syncConflictSummaryLine(s) {
+  if (!s) return '(missing)';
+  var addr = s.address || '(no address)';
+  var state = s.done ? 'Completed' + (s.completedAt ? ' ' + new Date(s.completedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '') : 'Active';
+  var notes = s.notes ? ' · ' + (s.notes.length > 60 ? s.notes.slice(0,60) + '…' : s.notes) : '';
+  return escHtml(addr) + ' — ' + state + notes;
+}
+
+function renderSyncConflictsList() {
+  var list = _loadSyncConflicts();
+  var el = document.getElementById('sync-conflicts-list');
+  if (!el) return list.length;
+  if (!list.length) {
+    el.innerHTML = '<div style="padding:20px 8px;color:#bbb;text-align:center;font-family:\'Space Mono\',monospace;font-size:0.62rem">Nothing to review right now.</div>';
+    return 0;
+  }
+  el.innerHTML = list.map(function(c) {
+    if (c.kind === 'address-state') {
+      var loc = c.payload.localStop, inc = c.payload.incomingStop;
+      return '<div style="background:#f8f8f6;border:1px solid #e5e5e0;border-radius:10px;padding:11px 13px">' +
+        '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#333;margin-bottom:6px">⚠️ Same address, different status</div>' +
+        '<div style="font-size:0.58rem;font-family:\'Space Mono\',monospace;color:#555;line-height:1.6;margin-bottom:8px">' +
+          '<b>Here:</b> ' + _syncConflictSummaryLine(loc) + '<br>' +
+          '<b>Synced in:</b> ' + _syncConflictSummaryLine(inc) +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+          '<button data-fn="resolveSyncConflict" data-arg="' + c.conflictId + ':keep_both" style="padding:9px;border:none;border-radius:8px;background:#fff8ec;color:#7a5000;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;text-align:left">➕ Keep Both <span style="font-weight:400;opacity:0.8">— likely a genuine revisit</span></button>' +
+          '<button data-fn="resolveSyncConflict" data-arg="' + c.conflictId + ':combine" style="padding:9px;border:none;border-radius:8px;background:#eef6ee;color:#1b5e20;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;text-align:left">🔗 Combine <span style="font-weight:400;opacity:0.8">— merge notes, keep completed status</span></button>' +
+          '<button data-fn="resolveSyncConflict" data-arg="' + c.conflictId + ':discard" style="padding:9px;border:none;border-radius:8px;background:none;border:1px solid #ddd;color:#888;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;text-align:left">✕ Discard synced-in copy</button>' +
+        '</div>' +
+      '</div>';
+    }
+    // delete-edit
+    var tomb = c.payload.tombstone, stop = c.payload.stop;
+    var whoDeleted = c.payload.side === 'incoming' ? 'another device' : 'this device';
+    return '<div style="background:#f8f8f6;border:1px solid #e5e5e0;border-radius:10px;padding:11px 13px">' +
+      '<div style="font-family:Syne,sans-serif;font-weight:800;font-size:0.66rem;color:#333;margin-bottom:6px">⚠️ Deleted, but edited since</div>' +
+      '<div style="font-size:0.58rem;font-family:\'Space Mono\',monospace;color:#555;line-height:1.6;margin-bottom:8px">' +
+        'Deleted on ' + whoDeleted + ' on ' + new Date(tomb.deletedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) + '.<br>' +
+        'But changed since then: ' + _syncConflictSummaryLine(stop) +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:6px">' +
+        '<button data-fn="resolveSyncConflict" data-arg="' + c.conflictId + ':keep_deleted" style="padding:9px;border:none;border-radius:8px;background:#fde8e8;color:#a83232;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;text-align:left">🗑 Keep Deleted <span style="font-weight:400;opacity:0.8">— discard the edit</span></button>' +
+        '<button data-fn="resolveSyncConflict" data-arg="' + c.conflictId + ':restore" style="padding:9px;border:none;border-radius:8px;background:#eef6ee;color:#1b5e20;font-family:Syne,sans-serif;font-weight:700;font-size:0.62rem;cursor:pointer;text-align:left">↺ Restore Active <span style="font-weight:400;opacity:0.8">— undo the deletion, keep the edit</span></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  return list.length;
+}
+
+function openSyncConflictsModal() {
+  renderSyncConflictsList();
+  var modal = document.getElementById('sync-conflicts-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  Accessibility.modalOpened(modal, { onEscape: closeSyncConflictsModal });
+}
+
+function closeSyncConflictsModal() {
+  var modal = document.getElementById('sync-conflicts-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  Accessibility.modalClosed(modal);
+}
+
+// data-fn passes a single data-arg string; conflicts pack "id:action" into
+// one attribute rather than needing a second data-* attribute per button.
+function resolveSyncConflict(packed) {
+  var sep = packed.indexOf(':');
+  var conflictId = packed.slice(0, sep);
+  var action = packed.slice(sep + 1);
+  var list = _loadSyncConflicts();
+  var idx = list.findIndex(function(c) { return c.conflictId === conflictId; });
+  if (idx < 0) return;
+  var conflict = list[idx];
+
+  if (conflict.kind === 'address-state') {
+    var loc = conflict.payload.localStop, inc = conflict.payload.incomingStop;
+    var localIdx = stops.findIndex(function(s) { return s.id === loc.id; });
+    if (action === 'keep_both') {
+      // The incoming stop was never added during merge — add it now, as a
+      // genuinely separate stop (its own id, already distinct from loc's).
+      if (!stops.some(function(s) { return s.id === inc.id; })) stops.push(inc);
+      showToast('Kept both — added as a separate stop');
+    } else if (action === 'combine') {
+      // Deliberately NOT using _mergeStopFields here — that function's
+      // timestamp-gated group logic is built for automatic merges, where
+      // "which side is newer" has to be inferred. Here the person has
+      // already looked at both stops and explicitly chosen to combine
+      // them, so this should unconditionally bring notes and completion
+      // status across rather than silently no-op if the timestamps
+      // happen to disagree with the choice they just made.
+      if (localIdx >= 0) {
+        var target = stops[localIdx];
+        var lv = (target.notes || '').trim();
+        var iv = (inc.notes || '').trim();
+        if (iv && iv !== lv && lv.indexOf(iv) === -1) {
+          target.notes = lv ? (lv + '\n' + iv) : iv;
+        }
+        // Completed is the stronger signal to preserve on a manual combine
+        // (matches _combineDupeIntoExisting's existing "prefer the more
+        // resolved state" spirit) — if either side is done, the combined
+        // stop is done.
+        if (inc.done && !target.done) { target.done = true; target.completedAt = inc.completedAt || target.completedAt; _touchField(target, 'completion'); }
+        if (target.done && inc.done) {
+          // Both completed — keep the earlier completion (the real first
+          // completion), same reasoning _mergeStopFields uses for status.
+          if (inc.completedAt && target.completedAt && new Date(inc.completedAt) < new Date(target.completedAt)) {
+            target.completedAt = inc.completedAt;
+            _touchField(target, 'completion');
+          }
+        }
+        // Photo counts are derived from the Photo Tracker log (see
+        // _computeAllStopPhotoStats), not stored on the stop — nothing to
+        // combine here; whichever stop id survives will show the correct
+        // combined count automatically next render.
+      }
+      showToast('Combined into one stop');
+    } else if (action === 'discard') {
+      showToast('Synced-in copy discarded');
+    }
+    saveStops();
+  } else if (conflict.kind === 'delete-edit') {
+    var tomb = conflict.payload.tombstone, editedStop = conflict.payload.stop;
+    var existingIdx = stops.findIndex(function(s) { return s.id === editedStop.id; });
+    if (action === 'keep_deleted') {
+      if (existingIdx >= 0) stops.splice(existingIdx, 1);
+      _recordStopTombstone(editedStop.id); // refresh the tombstone so it doesn't re-trigger this same conflict on the next sync
+      showToast('Kept deleted');
+    } else if (action === 'restore') {
+      // Undo the tombstone for this id, and make sure the edited copy is
+      // actually present locally (it may not be, if this side was the one
+      // that deleted it).
+      var tombs = _loadTombstones().filter(function(t) { return t.id !== editedStop.id; });
+      _saveTombstones(tombs);
+      if (existingIdx >= 0) {
+        if (typeof _mergeStopFields === 'function') _mergeStopFields(stops[existingIdx], editedStop);
+      } else {
+        stops.push(editedStop);
+      }
+      showToast('Restored active');
+    }
+    saveStops();
+  }
+
+  list.splice(idx, 1);
+  _saveSyncConflicts(list);
+  renderAll();
+  var remaining = renderSyncConflictsList();
+  if (!remaining) closeSyncConflictsModal();
+  try { _updateSyncConflictsIndicator(); } catch(_e) {}
 }
 
 // ============================================================
@@ -8790,7 +9344,7 @@ function commitStop(stop) {
       if (c) {
         const s = stops.find(x => x.id === stop.id);
         if (s && !s.lat) {
-          s.lat = c.lat; s.lng = c.lng; saveStops();
+          s.lat = c.lat; s.lng = c.lng; _touchField(s, 'address'); saveStops();
           // Re-render now so the cluster-highlight computation runs against
           // the freshly-geocoded stop. Don't wait for _populateGeoMetadata —
           // it can fail or be slow, and the cluster highlight is independent
@@ -8918,6 +9472,7 @@ function markStopArrived(stopId) {
   if (s.arrivedAt) {
     // Toggle off — undo arrival
     s.arrivedAt = null;
+    _touchField(s, 'arrival');
     saveStops();
     renderStops();
     // The route tab and map popup also display the same stop card and need
@@ -8935,6 +9490,7 @@ function markStopArrived(stopId) {
     return;
   }
   s.arrivedAt = new Date().toISOString();
+  _touchField(s, 'arrival');
   saveStops();
   renderStops();
   // Same multi-surface refresh as the toggle-off path above.
@@ -8978,6 +9534,7 @@ function _finalizeStopClose(flagged) {
   s.completedAt = new Date().toISOString();
   closeCloseModal();
   s.done = true;
+  _touchField(s, 'completion');
   saveStops();
   logDaySession(); // keep daily log current after each close
   renderAll();
@@ -9030,6 +9587,7 @@ function closeStopDelete() {
   stops = stops.filter(x => x.id !== id);
   routeOrder = routeOrder.filter(x => x !== id);
   _scrubPinnedIdsAfterDelete(id); // Drop X.1
+  _recordStopTombstone(id);
   saveStops();
   // Drop any cached photo blobs and the photo log entry for this stop —
   // both are now orphaned. Fire-and-forget; failures don't block the delete.
@@ -9116,8 +9674,10 @@ function closeDeleteAllModal() {
 
 function confirmDeleteAll() {
   if (_deleteStopsModalMode === 'active') {
-    var count = stops.filter(function(s) { return !s.done; }).length;
+    var activeToDelete = stops.filter(function(s) { return !s.done; });
+    var count = activeToDelete.length;
     if (!count) { closeDeleteAllModal(); return; }
+    activeToDelete.forEach(function(s) { _recordStopTombstone(s.id); });
     stops = stops.filter(function(s) { return s.done; });
     routeOrder = routeOrder.filter(function(id) { return stops.some(function(s) { return s.id === id; }); });
     pinnedStartId = null; // almost certainly pointed at an active stop that just got removed
@@ -9130,6 +9690,7 @@ function confirmDeleteAll() {
     showToast(count + ' active stop' + (count === 1 ? '' : 's') + ' deleted');
     return;
   }
+  stops.forEach(function(s) { _recordStopTombstone(s.id); });
   stops = [];
   routeOrder = [];
   pinnedStartId = null;
@@ -9767,6 +10328,14 @@ function undoComplete(id) {
   const s = stops.find(x => x.id === id);
   if (!s) return;
   s.done = false;
+  // 2026-08-09: previously left completedAt as a stale leftover value
+  // after undo — harmless on its own, but with the field-merge system now
+  // splitting completion into its own timestamped group, an old
+  // completedAt surviving here could still show up as a confusing
+  // "completed on [date]" on a stop that's actually active again. Clear
+  // it so the completion group's fields stay consistent with each other.
+  s.completedAt = null;
+  _touchField(s, 'completion');
   saveStops();
   renderAll();
   showToast('Stop restored to active list ✓');
@@ -9777,6 +10346,7 @@ function deleteCompletedStop(id) {
   stops = stops.filter(x => x.id !== id);
   routeOrder = routeOrder.filter(x => x !== id);
   _scrubPinnedIdsAfterDelete(id); // Drop X.1
+  _recordStopTombstone(id);
   saveStops();
   renderAll();
   showToast('Completed stop deleted');
@@ -9785,6 +10355,7 @@ function deleteCompletedStop(id) {
 function clearCompletedStops() {
   const count = stops.filter(s => s.done).length;
   if (!count) return;
+  stops.filter(s => s.done).forEach(function(s) { _recordStopTombstone(s.id); });
   stops = stops.filter(s => !s.done);
   routeOrder = routeOrder.filter(id => stops.find(s => s.id === id)); // no stale refs
   _scrubPinnedIdsAfterDelete(null); // Drop X.1: bulk-scrub, walks current stops
@@ -9825,6 +10396,7 @@ function setStopType(type) {
   const s = stops.find(x => x.id === activeTypeChangeId);
   if (!s) return;
   s.type = type;
+  _touchField(s, 'type');
   LS.set('last-stop-type', type);
   // Update the add-stop selector to match
   const sel = document.getElementById('type-select');
@@ -9892,8 +10464,9 @@ function saveEditStop() {
     // Drop AH: also clear any prior geocode-failure flag so the next optimize
     // gives the new address a clean retry without showing the warning badge.
     if (s._geocodeFailed) { delete s._geocodeFailed; delete s._geocodeFailedAt; }
+    _touchField(s, 'address');
     changed.push('address'); }
-  if (s.type !== newType) { s.type = newType; changed.push('type'); }
+  if (s.type !== newType) { s.type = newType; _touchField(s, 'type'); changed.push('type'); }
   if ((s.notes || '') !== newNotes) { s.notes = newNotes; changed.push('notes'); }
   // Geo metadata — only commit non-empty values to allow partial overrides
   var nbhdNameVal = (document.getElementById('edit-stop-nbhd-name')?.value || '').trim();
@@ -9928,7 +10501,7 @@ function saveEditStop() {
         if (c) {
           const st = stops.find(x => x.id === s.id);
           if (st) {
-            st.lat = c.lat; st.lng = c.lng; saveStops();
+            st.lat = c.lat; st.lng = c.lng; _touchField(st, 'address'); saveStops();
             try { _populateGeoMetadata(st); } catch(_e) {}
           }
         }
@@ -10238,8 +10811,16 @@ const StopCard = (function() {
     if (s.addrNote) {
       lines.push('<div style="font-size:0.52rem;color:#2980b9;font-family:Syne,sans-serif;font-weight:700;margin-top:2px">\u2139 ' + escHtml(s.addrNote) + '</div>');
     }
-    if (s.photoCount) {
-      const photoBadge = '<span style="font-family:\'Space Mono\',monospace;font-size:0.5rem;background:#fff4e0;color:#8c4a00;border:1px solid rgba(140,74,0,0.25);border-radius:10px;padding:1px 6px;font-weight:700">📷 ' + s.photoCount + '</span>';
+    // 2026-08-09: photoCount is no longer stored on the stop — read from
+    // the per-render cache populated in renderStops() (see
+    // _computeAllStopPhotoStats). Falls back to an empty-stats shape if
+    // this function is ever called before the cache is populated (e.g. a
+    // map-popup card render path that doesn't go through renderStops
+    // first) rather than throwing.
+    var _photoStats = (typeof _stopPhotoStatsCache !== 'undefined' && _stopPhotoStatsCache[s.id]) || null;
+    if (_photoStats && _photoStats.total) {
+      var _photoLine = _formatPhotoStatsLine(_photoStats);
+      var photoBadge = '<span title="' + escHtml(_photoLine) + '" style="font-family:\'Space Mono\',monospace;font-size:0.5rem;background:#fff4e0;color:#8c4a00;border:1px solid rgba(140,74,0,0.25);border-radius:10px;padding:1px 6px;font-weight:700">📷 ' + _photoStats.total + '</span>';
       lines.push('<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:3px">' + photoBadge + '</div>');
     }
     return lines.join('');
@@ -10331,6 +10912,12 @@ const StopCard = (function() {
   return { forStops: forStops, forRoute: forRoute };
 })();
 
+// 2026-08-09: cache for _computeAllStopPhotoStats(), refreshed once at the
+// top of renderStops() rather than rescanning the Photo Tracker log once
+// per stop card. Stop-card rendering reads this directly rather than
+// calling _computeAllStopPhotoStats() itself.
+var _stopPhotoStatsCache = {};
+
 function renderStops() {
   const list = document.getElementById('stops-list');
   // Preserve scroll across the innerHTML rebuild. The tab scroller is
@@ -10349,6 +10936,10 @@ function renderStops() {
   const pending = stops.filter(s => !s.done);
   const done    = stops.filter(s => s.done);
   document.getElementById('stop-count').textContent = stops.length;
+
+  // Refresh the derived photo-stats cache once per render pass — see
+  // _computeAllStopPhotoStats and _stopPhotoStatsCache's declaration above.
+  try { _stopPhotoStatsCache = _computeAllStopPhotoStats(); } catch(_e) { _stopPhotoStatsCache = {}; }
 
   if (!stops.length) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">📍</div><div class="empty-text">NO STOPS YET</div><div class="empty-sub">Add an address, paste a list, scan a photo, or upload a spreadsheet.</div></div>`;
@@ -12285,6 +12876,7 @@ async function _geocodeStops(pending) {
       if (c && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
         s.lat = c.lat;
         s.lng = c.lng;
+        _touchField(s, 'address');
         // Clear any prior failure flag — this stop now has coords.
         if (s._geocodeFailed) {
           delete s._geocodeFailed;
@@ -12310,6 +12902,7 @@ async function _geocodeStops(pending) {
         if (c && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
           s.lat = c.lat;
           s.lng = c.lng;
+          _touchField(s, 'address');
           if (s._geocodeFailed) {
             delete s._geocodeFailed;
             delete s._geocodeFailedAt;
@@ -12988,6 +13581,10 @@ function renderRoute() {
   // pattern as renderStops (see comment there).
   const _scroller = document.getElementById('main-content');
   const _scrollY = _scroller ? _scroller.scrollTop : 0;
+  // Same photo-stats cache renderStops populates — refreshed here too
+  // since the Route tab renders stop cards through the same _detailRow
+  // path and can be opened without renderStops having run first.
+  try { _stopPhotoStatsCache = _computeAllStopPhotoStats(); } catch(_e) { _stopPhotoStatsCache = _stopPhotoStatsCache || {}; }
   const pending = getPendingStops();
   const done = stops.filter(s => s.done);
   const total = stops.length, doneCount = done.length;
@@ -13762,6 +14359,18 @@ function showMapStopPopup(id) {
   if (!s) return;
   activeMapStopId = id;
 
+  // Map popups render one stop at a time, unlike renderStops/renderRoute's
+  // full-list passes. If this stop isn't already in the shared cache
+  // (renderStops/renderRoute haven't run yet, or it's a brand-new photo),
+  // _computeStopPhotoStats does one full-log scan for it — acceptable for
+  // a single popup open triggered by a tap, unlike a loop over many stops.
+  try {
+    if (!_stopPhotoStatsCache || !_stopPhotoStatsCache[id]) {
+      var _single = _computeStopPhotoStats(id);
+      if (_single.total) { _stopPhotoStatsCache = _stopPhotoStatsCache || {}; _stopPhotoStatsCache[id] = _single; }
+    }
+  } catch(_e) {}
+
   const pending = _getMapPending();
   const idx = pending.findIndex(x => x.id===id);
   // Render the full route card — identical to route tab
@@ -13853,6 +14462,21 @@ function _getDeviceId() {
     LS.set('app-device-id', id);
   }
   return id;
+}
+
+// 2026-08-09: human-readable label for THIS device, set in Settings →
+// Device Name. Used to attribute photos per-device in reports and the
+// heatmap layer (see _computeAllStopPhotoStats) without exposing the raw
+// device-id UUID anywhere the person actually reads. Falls back to a
+// short, still-anonymous placeholder built from the device id when no
+// nickname has been set, rather than showing nothing — a report that
+// says "3 photos (2 from Device 4f2a, 1 from Device 91cd)" is still more
+// useful than one that can't attribute them at all.
+function _getDeviceLabel() {
+  var nick = (LS.get('device-nickname') || '').trim();
+  if (nick) return nick;
+  var id = _getDeviceId();
+  return 'Device ' + id.slice(-4);
 }
 
 // Fire-and-forget analytics beacon. URL stored in localStorage['analytics-beacon-url']
@@ -17082,15 +17706,14 @@ async function _stampSingleFile(file, opts) {
   // action (Save & Share) calls both in sequence.
   _photoContext.photoTrackerRecorded = false;
   _resetIdleTimer();
-  // Track photo count on the stop if linked
+  // 2026-08-09: this used to increment stop.photoCount/lastPhotoAt here,
+  // immediately on stamping. Removed — photo counts are now derived from
+  // the Photo Tracker log instead of a separately-maintained counter (see
+  // _computeAllStopPhotoStats), and that log gets its entry a little later
+  // in this same flow, at the actual "photo is saved" commit point
+  // (downloadStampedPhoto → _recordPhotoTrackerFromContext, below), which
+  // also triggers the renderStops() that refreshes the stop-card badge.
   if (_photoContext.stopId !== null && typeof stops !== 'undefined') {
-    var stop = stops.find(function(x){ return x.id === _photoContext.stopId; });
-    if (stop) {
-      stop.photoCount = (stop.photoCount || 0) + 1;
-      stop.lastPhotoAt = new Date().toISOString();
-      try { saveStops(); } catch(_e) {}
-      try { renderStops(); } catch(_e) {}
-    }
     // Photo log: record filename + timestamp (no bytes, just metadata)
     try { _appendPhotoLog(_photoContext.stopId, _photoContext.filename, _photoContext.capturedAt || new Date().toISOString()); } catch(_e) {}
     // Cache a temporary copy of the stamped JPEG so "Email Summary + Photos"
@@ -17349,12 +17972,26 @@ async function rebuildStampedPreview() {
       ward     = ward     || linkedStop.ward             || null;
     }
   }
-  // Sequence number: if linked to a stop, use stop.photoCount (already
-  // incremented for THIS shot in _stampSingleFile before this runs). If not
-  // linked (header-button stamping), fall back to a session-wide counter.
+  // Sequence number: if linked to a stop, derive from the Photo Tracker
+  // log's existing count for this stop id — cumulative across ALL history
+  // at this address, matching what the old stored photoCount represented,
+  // just derived instead of stored (see _computeAllStopPhotoStats). Add
+  // any shots already queued THIS session but not yet recorded to the log
+  // (the log write happens later, async, at the actual save point — see
+  // _stampSingleFile), so a fast multi-shot burst still gets distinct,
+  // correctly-ordered numbers even though none of the earlier shots in
+  // the burst have individually finished recording yet. +1 for the shot
+  // currently being stamped. If not linked to a stop (header-button
+  // stamping), fall back to a session-wide counter as before.
   var seqNum = null;
-  if (linkedStop && typeof linkedStop.photoCount === 'number' && linkedStop.photoCount > 0) {
-    seqNum = linkedStop.photoCount;
+  if (linkedStop) {
+    var _priorPhotoCount = 0;
+    try { _priorPhotoCount = _computeStopPhotoStats(linkedStop.id).total; } catch(_e) {}
+    var _pendingThisSession = 0;
+    if (_photoSession && _photoSession.active && Array.isArray(_photoSession.shots)) {
+      _pendingThisSession = _photoSession.shots.filter(function(sh) { return !sh.photoTrackerRecorded; }).length;
+    }
+    seqNum = _priorPhotoCount + _pendingThisSession + 1;
   } else if (_photoSession && _photoSession.active && Array.isArray(_photoSession.shots)) {
     // +1 for the shot currently being stamped (not yet pushed to session.shots)
     seqNum = _photoSession.shots.length + 1;
@@ -18137,8 +18774,8 @@ function _formatCompassHeading(deg) {
  * rolling expiry (default 48h) that clears photos older than the cutoff on
  * every put — keeps the IndexedDB store from growing unbounded across
  * months of use. Photos are always considered ephemeral; the source of
- * truth for "did this stop have a photo" is the stop's `photoCount` and
- * `lastPhotoAt` fields, not the cache.
+ * truth for "did this stop have a photo" is the Photo Tracker log (see
+ * _computeAllStopPhotoStats), not the cache.
  *
  * Public API (Promise-returning unless noted):
  *   put(stopId, blob, label?)  → { id, ... } — stores; auto-prunes expired
@@ -20316,7 +20953,12 @@ var PhotoTrackerIndex = (function() {
     entry.photos.push({
       ts: meta.ts || new Date().toISOString(),
       caseType: meta.caseType || null,
-      stopId: (meta.stopId != null) ? meta.stopId : null
+      stopId: (meta.stopId != null) ? meta.stopId : null,
+      // 2026-08-09: per-device attribution — see _computeAllStopPhotoStats,
+      // which reads these back out to build the per-device breakdown shown
+      // in reports and (eventually) the heatmap layer's popup detail.
+      deviceId: meta.deviceId || null,
+      deviceLabel: meta.deviceLabel || null
     });
     if (entry.photos.length > MAX_EVENTS_PER_LOCATION) entry.photos = entry.photos.slice(-MAX_EVENTS_PER_LOCATION);
     _writeEntry(key, entry);
@@ -20505,6 +21147,70 @@ var PhotoTrackerIndex = (function() {
 })();
 window.PhotoTrackerIndex = PhotoTrackerIndex;
 
+// 2026-08-09: derives per-stop photo counts (with a per-device breakdown)
+// from the Photo Tracker log, instead of a separately-incremented counter
+// stored on each stop. The old stop.photoCount field was a plain number,
+// merged across devices via MAX — safe and idempotent, but MAX means the
+// higher of two devices' counts wins, not the true combined total, so a
+// stop photographed from both an iPad AND a phone would silently
+// undercount. The Photo Tracker log doesn't have that problem — it's
+// already a proper per-event union, deduped by ts+stopId on merge (see
+// applyImportMerge's photo tracker section) — so deriving from it instead
+// gives an accurate total AND a free per-device breakdown, and guarantees
+// the stop-card badge, the PDF/report text, and the heatmap layer are
+// always reading the exact same numbers, because they're now literally
+// the same query against the same source.
+//
+// Single full-log scan, not one scan per stop — call this once per
+// render/report pass and look up results from the returned map, rather
+// than calling a per-stop version in a loop over many stops.
+function _computeAllStopPhotoStats() {
+  var byStop = {}; // stopId -> { total, lastPhotoAt, byDevice: { deviceId: {label, count} } }
+  try {
+    var locations = PhotoTrackerIndex.getAll();
+    locations.forEach(function(loc) {
+      if (!loc || !Array.isArray(loc.photos)) return;
+      loc.photos.forEach(function(p) {
+        if (!p || p.stopId == null) return;
+        var rec = byStop[p.stopId];
+        if (!rec) { rec = byStop[p.stopId] = { total: 0, lastPhotoAt: null, byDevice: {} }; byStop[p.stopId] = rec; }
+        rec.total++;
+        if (p.ts && (!rec.lastPhotoAt || new Date(p.ts).getTime() > new Date(rec.lastPhotoAt).getTime())) rec.lastPhotoAt = p.ts;
+        var devId = p.deviceId || '_unknown';
+        var devLabel = p.deviceLabel || 'Unknown device';
+        if (!rec.byDevice[devId]) rec.byDevice[devId] = { label: devLabel, count: 0 };
+        rec.byDevice[devId].count++;
+        // Prefer the most recently seen label for this device id, in case
+        // it was renamed since older photos were taken.
+        if (p.deviceLabel) rec.byDevice[devId].label = p.deviceLabel;
+      });
+    });
+  } catch(_e) {}
+  return byStop;
+}
+
+// Single-stop convenience wrapper. Prefer _computeAllStopPhotoStats()
+// directly (and look up by id) when handling more than one stop — this
+// re-scans the whole log every call, which is fine for one-off lookups
+// (a single stop-card action) but wasteful in a loop.
+function _computeStopPhotoStats(stopId) {
+  var all = _computeAllStopPhotoStats();
+  return all[stopId] || { total: 0, lastPhotoAt: null, byDevice: {} };
+}
+
+// Human-readable "3 photos (2 iPad, 1 Phone)" — or just "3 photos" when
+// everything came from one device (the common case), since spelling out
+// "3 photos (3 iPad)" adds words without adding information.
+function _formatPhotoStatsLine(stats) {
+  if (!stats || !stats.total) return '';
+  var deviceIds = Object.keys(stats.byDevice);
+  if (deviceIds.length <= 1) return stats.total + (stats.total === 1 ? ' photo' : ' photos');
+  var parts = deviceIds
+    .sort(function(a, b) { return stats.byDevice[b].count - stats.byDevice[a].count; })
+    .map(function(id) { return stats.byDevice[id].count + ' ' + stats.byDevice[id].label; });
+  return stats.total + (stats.total === 1 ? ' photo' : ' photos') + ' (' + parts.join(', ') + ')';
+}
+
 // ============================================================
 // SECTION: photo-tracker-report
 // ============================================================
@@ -20691,7 +21397,14 @@ async function _recordPhotoTrackerFromContext() {
       ward: geo ? geo.ward : null,
       policeDistrict: geo ? geo.policeDistrict : null,
       caseType: _photoContext.caseType || null,
-      stopId: _photoContext.stopId
+      stopId: _photoContext.stopId,
+      // 2026-08-09: tagged so photo counts can be broken down per device
+      // in reports/heatmap (see _computeAllStopPhotoStats). deviceId is
+      // the stable anonymous id used for grouping/counting; deviceLabel
+      // is a snapshot of the human-readable name at capture time (so
+      // renaming a device later doesn't rewrite history).
+      deviceId: (typeof _getDeviceId === 'function') ? _getDeviceId() : null,
+      deviceLabel: (typeof _getDeviceLabel === 'function') ? _getDeviceLabel() : null
     });
   } catch(_e) {}
   _photoContext.photoTrackerRecorded = true;
@@ -20706,6 +21419,10 @@ async function _recordPhotoTrackerFromContext() {
     }
   }
   try { if (typeof _redrawPhotoTrackerLayer === 'function') _redrawPhotoTrackerLayer(); } catch(_e2) {}
+  // Stop-card photo badges read a derived count from this same log (see
+  // _computeAllStopPhotoStats) rather than a separately-stored counter —
+  // refresh them now that the log actually has the new entry.
+  try { if (typeof renderStops === 'function') renderStops(); } catch(_e3) {}
 }
 
 // Records every not-yet-recorded shot in the active session — used by the
@@ -20731,13 +21448,16 @@ async function _recordPhotoTrackerFromSession() {
           ward: geo ? geo.ward : null,
           policeDistrict: geo ? geo.policeDistrict : null,
           caseType: _photoContext.caseType || null,
-          stopId: _photoSession.stopId
+          stopId: _photoSession.stopId,
+          deviceId: (typeof _getDeviceId === 'function') ? _getDeviceId() : null,
+          deviceLabel: (typeof _getDeviceLabel === 'function') ? _getDeviceLabel() : null
         });
       } catch(_e2) {}
       shot.photoTrackerRecorded = true;
     }
   } catch(_e) {}
   try { if (typeof _redrawPhotoTrackerLayer === 'function') _redrawPhotoTrackerLayer(); } catch(_e2) {}
+  try { if (typeof renderStops === 'function') renderStops(); } catch(_e3) {}
 }
 window._recordPhotoTrackerFromContext = _recordPhotoTrackerFromContext;
 window._recordPhotoTrackerFromSession = _recordPhotoTrackerFromSession;
@@ -24446,10 +25166,15 @@ function _buildStopSummaryText(s) {
   // Photos section: list filenames from the photo log so the recipient (or the
   // inspector themselves, later) knows exactly which files to look for in the
   // phone's gallery/Downloads folder. This is metadata only — the actual photo
-  // bytes are NOT in this app.
-  if (s.photoCount) {
+  // bytes are NOT in this app. Count and per-device breakdown are derived
+  // from the Photo Tracker log (see _computeAllStopPhotoStats) rather than
+  // a separately-stored counter, so this is accurate even when the same
+  // stop was photographed from more than one device.
+  var _photoStats = (typeof _computeStopPhotoStats === 'function') ? _computeStopPhotoStats(s.id) : { total: 0 };
+  if (_photoStats.total) {
     var photoLog = (typeof _getPhotoLog === 'function') ? _getPhotoLog(s.id) : [];
-    lines.push('PHOTOS  (' + s.photoCount + ' taken at this stop)');
+    var _photoStatsLine = (typeof _formatPhotoStatsLine === 'function') ? _formatPhotoStatsLine(_photoStats) : (_photoStats.total + ' photos');
+    lines.push('PHOTOS  — ' + _photoStatsLine);
     lines.push('────────────────────');
     if (photoLog.length) {
       lines.push('Attach these files from your phone\u2019s gallery or Downloads:');
@@ -25347,6 +26072,9 @@ function _openSettingsPanel() {
   const pinInput        = document.getElementById('settings-key-pin');
   if (geminiKeyInput) geminiKeyInput.value = '';
   if (pinInput)       pinInput.value       = '';
+
+  var deviceNicknameInput = document.getElementById('settings-device-nickname');
+  if (deviceNicknameInput) deviceNicknameInput.value = LS.get('device-nickname') || '';
 
   updateSettingsInstallStatus();
   try { updateDriveSyncStatusUI(); } catch(_e) {}
@@ -29786,11 +30514,24 @@ const CoverageReport = (function() {
 
     var areaStops = _collectStops(areaName, areaType);
     var completedStops = areaStops.filter(function(s) { return s.done; });
+    // 2026-08-09: photoCount/lastPhotoAt are no longer stored on the stop —
+    // derive from the Photo Tracker log via one bulk scan (not one call per
+    // stop, which _computeStopPhotoStats would do if used in this loop —
+    // see _computeAllStopPhotoStats's own comment on why the bulk form
+    // exists) so this stays cheap even for a large area report.
+    var _allPhotoStats = (typeof _computeAllStopPhotoStats === 'function') ? _computeAllStopPhotoStats() : {};
     var stopsWithPhotos = areaStops
-      .filter(function(s) { return s.photoCount > 0; })
+      .filter(function(s) { return _allPhotoStats[s.id] && _allPhotoStats[s.id].total > 0; })
       .map(function(s) {
         var log = (typeof _getPhotoLog === 'function') ? _getPhotoLog(s.id) : [];
-        return { address: s.address, type: s.type, photoCount: s.photoCount || log.length, photos: log };
+        var stats = _allPhotoStats[s.id];
+        return {
+          address: s.address, type: s.type,
+          photoCount: stats.total || log.length,
+          photoStatsLine: (typeof _formatPhotoStatsLine === 'function') ? _formatPhotoStatsLine(stats) : (stats.total + ' photos'),
+          byDevice: stats.byDevice,
+          photos: log
+        };
       });
     var totalLoggedPhotos = stopsWithPhotos.reduce(function(sum, s) { return sum + s.photos.length; }, 0);
 
@@ -29893,6 +30634,15 @@ const CoverageReport = (function() {
 
     if (pl.stopsWithPhotos.length) {
       lines.push('PHOTO LOG — ' + pl.totalLoggedPhotos + ' photos across ' + pl.stopsWithPhotos.length + ' stop' + (pl.stopsWithPhotos.length === 1 ? '' : 's'));
+      // Per-stop device breakdown — only worth a line when a stop's
+      // photos actually came from more than one device (formatPhotoStatsLine
+      // itself omits the breakdown for single-device stops, so this
+      // naturally stays quiet for the common case).
+      pl.stopsWithPhotos.forEach(function(s) {
+        if (s.byDevice && Object.keys(s.byDevice).length > 1) {
+          lines.push('  ' + s.address + ' — ' + s.photoStatsLine);
+        }
+      });
     }
 
     return lines.join('\n');
