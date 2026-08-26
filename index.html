@@ -61,7 +61,7 @@
        - 'self' data: blob:                  — inline icons (data:), camera
                                                capture (blob:), local imgs
        - *.tile.openstreetmap.org            — OSM tile fallback
-       - *.basemaps.cartocdn.com             — Carto Positron tiles (default)
+       - *.basemaps.cartocdn.com             — (unused, CARTO now requires an API key; CSP kept in case of future re-adoption)
        - api.qrserver.com                    — QR code image generation
 
      If you add a new fetch destination, ADD IT HERE TOO. CSP failures are
@@ -1337,6 +1337,19 @@ body.tool-fullscreen-pdfdocs #cnd-pdf-modal .modal-sheet {
   .btn-add:hover { filter: brightness(1.08); }
   .btn-sm:hover { filter: brightness(1.08); }
   .cndpdf-tab:hover:not(.active) { background: #e0ddd2 !important; }
+}
+/* 2026-08-26: OSM standard tiles (swapped in after CartoDB started
+   requiring an API key) are much busier/higher-contrast than the old
+   Positron basemap — dense black street labels and saturated road
+   colors made our own overlays (routes, parcel address labels) hard
+   to pick out. This mutes only the basemap tile images (not markers,
+   routes, or labels, which live in separate Leaflet panes) toward a
+   calmer, Positron-like palette. No API key or tile-source change
+   needed. Applied identically in the two report-generator style
+   blocks below (#photo-tracker-map, #area-map) so exported/printed
+   maps match. */
+.leaflet-tile-pane img {
+  filter: grayscale(0.55) brightness(1.15) contrast(0.85) saturate(0.6);
 }
 </style>
 </head>
@@ -17310,37 +17323,17 @@ function initRouteMap() {
     }
   } catch (_) { _swallow('stamp', _); }
 
-  // Primary: CartoDB Positron — lightweight, reliable, no token needed
-  const cartoTiles = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    {
-      attribution: '© OpenStreetMap © CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 19,
-      minZoom: 11,
-      keepBuffer: 6,
-      updateWhenIdle: false,
-      crossOrigin: true
-    }
-  );
-
-  // Fallback: OSM if CartoDB fails
+  // Primary: OSM standard tiles — CartoDB raster basemaps (basemaps.cartocdn.com)
+  // now require a paid/free-tier API key as of Aug 2026 (unkeyed requests get a
+  // watermarked "API key required" tile, not an HTTP error, so tileerror-based
+  // fallback never fired). Switched to OSM as primary to restore service with
+  // no signup required. Revisit if a CARTO key is obtained later.
   const osmTiles = L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    { attribution: '© OpenStreetMap', maxZoom: 19, minZoom: 11, keepBuffer: 6 }
+    { attribution: '© OpenStreetMap', subdomains: 'abc', maxZoom: 19, minZoom: 11, keepBuffer: 6 }
   );
 
-  cartoTiles.addTo(routeMap);
-
-  // Auto-retry: if tiles fail to load, switch to OSM fallback
-  cartoTiles.on('tileerror', function() {
-    if (!routeMap._tileswitched) {
-      routeMap._tileswitched = true;
-      routeMap.removeLayer(cartoTiles);
-      osmTiles.addTo(routeMap);
-      console.warn('[Map] CartoDB tiles failed, switched to OSM fallback');
-    }
-  });
+  osmTiles.addTo(routeMap);
 
   // Prevent content scroll while panning map
   const contentEl = document.getElementById('main-content');
@@ -18267,8 +18260,8 @@ function _initPhotoSetupMap() {
     // in the app.
     _photoSetupMap = L.map('photo-setup-map', { zoomControl: true, tap: false, attributionControl: false, minZoom: 12, preferCanvas: true })
       .setView(STL_CENTER, 16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd', maxZoom: 20, minZoom: 12
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      subdomains: 'abc', maxZoom: 19, minZoom: 12
     }).addTo(_photoSetupMap);
     setTimeout(function(){ try { _photoSetupMap.invalidateSize(); } catch (_e) { _swallow('_initPhotoSetupMap', _e); } }, 60);
 
@@ -22822,6 +22815,7 @@ const PhotoTrackerReport = (function() {
         '.kpi-label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}' +
         'table{border-collapse:collapse;width:100%;font-size:13px}' +
         '#photo-tracker-map{height:420px;border-radius:10px;margin-top:6px;background:#eee}' +
+        '.leaflet-tile-pane img{filter:grayscale(0.55) brightness(1.15) contrast(0.85) saturate(0.6)}' +
         '@media print{body{background:white;padding:0}.report{box-shadow:none;border-radius:0;padding:18mm 16mm;max-width:none}#photo-tracker-map{height:300px}}' +
       '</style></head><body><div class="report">';
 
@@ -22840,7 +22834,7 @@ const PhotoTrackerReport = (function() {
         '(function(){' +
           'var pts = ' + mapPointsJson + ';' +
           'var map = L.map("photo-tracker-map", {zoomControl:true, attributionControl:true});' +
-          'L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {subdomains:"abcd", maxZoom:20}).addTo(map);' +
+          'L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {subdomains:"abc", maxZoom:19}).addTo(map);' +
           'if (pts.length) {' +
             'var group = L.featureGroup();' +
             'pts.forEach(function(p){' +
@@ -33961,6 +33955,7 @@ const AreaPeriodReport = (function() {
         '.kpi-label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}' +
         'table{border-collapse:collapse;width:100%;font-size:13px}' +
         '#area-map{height:420px;border-radius:10px;margin-top:6px;background:#eee}' +
+        '.leaflet-tile-pane img{filter:grayscale(0.55) brightness(1.15) contrast(0.85) saturate(0.6)}' +
         '.map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:#666}' +
         '.map-legend span{display:inline-flex;align-items:center;gap:5px}' +
         '.map-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}' +
@@ -34055,7 +34050,7 @@ const AreaPeriodReport = (function() {
           'var completed = ' + completedJson + ';' +
           'try {' +
             'var map = L.map("area-map", {zoomControl:true, attributionControl:true});' +
-            'var tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {subdomains:"abcd", maxZoom:20}).addTo(map);' +
+            'var tiles = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {subdomains:"abc", maxZoom:19}).addTo(map);' +
             'var tilesOk = false;' +
             'tiles.on("tileload", function(){ tilesOk = true; });' +
             'tiles.on("tileerror", function(){ if (!tilesOk) useFallback(); });' +
